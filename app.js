@@ -226,6 +226,14 @@ function chair(g, o = {}) {      // 사무용 회전의자 (등받이 = 로컬 +
   cyl(0.025, 0.025, 0.38, M.metal, 0, 0.05, 0, 8, g);
   for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; const leg = box(0.28, 0.03, 0.04, M.black, Math.cos(a) * 0.13, 0.03, Math.sin(a) * 0.13, g); leg.rotation.y = -a; }
 }
+function meshChair(g) {   // 흰 프레임 메쉬 의자 (등받이 = 로컬 +z)
+  const seat = matOf('fabricBeige'), mesh = plain(0xd9dbde);
+  box(0.48, 0.08, 0.46, seat, 0, 0.42, -0.02, g);
+  box(0.46, 0.5, 0.025, mesh, 0, 0.56, 0.23, g); box(0.5, 0.03, 0.04, M.white, 0, 1.05, 0.24, g);
+  for (const sx of [-0.25, 0.25]) { box(0.03, 0.55, 0.04, M.white, sx, 0.5, 0.23, g); box(0.04, 0.03, 0.34, M.white, sx, 0.66, 0.04, g); box(0.03, 0.18, 0.03, M.white, sx, 0.48, -0.1, g); }
+  cyl(0.03, 0.03, 0.36, M.white, 0, 0.06, 0, 8, g);
+  for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; const leg = box(0.3, 0.03, 0.045, M.white, Math.cos(a) * 0.14, 0.04, Math.sin(a) * 0.14, g); leg.rotation.y = -a; cyl(0.025, 0.025, 0.04, M.black, Math.cos(a) * 0.28, 0, Math.sin(a) * 0.28, 8, g); }
+}
 function stool(g, o) {
   const h = o.h || 0.72, m = matOf(o.color || 'fabricGray');
   cyl(0.17, 0.17, 0.06, m, 0, h, 0, 16, g); cyl(0.02, 0.02, h, M.black, 0, 0, 0, 6, g);
@@ -304,11 +312,30 @@ function booth(g, o) {   // NEOBOX 1인 부스: 앞(문) = 로컬 -z
   box(0.04, 2.1, 0.055, M.black, 0.02, 0, 0, dg); box(0.04, 2.1, 0.055, M.black, lw - 0.02, 0, 0, dg);
   box(0.22, ph, 0.05, M.black, x1 - 0.13, 0, z0 + 0.02, g); box(0.04, ph - 0.1, 0.05, M.black, x0 + 0.12, 0.04, z0 + 0.02, g); box(w, ph - 2.1, 0.05, M.black, 0, 2.1, z0 + 0.02, g);
   if (o.label) { const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.17), new THREE.MeshBasicMaterial({ map: textTexture(o.label) })); lab.position.set(0, 2.15, z0 - 0.01); lab.rotation.y = Math.PI; lab.userData.keep = true; g.add(lab); }
-  // 책상: 문에서 봤을 때 왼쪽 벽(로컬 +x)에 붙어 있고, 의자는 그 벽을 바라봄
-  const dz = 0.15, dl = d - 0.45;
-  box(0.55, 0.035, dl, M.white, x1 - 0.35, 0.72, dz, g); box(0.4, 0.72, 0.04, M.white, x1 - 0.35, 0, dz + dl / 2 - 0.05, g);
-  box(0.03, 0.3, 0.5, M.tv, x1 - 0.14, 0.82, dz + 0.2, g); box(0.04, 0.1, 0.04, M.black, x1 - 0.14, 0.75, dz + 0.2, g);
-  chair(grp(x1 - 0.95, dz + 0.05, -90, g), { color: 'chairLight' });
+  // 내부: 회색 패브릭 흡음 벽 + 어두운 카펫
+  const fab = matOf('fabricGray'), carpet = plain(0x3b3e44);
+  box(w - 0.16, 0.012, d - 0.12, carpet, 0, 0.06, 0, g);
+  box(0.02, ph - 0.12, d - 0.14, fab, x0 + t + 0.01, 0.06, 0, g); box(0.02, ph - 0.12, d - 0.14, fab, x1 - t - 0.01, 0.06, 0, g);
+  box(w - 0.16, ph - 0.12, 0.02, fab, 0, 0.06, z1 - t - 0.01, g);
+  // 책상: 문에서 봤을 때 왼쪽 벽(로컬 +x)을 따라 긴 흰 상판, 문 쪽 끝은 둥글게
+  const dw = 0.6, dl = d - 0.5, dcx = x1 - t - dw / 2 - 0.02, dcz = (z1 - t) - dl / 2 - 0.02;
+  box(dw, 0.03, dl - dw / 2, M.white, dcx, 0.72, dcz + dw / 4, g);
+  const cap = cyl(dw / 2, dw / 2, 0.03, M.white, dcx, 0.72, dcz - dl / 2 + dw / 2, 24, g);
+  box(0.03, 0.72, 0.45, M.white, x1 - t - 0.05, 0, dcz + dl / 2 - 0.3, g);
+  // 오크 모니터 선반 + 모니터 + 키보드·마우스
+  const sw = 0.24, scx = x1 - t - sw / 2 - 0.03;
+  box(sw, 0.03, dl - 0.15, M.oak, scx, 0.86, dcz + 0.05, g);
+  box(0.03, 0.11, 0.03, M.black, scx, 0.75, dcz - dl / 2 + 0.35, g); box(0.03, 0.11, 0.03, M.black, scx, 0.75, dcz + dl / 2 - 0.15, g);
+  box(0.2, 0.012, 0.22, M.black, scx, 0.89, dcz + 0.25, g); box(0.03, 0.12, 0.03, M.black, scx + 0.03, 0.9, dcz + 0.25, g);
+  box(0.03, 0.34, 0.58, M.tv, scx - 0.02, 1.0, dcz + 0.25, g);
+  box(0.15, 0.02, 0.44, M.black, x1 - t - 0.42, 0.75, dcz + 0.05, g); box(0.07, 0.025, 0.05, M.black, x1 - t - 0.42, 0.75, dcz - 0.28, g);
+  // 링라이트 스탠드 (문 쪽 모서리)
+  const rlx = x1 - t - 0.12, rlz = z0 + 0.22;
+  cyl(0.012, 0.012, 1.5, M.black, rlx, 0, rlz, 8, g);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.025, 10, 28), M.white); ring.position.set(rlx - 0.04, 1.62, rlz); ring.rotation.y = Math.PI / 2; g.add(ring);
+  for (let i = 0; i < 3; i++) { const a = i * Math.PI * 2 / 3; const l = box(0.2, 0.015, 0.02, M.black, rlx + Math.cos(a) * 0.08, 0.06, rlz + Math.sin(a) * 0.08, g); l.rotation.y = -a; }
+  // 의자: 흰 프레임 + 베이지 시트 + 연회색 메쉬 등받이, 책상(+x)을 바라봄
+  meshChair(grp(x1 - t - 0.95, dcz - 0.05, -90, g));
 }
 function pantry(g, o) {   // 탕비 카운터: 뒤(벽) = 로컬 +z
   const w = o.w || 5, x0 = -w / 2;
@@ -462,7 +489,7 @@ function openCard(id) {
 document.getElementById('cClose').onclick = () => { card.classList.remove('open'); Object.values(tagEls).forEach((e) => e.classList.remove('active')); };
 
 /* ---------------- player / modes / flights ---------------- */
-const player = { x: 0, z: 0, yaw: 0, pitch: -0.04 };
+const player = { x: 0, z: 0, yaw: 0, pitch: -0.04 }; window.__player = player;
 window.__player = player;
 const yawTo = (fx, fz, tx, tz) => Math.atan2(-(tx - fx), -(tz - fz));
 let mode = 'walk', flight = null, visitedWalk = false;
