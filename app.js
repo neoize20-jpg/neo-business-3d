@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js';
+import { makeTextures, textTexture } from './textures.js?v=11181900';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -116,14 +116,17 @@ box(W, 0.04, D, M.ceiling, W / 2, H, D / 2);
 
 /* ---------------- walls ---------------- */
 const WALLSEGS = [];   // 미니맵·벽 단면(cap)용
-function door(hx, hz, w, baseRad, swingRad, leafMat, frameMat, collide = false) {
-  const g = new THREE.Group(); g.position.set(hx, 0, hz); g.rotation.y = baseRad + swingRad; root.add(g);
-  if (!collide) g.userData.noCollide = true;
+/* 문: E키로 여닫는 회전 문짝. DOORS 에 등록되고, 닫힌 문은 충돌(통과 불가), 열린 문은 통과 가능 */
+const DOORS = [];
+function registerDoor(leaves, open, name) { const d = { leaves, target: open ? 1 : 0, cur: open ? 1 : 0, name, box: null, c: null }; DOORS.push(d); return d; }
+function door(hx, hz, w, baseRad, swingRad, leafMat, frameMat) {
+  const g = new THREE.Group(); g.position.set(hx, 0, hz); g.rotation.y = baseRad; root.add(g);
+  g.userData.noCollide = true; g.userData.dynamic = true;
   const leaf = new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, 2.04, 0.02), leafMat); leaf.position.set(w / 2, 1.04, 0); g.add(leaf);
   box(w, 0.045, 0.05, frameMat, w / 2, 2.04, 0, g); box(w, 0.06, 0.05, frameMat, w / 2, 0, 0, g);
   box(0.045, 2.1, 0.05, frameMat, 0.022, 0, 0, g); box(0.045, 2.1, 0.05, frameMat, w - 0.022, 0, 0, g);
   box(0.025, 0.5, 0.06, M.metal, w - 0.12, 0.8, 0, g);
-  return g;
+  return { g, base: baseRad, swing: swingRad };
 }
 function wallPiece(horiz, a0, a1, fixed, t, type) {
   const len = a1 - a0; if (len < 0.005) return;
@@ -181,13 +184,13 @@ for (const w of L.walls) {
     const leafMat = o.door === 'wood' ? M.white : (w.type === 'glass' ? M.frost : M.glass);
     const baseStart = horiz ? 0 : -Math.PI / 2, baseEnd = horiz ? Math.PI : Math.PI / 2;
     if (o.double) {
-      const hw = len / 2, sw = (o.open === false ? 0 : (o.swing || 80)) * DEG;
-      door(horiz ? o.at : fixed, horiz ? fixed : o.at, hw, baseStart, -sw, leafMat, fm, o.open === false);
-      door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm, o.open === false);
+      const hw = len / 2, sw = (o.swing || 80) * DEG;
+      registerDoor([door(horiz ? o.at : fixed, horiz ? fixed : o.at, hw, baseStart, -sw, leafMat, fm),
+                    door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm)], o.open === true, o.name);
     } else {
-      const start = (o.hinge || 'start') === 'start', sw = (o.open === false ? 0 : (o.swing || 0)) * DEG;
+      const start = (o.hinge || 'start') === 'start', sw = (o.swing || 80) * DEG;
       const hp = start ? o.at : o.at + len;
-      door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, leafMat, fm, o.open === false);
+      registerDoor([door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, leafMat, fm)], o.open === true, o.name);
     }
   }
   if (w.molding) {
@@ -226,13 +229,48 @@ function chair(g, o = {}) {      // 사무용 회전의자 (등받이 = 로컬 +
   cyl(0.025, 0.025, 0.38, M.metal, 0, 0.05, 0, 8, g);
   for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; const leg = box(0.28, 0.03, 0.04, M.black, Math.cos(a) * 0.13, 0.03, Math.sin(a) * 0.13, g); leg.rotation.y = -a; }
 }
-function meshChair(g) {   // 흰 프레임 메쉬 의자 (등받이 = 로컬 +z)
-  const seat = matOf('fabricBeige'), mesh = plain(0xd9dbde);
-  box(0.48, 0.08, 0.46, seat, 0, 0.42, -0.02, g);
-  box(0.46, 0.5, 0.025, mesh, 0, 0.56, 0.23, g); box(0.5, 0.03, 0.04, M.white, 0, 1.05, 0.24, g);
-  for (const sx of [-0.25, 0.25]) { box(0.03, 0.55, 0.04, M.white, sx, 0.5, 0.23, g); box(0.04, 0.03, 0.34, M.white, sx, 0.66, 0.04, g); box(0.03, 0.18, 0.03, M.white, sx, 0.48, -0.1, g); }
-  cyl(0.03, 0.03, 0.36, M.white, 0, 0.06, 0, 8, g);
-  for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; const leg = box(0.3, 0.03, 0.045, M.white, Math.cos(a) * 0.14, 0.04, Math.sin(a) * 0.14, g); leg.rotation.y = -a; cyl(0.025, 0.025, 0.04, M.black, Math.cos(a) * 0.28, 0, Math.sin(a) * 0.28, 8, g); }
+function meshChair(g) {   // 사진 속 NEOBOX 의자: 흰 5발 베이스 + 베이지 시트 + 흰 루프 팔걸이 + 연회색 메쉬 등받이 (등받이 = 로컬 +z, 정면 = -z)
+  const W2 = M.white, seat = matOf('fabricBeige');
+  const mesh = M.chairMesh || (M.chairMesh = std({ color: 0xcfd2d6, roughness: 0.85, side: THREE.DoubleSide }));
+  const tube = (pts, r, m = W2, seg = 24) => { const t = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(...p))), seg, r, 6, false), m); g.add(t); return t; };
+  // 5발 베이스(살짝 아래로 휘는 다리) + 바퀴
+  for (let i = 0; i < 5; i++) {
+    const a = i * Math.PI * 2 / 5 + Math.PI / 2, ca = Math.cos(a), sa = Math.sin(a);
+    tube([[ca * 0.03, 0.105, sa * 0.03], [ca * 0.16, 0.095, sa * 0.16], [ca * 0.29, 0.07, sa * 0.29]], 0.016, W2, 6);
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.026, 8, 6), M.black); w.position.set(ca * 0.29, 0.027, sa * 0.29); g.add(w);
+    cyl(0.008, 0.008, 0.03, W2, ca * 0.29, 0.045, sa * 0.29, 6, g);
+  }
+  cyl(0.045, 0.05, 0.05, W2, 0, 0.08, 0, 14, g);                  // 허브
+  cyl(0.018, 0.018, 0.25, W2, 0, 0.12, 0, 10, g);                 // 가스 실린더(슬림)
+  cyl(0.026, 0.03, 0.08, W2, 0, 0.12, 0, 10, g);
+  box(0.16, 0.035, 0.18, W2, 0, 0.36, 0.01, g);                    // 틸트 메커니즘
+  // 시트: 둥근 사각 쿠션 (폭 0.47, 깊이 0.45, 윗면 높이 0.46)
+  const sh = new THREE.Shape(), sw = 0.47, sd = 0.45, r = 0.09;
+  sh.moveTo(-sw / 2 + r, -sd / 2); sh.lineTo(sw / 2 - r, -sd / 2); sh.quadraticCurveTo(sw / 2, -sd / 2, sw / 2, -sd / 2 + r); sh.lineTo(sw / 2, sd / 2 - r); sh.quadraticCurveTo(sw / 2, sd / 2, sw / 2 - r, sd / 2);
+  sh.lineTo(-sw / 2 + r, sd / 2); sh.quadraticCurveTo(-sw / 2, sd / 2, -sw / 2, sd / 2 - r); sh.lineTo(-sw / 2, -sd / 2 + r); sh.quadraticCurveTo(-sw / 2, -sd / 2, -sw / 2 + r, -sd / 2);
+  const sg = new THREE.ExtrudeGeometry(sh, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2, curveSegments: 4 });
+  sg.rotateX(Math.PI / 2); const st = new THREE.Mesh(sg, seat); st.position.set(0, 0.44, -0.01); g.add(st);   // 윗면 ≈ 0.46
+  box(0.42, 0.02, 0.4, W2, 0, 0.375, -0.01, g);                    // 시트 아래 흰 쉘
+  // 등받이: 아래가 넓고 위가 좁은, 위가 둥근 메쉬 판 (살짝 휘고 뒤로 기울어짐)
+  const bh = 0.56, bwB = 0.42, bwT = 0.34, y0 = 0.56;
+  const outline = [];
+  for (let i = 0; i <= 8; i++) { const t = i / 8; outline.push([-(bwB / 2) + (bwB - bwT) / 2 * t, t * (bh - bwT / 2)]); }
+  for (let i = 1; i < 12; i++) { const a = Math.PI - i * Math.PI / 12; outline.push([Math.cos(a) * bwT / 2, bh - bwT / 2 + Math.sin(a) * bwT / 2 * 0.75]); }
+  for (let i = 8; i >= 0; i--) { const t = i / 8; outline.push([(bwB / 2) - (bwB - bwT) / 2 * t, t * (bh - bwT / 2)]); }
+  const bs = new THREE.Shape(outline.map(([x, y]) => new THREE.Vector2(x, y)));
+  const bg = new THREE.ShapeGeometry(bs, 6); const P = bg.attributes.position;
+  const bend = (x) => -1.1 * x * x;                                 // 좌우가 앞으로 감싸듯 휨
+  for (let i = 0; i < P.count; i++) P.setZ(i, bend(P.getX(i)));
+  bg.computeVertexNormals();
+  const back = new THREE.Group(); back.position.set(0, y0, 0.215); back.rotation.x = 0.14; g.add(back);   // 위쪽이 뒤로 기울어짐
+  back.add(new THREE.Mesh(bg, mesh));
+  const fr = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outline.map(([x, y]) => new THREE.Vector3(x, y, bend(x))), true), 64, 0.012, 6, true), W2); back.add(fr);
+  tube([[0, 0.39, 0.12], [0, 0.45, 0.2], [0, 0.6, 0.235]], 0.02);   // 등받이 지지대(스파인)
+  // 팔걸이: 시트 옆에서 올라와 앞쪽으로 둥글게 돌아 등받이에 이어지는 흰 튜브 루프
+  for (const sx of [-1, 1]) {
+    tube([[sx * 0.2, 0.44, 0.13], [sx * 0.245, 0.5, 0.0], [sx * 0.255, 0.62, -0.1], [sx * 0.255, 0.665, -0.03], [sx * 0.25, 0.665, 0.1], [sx * 0.215, 0.7, 0.22]], 0.011, W2, 32);
+    tube([[sx * 0.2, 0.44, -0.14], [sx * 0.24, 0.52, -0.13], [sx * 0.255, 0.62, -0.1]], 0.011, W2, 10);
+  }
 }
 function stool(g, o) {
   const h = o.h || 0.72, m = matOf(o.color || 'fabricGray');
@@ -306,7 +344,8 @@ function booth(g, o) {   // NEOBOX 1인 부스: 앞(문) = 로컬 -z
   box(w, 0.04, 0.08, M.black, 0, ph, z0 + 0.03, g); box(w, 0.04, 0.08, M.black, 0, ph, z1 - 0.03, g);
   box(0.08, 0.04, d, M.black, x0 + 0.03, ph, 0, g); box(0.08, 0.04, d, M.black, x1 - 0.03, ph, 0, g);
   box(w, 0.05, d, M.white, 0, ph - 0.05, 0, g);
-  const dg = new THREE.Group(); dg.position.set(x0 + 0.14, 0, z0 + 0.02); dg.rotation.y = 1.25; g.add(dg); dg.userData.noCollide = true;
+  const dg = new THREE.Group(); dg.position.set(x0 + 0.14, 0, z0 + 0.02); dg.rotation.y = 0; g.add(dg); dg.userData.noCollide = true; dg.userData.dynamic = true;
+  registerDoor([{ g: dg, base: 0, swing: (o.swing || 72) * DEG }], o.open === true, o.label);
   const lw = w - 0.38, leaf = new THREE.Mesh(new THREE.BoxGeometry(lw, 2.08, 0.045), M.frost); leaf.position.set(lw / 2, 1.04, 0); dg.add(leaf);
   box(lw, 0.04, 0.055, M.black, lw / 2, 2.06, 0, dg); box(lw, 0.04, 0.055, M.black, lw / 2, 0, 0, dg);
   box(0.04, 2.1, 0.055, M.black, 0.02, 0, 0, dg); box(0.04, 2.1, 0.055, M.black, lw - 0.02, 0, 0, dg);
@@ -396,7 +435,8 @@ const wallMeshes = [];
     if (!o.isMesh) return;
     if (!noCol(o)) { bb.setFromObject(o); if (bb.max.y > 0.12 && bb.min.y < 1.75) COLL.push([bb.min.x, bb.min.z, bb.max.x, bb.max.z]); }
     const m = o.material;
-    if (o.userData.keep || m.transparent || (m.map && !m.userData.world)) { o.castShadow = HIGH && !m.transparent; o.receiveShadow = true; return; }
+    let dyn = false; for (let p = o; p; p = p.parent) if (p.userData.dynamic) { dyn = true; break; }
+    if (dyn || o.userData.keep || m.transparent || (m.map && !m.userData.world)) { o.castShadow = HIGH && !m.transparent; o.receiveShadow = true; return; }
     let gg = o.geometry.clone(); gg.applyMatrix4(o.matrixWorld); if (gg.index) gg = gg.toNonIndexed();
     for (const k of Object.keys(gg.attributes)) if (k !== 'position' && k !== 'normal') gg.deleteAttribute(k);
     const P = gg.attributes.position, N = gg.attributes.normal, uv = new Float32Array(P.count * 2);
@@ -423,9 +463,23 @@ const wallMeshes = [];
     }
   }
 }
+// 닫힌 상태의 문짝 영역(충돌 박스) 계산 후, 초기 상태로 회전
+{
+  const bb = new THREE.Box3();
+  for (const d of DOORS) {
+    for (const l of d.leaves) l.g.rotation.y = l.base;
+    root.updateMatrixWorld(true);
+    d.box = new THREE.Box3(); for (const l of d.leaves) d.box.union(bb.setFromObject(l.g));
+    d.c = d.box.getCenter(new THREE.Vector3());
+    for (const l of d.leaves) l.g.rotation.y = l.base + l.swing * d.cur;
+  }
+}
 const PR = 0.24;
-function blocked(x, z) {
+const circleHits = (x, z, a, b, c, d) => { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); return (x - cx) ** 2 + (z - cz) ** 2 < PR * PR; };
+const doorClosed = (d, plan) => d.target === 0 || (!plan && d.cur < 0.85);
+function blocked(x, z, plan = false) {
   if (x < PR || z < PR || x > W - PR || z > D - PR) return true;
+  for (const d of DOORS) if (doorClosed(d, plan) && circleHits(x, z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) return true;
   const gx = Math.floor(x / CELL), gz = Math.floor(z / CELL);
   for (let i = gx - 1; i <= gx + 1; i++) for (let j = gz - 1; j <= gz + 1; j++) {
     const l = grid.get(i + ',' + j); if (!l) continue;
@@ -488,6 +542,74 @@ function openCard(id) {
 }
 document.getElementById('cClose').onclick = () => { card.classList.remove('open'); Object.values(tagEls).forEach((e) => e.classList.remove('active')); };
 
+/* ---------------- 문: 갇히지 않게 자동 열기 ----------------
+   착지 지점에서 라운지까지 걸어서 갈 수 없으면(닫힌 문으로 막힌 방), 그 방을 둘러싼 문을 자동으로 열어요. */
+function ensureEscape(x, z) {
+  const S = 0.2, NX = Math.ceil(W / S), NZ = Math.ceil(D / S), ref = ROOMS.lounge?.jump || { x: W / 2, z: D / 2 };
+  const [rx, rz] = freeNear(ref.x, ref.z);
+  const rk = Math.floor(rx / S) + Math.floor(rz / S) * NX;
+  for (let iter = 0; iter < 5; iter++) {
+    const seen = new Uint8Array(NX * NZ), q = [], k0 = Math.floor(x / S) + Math.floor(z / S) * NX;
+    q.push(k0); seen[k0] = 1; let found = false;
+    while (q.length) {
+      const k = q.pop(); if (k === rk) { found = true; break; }
+      const ix = k % NX, iz = (k / NX) | 0;
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const jx = ix + dx, jz = iz + dz; if (jx < 0 || jz < 0 || jx >= NX || jz >= NZ) continue;
+        const j = jx + jz * NX; if (seen[j]) continue; seen[j] = 1;
+        if (!blocked((jx + 0.5) * S, (jz + 0.5) * S, true)) q.push(j);
+      }
+    }
+    if (found) return;
+    let opened = 0;
+    for (const d of DOORS) {
+      if (d.target === 1) continue;
+      const a = Math.floor((d.box.min.x - 0.4) / S), b = Math.floor((d.box.max.x + 0.4) / S), c = Math.floor((d.box.min.z - 0.4) / S), e = Math.floor((d.box.max.z + 0.4) / S);
+      let touch = false;
+      for (let ix = a; ix <= b && !touch; ix++) for (let iz = c; iz <= e; iz++) { if (ix >= 0 && iz >= 0 && ix < NX && iz < NZ && seen[ix + iz * NX] && !blocked((ix + 0.5) * S, (iz + 0.5) * S, true)) { touch = true; break; } }
+      if (touch) { d.target = 1; opened++; }
+    }
+    if (!opened) return;
+  }
+}
+/* ---------------- 문: 가까이 가면 E 열기/닫기 ---------------- */
+const doorPrompt = document.getElementById('doorPrompt'), doorBtn = document.getElementById('doorBtn');
+let nearDoor = null;
+function findNearDoor() {
+  if (mode !== 'walk' || flight) return null;
+  const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw); let best = null, bd = 1e9;
+  for (const d of DOORS) {
+    const dx = d.c.x - player.x, dz = d.c.z - player.z, dist = Math.hypot(dx, dz); if (dist > 1.8) continue;
+    const cos = (dx * fx + dz * fz) / (dist || 1);
+    if (cos < 0.55 && dist > 0.8) continue;
+    if (dist < bd) { bd = dist; best = d; }
+  }
+  return best;
+}
+function toggleDoor(d) {
+  if (!d) return;
+  if (d.target === 1) {
+    if (circleHits(player.x, player.z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) { toast('문 앞에서 조금 비켜 주세요'); return; }
+    d.target = 0;
+  } else d.target = 1;
+}
+function updateDoors(dt) {
+  for (const d of DOORS) {
+    const goal = mode === 'orbit' ? 1 : d.target;   // 3D 보기에서는 모든 문을 열어서 보여 줌
+    if (d.cur !== goal) { const s = dt / 0.6; d.cur = goal > d.cur ? Math.min(goal, d.cur + s) : Math.max(goal, d.cur - s); for (const l of d.leaves) l.g.rotation.y = l.base + l.swing * ease(d.cur); }
+  }
+  const nd = findNearDoor();
+  if (nd !== nearDoor || (nd && doorPrompt.dataset.st !== String(nd.target))) {
+    nearDoor = nd;
+    const label = nd ? (nd.target === 1 ? '닫기' : '열기') : '';
+    doorPrompt.dataset.st = nd ? String(nd.target) : '';
+    doorPrompt.innerHTML = nd ? `<kbd>E</kbd>${label}` : ''; doorPrompt.classList.toggle('on', !!nd);
+    doorBtn.textContent = label; doorBtn.classList.toggle('on', !!nd);
+  }
+}
+doorBtn.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); toggleDoor(nearDoor); });
+window.__doors = DOORS;
+
 /* ---------------- player / modes / flights ---------------- */
 const player = { x: 0, z: 0, yaw: 0, pitch: -0.04 }; window.__player = player;
 window.__player = player;
@@ -527,7 +649,7 @@ function setModeUI() { if (mode !== "walk" && document.pointerLockElement) docum
   document.querySelectorAll('#modes button').forEach((b) => b.classList.toggle('on', b.dataset.mode === mode));
 }
 function enterWalk(x, z, yaw, instant = false) {
-  [x, z] = freeNear(x, z);
+  [x, z] = freeNear(x, z); ensureEscape(x, z);
   const land = () => { mode = 'walk'; player.x = x; player.z = z; player.yaw = yaw; player.pitch = -0.04; visitedWalk = true; setModeUI(); };
   if (mode === 'orbit') { orbitSaved = { pos: camera.position.clone(), target: controls.target.clone() }; }
   if (instant) { camera.fov = FOV_WALK; camera.updateProjectionMatrix(); land(); return; }
@@ -565,7 +687,7 @@ qb.onclick = () => { const nq = HIGH ? 'low' : 'high'; localStorage.setItem('neo
 
 /* ---------------- input ---------------- */
 const keys = {};
-addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
+addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'KeyE' && !e.repeat && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
 addEventListener('keyup', (e) => { keys[e.code] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const cv = renderer.domElement; let drag = null;
@@ -645,7 +767,7 @@ mm.addEventListener('pointerdown', (e) => {
   e.stopPropagation(); if (flight) return;
   const r = mm.getBoundingClientRect(), k = MW / r.width; const x = ((e.clientX - r.left) * k - PAD) / MS, z = ((e.clientY - r.top) * k - PAD) / MS;
   if (mode === 'orbit') enterWalk(x, z, yawTo(controls.target.x, controls.target.z + 30, x, z) || 0);
-  else { [player.x, player.z] = freeNear(x, z); }
+  else { [player.x, player.z] = freeNear(x, z); ensureEscape(player.x, player.z); }
 });
 
 /* ---------------- labels occlusion ---------------- */
@@ -683,6 +805,7 @@ function tick() {
   requestAnimationFrame(tick);
   const dt = Math.min(clock.getDelta(), 0.05);
   if (flight) stepFlight(dt); else if (mode === 'walk') step(dt); else if (mode === 'orbit') controls.update();
+  updateDoors(dt);
   setCut(mode === 'orbit' || (mode === 'fly' && camera.position.y > H - 0.1));
   if (frame++ % 6 === 0) {
     updateLabels();

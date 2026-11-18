@@ -72,7 +72,10 @@ window.LAYOUT = {
      openings : 문·통로 목록. at = 벽 방향 좌표에서 문이 시작하는 위치, width = 문 폭
                 door: 'glass'(유리문) / 'wood'(흰 목재문) / 'none'(문 없이 뚫린 통로)
                 hinge: 'start'|'end' (경첩 쪽), swing: 열린 각도(도, +/-로 방향)
-                double:true 면 양문(두 짝), open:false 면 닫힌 상태(입구 유리문 등)          */
+                double:true 면 양문(두 짝)
+                ★ 문은 모두 닫힌 상태로 시작하고, 걷기 모드에서 문 앞에서 E키(모바일은 '열기' 버튼)로 여닫아요.
+                  처음부터 열어 두려면 open:true 를 넣으세요. (3D 보기에서는 잘 보이도록 모두 열린 모습으로 보여요)
+                  swing = 열렸을 때 각도(도). NEOBOX 부스 문도 booth 가구에 open:true / swing 을 넣을 수 있어요.          */
   walls: [
     // 바깥벽 — 북쪽(위)
     { from:[0, 0],     to:[0.42, 0],  type:'solid',  outer:true },
@@ -86,7 +89,7 @@ window.LAYOUT = {
     { from:[0, 9.21],  to:[0, 19.6],  type:'solid',  outer:true, molding:'east', moldingFrom:9.9, moldingTo:17.3 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
     // 바깥벽 — 남쪽(아래), 입구 유리 양문
     { from:[0, 19.6],  to:[18, 19.6], type:'solid',  outer:true,
-      openings:[ { at:14.56, width:2.7, door:'glass', double:true, open:false, entrance:true } ] },
+      openings:[ { at:14.56, width:2.7, door:'glass', double:true, entrance:true } ] },
     // 바깥벽 — 동쪽(오른쪽)
     { from:[18, 0],    to:[18, 19.6], type:'solid',  outer:true },
 

@@ -82,6 +82,13 @@ body.edit #coord{display:block}
 #toast.on{opacity:1}
 @media (max-width:700px){#modes{top:auto;bottom:74px}#modes button{font-size:13px;padding:8px 12px}#quality{bottom:auto;top:64px;left:10px;right:auto}#joy{bottom:140px}}
 body.shot #quality,body.shot #modes,body.shot #coord{display:none}
+#doorPrompt{position:fixed;left:50%;top:60%;transform:translateX(-50%);display:none;align-items:center;gap:9px;background:rgba(11,46,103,.88);color:#fff;font-weight:700;font-size:15px;padding:9px 16px 9px 10px;border-radius:12px;box-shadow:0 6px 20px rgba(11,46,103,.3);pointer-events:none;z-index:8}
+#doorPrompt.on{display:flex}
+#doorPrompt kbd{font:inherit;font-weight:800;font-size:13px;background:var(--orange);color:#fff;border-radius:6px;padding:2px 8px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+#doorBtn{position:fixed;right:22px;bottom:150px;width:76px;height:76px;border-radius:50%;border:3px solid #fff;background:var(--orange);color:#fff;font:inherit;font-weight:800;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.25);display:none;z-index:8}
+body.touch.walk #doorBtn.on{display:block}
+body.touch #doorPrompt{display:none!important}
+body.shot #doorPrompt{font-size:22px;padding:12px 22px 12px 14px}body.shot #doorPrompt kbd{font-size:19px;padding:3px 11px}
 </style>
 </head>
 <body>
@@ -98,11 +105,13 @@ body.shot #quality,body.shot #modes,body.shot #coord{display:none}
 </div>
 <div id="mapwrap"><div class="t">MAP</div><canvas id="minimap"></canvas></div>
 <div id="jumps"></div>
-<div id="help"><span class="hw"><b>WASD / 방향키</b> 이동 · <b>클릭 후 마우스</b> 둘러보기 · <b>Esc</b> 해제 · <b>Shift</b> 뛰기</span><span class="ho"><b>드래그</b> 회전 · <b>휠</b> 확대 · <b>우클릭 드래그</b> 이동<br><b>바닥·공간 이름 클릭</b> → 그 자리로 걸어 들어가기</span><br><b>V</b> 3D 보기 ↔ 걷기 전환</div>
+<div id="help"><span class="hw"><b>WASD / 방향키</b> 이동 · <b>클릭 후 마우스</b> 둘러보기 · <b>Esc</b> 해제 · <b>Shift</b> 뛰기 · <b>E</b> 문 열기/닫기</span><span class="ho"><b>드래그</b> 회전 · <b>휠</b> 확대 · <b>우클릭 드래그</b> 이동<br><b>바닥·공간 이름 클릭</b> → 그 자리로 걸어 들어가기</span><br><b>V</b> 3D 보기 ↔ 걷기 전환</div>
 <button id="quality"></button>
 <div id="coord">x – · z –</div>
 <div id="toast"></div>
 <div id="joy"><i></i></div>
+<div id="doorPrompt"></div>
+<button id="doorBtn"></button>
 <aside id="card">
   <div class="hd"><div class="en" id="cEn"></div><h2 id="cTitle"></h2><button class="x" id="cClose" aria-label="닫기">×</button></div>
   <div class="bd">
@@ -114,8 +123,8 @@ body.shot #quality,body.shot #modes,body.shot #coord{display:none}
   </div>
 </aside>
 <!-- 공간 설정: 치수·가구 배치는 layout.js 에서 수정 -->
-<script src="layout.js?v=11181700"></script>
+<script src="layout.js?v=11181900"></script>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
-<script type="module" src="app.js?v=11181700"></script>
+<script type="module" src="app.js?v=11181900"></script>
 </body>
 </html>
