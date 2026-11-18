@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<link rel="icon" href="data:,">
+<title>네오비즈니스 3D 투어 · NEOEYES</title>
+<style>
+@font-face{font-family:'Pretendard';src:url('fonts/PretendardVariable.woff2') format('woff2-variations');font-weight:100 900;font-display:block}
+:root{--navy:#0B2E67;--orange:#FF8207}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Pretendard','Noto Sans KR','Noto Sans CJK KR',sans-serif;color:#1b2333;background:#dfe5ee;touch-action:none;user-select:none;-webkit-user-select:none}
+#app{position:fixed;inset:0;cursor:grab}
+#app:active{cursor:grabbing}
+.tag{pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;align-items:center;transform:translateY(-14px);user-select:none}
+.tag .pill{background:var(--navy);color:#fff;padding:6px 13px 6px 10px;border-radius:999px;font-weight:700;font-size:15px;letter-spacing:-.2px;box-shadow:0 4px 14px rgba(11,46,103,.28);display:flex;align-items:center;gap:7px;white-space:nowrap;transition:transform .15s,background .15s}
+.tag .pill i{width:8px;height:8px;border-radius:50%;background:var(--orange);display:block}
+.tag .pill small{font-weight:500;font-size:11px;opacity:.7}
+.tag .stem{width:2px;height:16px;background:var(--navy);opacity:.6}
+.tag .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid #fff;box-shadow:0 0 0 1px var(--navy)}
+.tag:hover .pill,.tag.active .pill{background:var(--orange);transform:scale(1.06)}
+.tag.sm .pill{font-size:13px;padding:5px 11px 5px 9px}
+#card{position:fixed;top:0;right:0;height:100%;width:420px;max-width:92vw;background:#fff;box-shadow:-10px 0 40px rgba(11,46,103,.18);transform:translateX(105%);transition:transform .3s ease;display:flex;flex-direction:column;z-index:5}
+#card.open{transform:none}
+#card .hd{padding:22px 24px 14px;border-bottom:3px solid var(--orange);position:relative}
+#card .hd .en{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--orange);text-transform:uppercase}
+#card .hd h2{margin:4px 0 0;font-size:24px;color:var(--navy);letter-spacing:-.5px}
+#card .x{position:absolute;right:18px;top:18px;width:34px;height:34px;border-radius:50%;border:none;background:#f0f3f8;font-size:18px;cursor:pointer;color:var(--navy)}
+#card .bd{padding:18px 24px 24px;overflow:auto}
+#card .main{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:12px;background:#eef1f6;display:block}
+#card .thumbs{display:flex;gap:8px;margin-top:8px}
+#card .thumbs img{flex:1;min-width:0;aspect-ratio:3/2;object-fit:cover;border-radius:8px;cursor:pointer;opacity:.6;border:2px solid transparent}
+#card .thumbs img.on{opacity:1;border-color:var(--orange)}
+#card .info{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+#card .info span{background:#f2f5fa;color:var(--navy);font-weight:700;font-size:13px;padding:7px 11px;border-radius:8px}
+#card .desc{margin-top:14px;font-size:14px;line-height:1.65;color:#3c4658}
+#card .cta{margin-top:18px;display:block;text-align:center;background:var(--navy);color:#fff;text-decoration:none;font-weight:700;padding:13px;border-radius:10px}
+.tag{transform:translateY(-6px)}
+.tag.hid{opacity:0;pointer-events:none}
+header{position:fixed;left:22px;top:18px;pointer-events:none;background:rgba(255,255,255,.88);backdrop-filter:blur(6px);padding:12px 16px 11px;border-radius:14px;box-shadow:0 6px 24px rgba(11,46,103,.12);border-left:4px solid var(--orange)}
+header .brand{font-size:10.5px;font-weight:800;letter-spacing:2.2px;color:var(--orange)}
+header h1{margin:3px 0 0;font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.5px}
+#where{margin-top:4px;font-size:12.5px;font-weight:600;color:#5b6577}
+#where b{color:var(--navy)}
+#jumps{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:6px;background:rgba(255,255,255,.9);backdrop-filter:blur(6px);padding:6px;border-radius:14px;box-shadow:0 6px 24px rgba(11,46,103,.15);max-width:96vw;overflow-x:auto}
+#jumps button{font:inherit;font-size:13.5px;font-weight:700;border:none;background:transparent;color:var(--navy);padding:9px 13px;border-radius:10px;cursor:pointer;white-space:nowrap}
+#jumps button:hover{background:#eef2f8}
+#jumps button.on{background:var(--navy);color:#fff}
+#mapwrap{position:fixed;right:18px;top:18px;background:rgba(11,46,103,.92);border-radius:14px;padding:10px 10px 8px;box-shadow:0 6px 24px rgba(11,46,103,.25)}
+#mapwrap .t{color:#fff;font-size:11px;font-weight:700;letter-spacing:1.5px;margin:0 0 6px 2px;opacity:.8}
+#minimap{display:block;cursor:crosshair}
+#help{position:fixed;right:18px;bottom:20px;font-size:12px;color:#334;background:rgba(255,255,255,.85);padding:8px 12px;border-radius:10px;line-height:1.55}
+#help b{color:var(--navy)}
+#joy{position:fixed;left:26px;bottom:86px;width:124px;height:124px;border-radius:50%;background:rgba(11,46,103,.25);border:2px solid rgba(255,255,255,.7);display:none;touch-action:none}
+#joy i{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:var(--orange);box-shadow:0 4px 12px rgba(0,0,0,.25)}
+body.touch #joy{display:block}
+body.touch #help{display:none}
+#loading{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--navy);font-weight:700;z-index:20;transition:opacity .4s}
+#loading .bar{width:160px;height:4px;background:#e6ebf3;border-radius:4px;overflow:hidden}
+#loading .bar i{display:block;height:100%;width:40%;background:var(--orange);animation:ld 1s infinite ease-in-out}
+@keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+@media (max-width:700px){header h1{font-size:16px}header .brand{display:none}header{padding:8px 11px;left:10px;top:10px}#mapwrap{transform:scale(.56);transform-origin:top right;right:10px;top:10px}#joy{bottom:80px;left:18px}#jumps button{font-size:12px;padding:8px 9px}}
+body.shot #jumps,body.shot #help,body.shot #card,body.shot #joy,body.shot #loading{display:none}
+body.shot .tag .pill{font-size:19px;padding:8px 16px 8px 12px}
+
+#modes{position:fixed;left:50%;top:18px;transform:translateX(-50%);display:flex;gap:4px;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);padding:5px;border-radius:14px;box-shadow:0 6px 24px rgba(11,46,103,.15);z-index:3}
+#modes button{font:inherit;font-size:14px;font-weight:800;border:none;background:transparent;color:var(--navy);padding:9px 16px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:6px}
+#modes button.on{background:var(--navy);color:#fff}
+#modes button.on svg{stroke:var(--orange)}
+#modes svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2}
+#quality{position:fixed;right:18px;bottom:20px;font:inherit;font-size:12px;font-weight:700;border:none;border-radius:10px;padding:8px 12px;background:rgba(255,255,255,.88);color:var(--navy);cursor:pointer;box-shadow:0 4px 14px rgba(11,46,103,.12)}
+#quality.hi::before{content:'● ';color:var(--orange)}
+#help{bottom:62px}
+.hw,.ho{display:none}body.walk .hw,body.orbit .ho{display:inline}
+body.orbit #joy{display:none!important}
+body.orbit #app{cursor:grab}
+body.flying #jumps,body.flying #modes{pointer-events:none;opacity:.6}
+#coord{display:none;position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--navy);color:#fff;font-weight:700;font-size:14px;padding:7px 14px;border-radius:10px;z-index:4;font-variant-numeric:tabular-nums}
+body.edit #coord{display:block}
+.tick{font-size:11px;font-weight:700;color:#0B2E67;background:rgba(255,255,255,.8);padding:1px 5px;border-radius:4px}
+#toast{position:fixed;left:50%;top:112px;transform:translateX(-50%);background:#FF8207;color:#fff;font-weight:700;padding:8px 14px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:6}
+#toast.on{opacity:1}
+@media (max-width:700px){#modes{top:auto;bottom:74px}#modes button{font-size:13px;padding:8px 12px}#quality{bottom:auto;top:64px;left:10px;right:auto}#joy{bottom:140px}}
+body.shot #quality,body.shot #modes,body.shot #coord{display:none}
+</style>
+</head>
+<body>
+<div id="loading">네오비즈니스 3D 투어 불러오는 중<div class="bar"><i></i></div></div>
+<div id="app"></div>
+<header>
+  <div class="brand">NEOEYES · NEOFUL BUSINESS SPACE</div>
+  <h1>네오비즈니스 3D 투어</h1>
+  <div id="where">현재 위치 <b id="whereName">입구</b></div>
+</header>
+<div id="modes">
+  <button data-mode="orbit"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>3D 보기</button>
+  <button data-mode="walk"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-7 3 3v4M8 12l3-4 3 2 3 2M11 8l-1 5"/></svg>걷기</button>
+</div>
+<div id="mapwrap"><div class="t">MAP</div><canvas id="minimap"></canvas></div>
+<div id="jumps"></div>
+<div id="help"><span class="hw"><b>WASD / 방향키</b> 이동 · <b>드래그</b> 둘러보기 · <b>Shift</b> 빠르게</span><span class="ho"><b>드래그</b> 회전 · <b>휠</b> 확대 · <b>우클릭 드래그</b> 이동<br><b>바닥·공간 이름 클릭</b> → 그 자리로 걸어 들어가기</span><br><b>V</b> 3D 보기 ↔ 걷기 전환</div>
+<button id="quality"></button>
+<div id="coord">x – · z –</div>
+<div id="toast"></div>
+<div id="joy"><i></i></div>
+<aside id="card">
+  <div class="hd"><div class="en" id="cEn"></div><h2 id="cTitle"></h2><button class="x" id="cClose" aria-label="닫기">×</button></div>
+  <div class="bd">
+    <img class="main" id="cMain" alt="">
+    <div class="thumbs" id="cThumbs"></div>
+    <div class="info" id="cInfo"></div>
+    <div class="desc" id="cDesc"></div>
+    <a class="cta" href="#" onclick="return false">대관 · 이용 문의</a>
+  </div>
+</aside>
+<!-- 공간 설정: 치수·가구 배치는 layout.js 에서 수정 -->
+<script src="layout.js"></script>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
