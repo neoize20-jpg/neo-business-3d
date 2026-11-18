@@ -33,7 +33,7 @@ window.LAYOUT = {
      순서가 중요해요: 위에 있는 방이 먼저 판정돼요(라운지는 나머지 전체라 맨 아래).          */
   rooms: [
     { id:'coaching', name:'소회의실', en:'Small Meeting Room', rect:[0, 0, 3.81, 9.74], floor:'floor',
-      label:[1.9, 6.0], jump:{ x:2.6, z:4.7, look:[0.4, 0.9] },
+      label:[1.9, 6.0], jump:{ x:3.0, z:7.9, look:[1.2, 2.2] },
       card:{ photos:['IMG_0415','IMG_0418','IMG_0419','IMG_0416'],
              desc:'창가 쪽 코너에 있는 작은 회의실이에요. 블랙 미팅 테이블과 화이트보드가 있고, 기둥 뒤 창가에는 L자 바 테이블과 바 스툴, 회색 수납 벤치와 주황 큐브 스툴이 있어요.' } },
     { id:'meeting', name:'회의실', en:'Meeting Room', rect:[3.81, 0, 9.79, 9.74], floor:'floor',
@@ -78,14 +78,24 @@ window.LAYOUT = {
                   swing = 열렸을 때 각도(도). NEOBOX 부스 문도 booth 가구에 open:true / swing 을 넣을 수 있어요.          */
   walls: [
     // 바깥벽 — 북쪽(위)
-    { from:[0, 0],     to:[0.42, 0],  type:'solid',  outer:true },
-    { from:[0.42, 0],  to:[3.49, 0],  type:'window', outer:true },   // 소회의실 창
-    { from:[3.49, 0],  to:[5.45, 0],  type:'solid',  outer:true },
-    { from:[5.45, 0],  to:[8.36, 0],  type:'window', outer:true },   // 회의실 창
-    { from:[8.36, 0],  to:[18, 0],    type:'solid',  outer:true },
+    // (2026-11-18 스케치 반영: 초록색 = 창문)
+    { from:[0, 0],     to:[0.3, 0],   type:'solid',  outer:true },
+    { from:[0.3, 0],   to:[2.4, 0],   type:'window', outer:true },   // 소회의실 창 (왼쪽 한 구간)
+    { from:[2.4, 0],   to:[4.3, 0],   type:'solid',  outer:true },
+    { from:[4.3, 0],   to:[6.4, 0],   type:'window', outer:true },   // 회의실 창 ①
+    { from:[6.4, 0],   to:[7.4, 0],   type:'solid',  outer:true },
+    { from:[7.4, 0],   to:[9.4, 0],   type:'window', outer:true },   // 회의실 창 ②
+    { from:[9.4, 0],   to:[15.5, 0],  type:'solid',  outer:true },
+    { from:[15.5, 0],  to:[16.55, 0], type:'window', outer:true },   // 교육장 창 ① (오른쪽 절반, 스크린과 겹치지 않게)
+    { from:[16.55, 0], to:[16.85, 0], type:'solid',  outer:true },
+    { from:[16.85, 0], to:[17.8, 0],  type:'window', outer:true },   // 교육장 창 ②
+    { from:[17.8, 0],  to:[18, 0],    type:'solid',  outer:true },
     // 바깥벽 — 서쪽(왼쪽)
     { from:[0, 0],     to:[0, 0.48],  type:'solid',  outer:true },
-    { from:[0, 0.48],  to:[0, 9.21],  type:'window', outer:true },   // 소회의실 창
+    { from:[0, 0.48],  to:[0, 3.4],   type:'window', outer:true },   // 소회의실 창 ① (위)
+    { from:[0, 3.4],   to:[0, 4.4],   type:'solid',  outer:true },
+    { from:[0, 4.4],   to:[0, 7.6],   type:'window', outer:true },   // 소회의실 창 ② (가운데)
+    { from:[0, 7.6],   to:[0, 9.21],  type:'solid',  outer:true },
     { from:[0, 9.21],  to:[0, 19.6],  type:'solid',  outer:true, molding:'east', moldingFrom:9.9, moldingTo:17.3 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
     // 바깥벽 — 남쪽(아래), 입구 유리 양문
     { from:[0, 19.6],  to:[18, 19.6], type:'solid',  outer:true,
@@ -97,9 +107,9 @@ window.LAYOUT = {
     { from:[3.81, 0],  to:[3.81, 9.74], type:'solid' },                       // 소회의실 | 회의실
     { from:[9.79, 0],  to:[9.79, 14.14], type:'solid', t:0.30, molding:'west', moldingFrom:9.86, moldingTo:14.14 },  // 회의실·라운지 | 교육장
     { from:[0, 9.74],  to:[3.81, 9.74], type:'glass',
-      openings:[ { at:1.85, width:1.59, door:'glass', hinge:'end', swing:-63 } ] },    // 소회의실 앞 유리벽 + 문
+      openings:[ { at:2.12, width:1.55, door:'glass', hinge:'end', swing:-63 } ] },    // 소회의실 앞 유리벽 + 문(동쪽 끝)
     { from:[3.81, 9.74], to:[9.79, 9.74], type:'glass',
-      openings:[ { at:4.24, width:1.59, door:'glass', hinge:'start', swing:63 } ] },   // 회의실 앞 유리벽 + 문
+      openings:[ { at:3.95, width:1.55, door:'glass', hinge:'start', swing:63 } ] },   // 회의실 앞 유리벽 + 문(서쪽 끝, 소회의실 문 바로 옆)
     { from:[9.79, 14.14], to:[18, 14.14], type:'solid', t:0.30,
       openings:[ { at:16.41, width:0.95, door:'glass', frame:'white', hinge:'start', swing:66 } ] }  // 교육장 출입문
   ],
@@ -133,22 +143,23 @@ window.LAYOUT = {
      종류 목록은 수정방법.md 참고                                                     */
   furniture: [
     /* --- 소회의실 --- */
-    { type:'tableSet', x:2.0, z:7.09, w:1.05, d:2.6, top:'darkTop', chairsLeft:4, chairsRight:4, chairInset:0.37, legInset:0.1 },   // 블랙 미팅 테이블 + 의자 4+4
+    { type:'tableSet', x:1.35, z:3.25, w:0.9, d:2.5, top:'darkTop', chairsLeft:3, chairsRight:3, chairInset:0.4, legInset:0.1 },   // 블랙 미팅 테이블(스케치: 서쪽 위쪽, 벽 블록 바로 아래) + 의자 3+3
     { type:'whiteboard', x:3.71, z:7.09, w:2.0, rot:90 },
-    { type:'barCounter', x:0.33, z:1.96, w:0.42, d:3.67 },          // 창가 L자 바 테이블 — 서쪽 창 쪽
+    { type:'barCounter', x:0.33, z:1.06, w:0.42, d:1.88 },          // 창가 L자 바 테이블 — 서쪽 창 쪽 (미팅 테이블과 겹치지 않게 벽 블록 옆까지만)
     { type:'barCounter', x:1.80, z:0.33, w:2.51, d:0.42 },          // 창가 L자 바 테이블 — 북쪽 창 쪽
-    { type:'stool', x:0.86, z:2.44, color:'fabricGray',  h:0.68 },
-    { type:'stool', x:0.86, z:3.19, color:'fabricOrange', h:0.68 },
+    { type:'stool', x:0.72, z:0.8, color:'fabricGray',  h:0.68 },
+    { type:'stool', x:0.72, z:1.55, color:'fabricOrange', h:0.68 },
     { type:'stool', x:2.25, z:0.86, color:'fabricGray',  h:0.68 },
     { type:'stool', x:2.80, z:0.86, color:'fabricGray',  h:0.68 },
     { type:'bench', x:3.52, z:1.24, w:0.4, d:1.0, h:0.42, color:'fabricGray' },
     { type:'cube',  x:3.51, z:2.04, size:0.42, color:'fabricOrange' },
-    { type:'plant', x:2.46, z:2.36, scale:1.0 },
+    { type:'plant', x:3.45, z:2.8, scale:1.0 },
     { type:'cabinet', x:0.32, z:8.94, w:0.35, d:1.2, h:0.6, color:'black' },
-    { type:'block', x:0.32, z:2.8, w:0.08, d:0.06, h:0.14, y:1.02, color:'black' },   // 바 테이블 위 폰 거치대
+    { type:'block', x:0.32, z:1.4, w:0.08, d:0.06, h:0.14, y:1.02, color:'black' },   // 바 테이블 위 폰 거치대
 
     /* --- 회의실 --- */
-    { type:'tableSet', x:6.9, z:4.79, w:1.25, d:5.6, top:'white', modules:3, chairsLeft:6, chairsRight:6 },          // 긴 테이블(3모듈) + 의자 6+6
+    { type:'tableSet', x:6.9, z:2.3, w:1.25, d:2.6, top:'white', chairsLeft:3, chairsRight:3 },   // 회의 테이블 ① (스케치: 가운데 위)
+    { type:'tableSet', x:6.9, z:5.3, w:1.25, d:2.6, top:'white', chairsLeft:3, chairsRight:3 },   // 회의 테이블 ② (가운데 아래)
     { type:'screen', x:6.9, z:0.18, w:2.2, rot:180 },
     { type:'whiteboard', x:3.91, z:4.79, w:2.4, rot:-90 },
     { type:'cabinet', x:8.4, z:0.47, w:1.6, d:0.4, h:0.6, color:'white' },

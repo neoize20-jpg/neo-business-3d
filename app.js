@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11181900';
+import { makeTextures, textTexture } from './textures.js?v=11181930';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -625,6 +625,7 @@ const ORBIT_HOME = { pos: new THREE.Vector3(W / 2 - 8.5, 26.5, D / 2 + 21.5), ta
   ORBIT_HOME.pos.sub(ORBIT_HOME.target).multiplyScalar(k).add(ORBIT_HOME.target);
 }
 let orbitSaved = { pos: ORBIT_HOME.pos.clone(), target: ORBIT_HOME.target.clone() };
+if (SHOT === 'plan') orbitSaved = { pos: new THREE.Vector3(W / 2, 33, D / 2 + 3.4), target: new THREE.Vector3(W / 2, 0, D / 2 + 0.2) };   // 위에서 내려다본 평면 스크린샷용
 const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const clamp01 = (t) => Math.max(0, Math.min(1, t));
 function quatLook(pos, target) { const m = new THREE.Matrix4().lookAt(pos, target, new THREE.Vector3(0, 1, 0)); return new THREE.Quaternion().setFromRotationMatrix(m); }
@@ -819,7 +820,7 @@ addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; cam
 
 /* ---------------- start ---------------- */
 const SHOTS = { entrance: 'entrance', lounge: 'lounge', edu: 'classroom', focus: 'focus' };
-const startMode = SHOT ? (SHOT === 'orbit' || SHOT === 'dollhouse' ? 'orbit' : 'walk') : (params.get('mode') || L.start?.mode || 'orbit');
+const startMode = SHOT ? (SHOT === 'orbit' || SHOT === 'dollhouse' || SHOT === 'plan' ? 'orbit' : 'walk') : (params.get('mode') || L.start?.mode || 'orbit');
 if (startMode === 'walk') goRoom(SHOTS[SHOT] || params.get('room') || L.start?.room || 'entrance', true);
 else { player.x = ROOMS.entrance.jump.x; player.z = ROOMS.entrance.jump.z; enterOrbit(true); }
 document.fonts.ready.then(() => { tick(); setTimeout(() => { const ld = document.getElementById('loading'); ld.style.opacity = 0; setTimeout(() => ld.remove(), 450); window.__ready = true; }, 400); });
