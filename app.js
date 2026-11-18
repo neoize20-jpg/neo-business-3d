@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11181960';
+import { makeTextures, textTexture } from './textures.js?v=11181990';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -72,6 +72,9 @@ const M = {
   glass: new THREE.MeshPhysicalMaterial({ color: 0xe6f1f6, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.14, depthWrite: false, side: THREE.DoubleSide, envMapIntensity: 1.6 }),
   frost: new THREE.MeshPhysicalMaterial({ color: 0xf2f5f7, roughness: 0.6, transparent: true, opacity: 0.74, depthWrite: false, side: THREE.DoubleSide }),
   mint: std({ color: 0xdcefe8, roughness: 0.07, envMapIntensity: 1.4 }),
+  winFrame: std({ color: 0xd8dadb, roughness: 0.38, metalness: 0.35 }),      // 밝은 회색 알루미늄 창틀(소회의실 사진)
+  blind: std({ color: 0xefebe3, roughness: 0.95, side: THREE.DoubleSide }),   // 롤스크린 원단
+  mirror: std({ color: 0xdce6ea, roughness: 0.05, metalness: 0.3, envMapIntensity: 1.8 }),  // 거울/유리 패널(교육장 동쪽 벽)
   screen: std({ color: 0xf6f6f6, roughness: 0.9, emissive: 0xffffff, emissiveIntensity: 0.05 }),
   tv: std({ color: 0x0c111c, roughness: 0.15, metalness: 0.2, emissive: 0x1a3d72, emissiveIntensity: 0.35 }),
   led: new THREE.MeshBasicMaterial({ color: 0xfdfdf8 }),
@@ -119,22 +122,54 @@ const WALLSEGS = [];   // 미니맵·벽 단면(cap)용
 /* 문: E키로 여닫는 회전 문짝. DOORS 에 등록되고, 닫힌 문은 충돌(통과 불가), 열린 문은 통과 가능 */
 const DOORS = [];
 function registerDoor(leaves, open, name) { const d = { leaves, target: open ? 1 : 0, cur: open ? 1 : 0, name, box: null, c: null }; DOORS.push(d); return d; }
-function door(hx, hz, w, baseRad, swingRad, leafMat, frameMat) {
+function door(hx, hz, w, baseRad, swingRad, leafMat, frameMat, style) {
   const g = new THREE.Group(); g.position.set(hx, 0, hz); g.rotation.y = baseRad; root.add(g);
   g.userData.noCollide = true; g.userData.dynamic = true;
+  if (style && style.frameless) {   // 프레임리스 유리문(사용자 사진): 바닥~천장, 시트 띠, 세로 블랙 D형 손잡이 0.3m, 상부 금속 패치
+    const top = H - 0.07;
+    for (const [y0, y1, m] of bandPieces(style, top)) { const p = new THREE.Mesh(new THREE.BoxGeometry(w - 0.03, y1 - y0, 0.012), m); p.position.set(w / 2, (y0 + y1) / 2 + 0.005, 0); g.add(p); }
+    box(0.16, 0.07, 0.035, M.metal, 0.1, top - 0.07, 0, g); box(0.16, 0.07, 0.035, M.metal, 0.1, 0.02, 0, g);   // 상·하 패치 피팅
+    const hx = w - 0.09;
+    for (const sd of [-1, 1]) { box(0.022, 0.3, 0.022, M.black, hx, 0.9, sd * 0.055, g); box(0.02, 0.02, 0.06, M.black, hx, 0.92, sd * 0.03, g); box(0.02, 0.02, 0.06, M.black, hx, 1.16, sd * 0.03, g); }
+    return { g, base: baseRad, swing: swingRad };
+  }
   const leaf = new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, 2.04, 0.02), leafMat); leaf.position.set(w / 2, 1.04, 0); g.add(leaf);
   box(w, 0.045, 0.05, frameMat, w / 2, 2.04, 0, g); box(w, 0.06, 0.05, frameMat, w / 2, 0, 0, g);
   box(0.045, 2.1, 0.05, frameMat, 0.022, 0, 0, g); box(0.045, 2.1, 0.05, frameMat, w - 0.022, 0, 0, g);
   box(0.025, 0.5, 0.06, M.metal, w - 0.12, 0.8, 0, g);
   return { g, base: baseRad, swing: swingRad };
 }
-function wallPiece(horiz, a0, a1, fixed, t, type) {
+const sz2 = (horiz, along, thick) => horiz ? [along, thick] : [thick, along];
+function bandPieces(wo, top = H - 0.06) {   // [y0, y1, 재질] 목록: 투명 / 시트 띠 / (줄무늬) / 투명
+  const b0 = wo.band?.[0] ?? 0.9, b1 = wo.band?.[1] ?? 2.0, pcs = [[0.035, b0, M.glass]];
+  if (wo.stripes) { const n = wo.stripes, sp = 0.05, s0 = b1 - n * sp - 0.04; pcs.push([b0, s0, M.frost]); let y = s0; for (let i = 0; i < n; i++) { pcs.push([y, y + 0.02, M.glass], [y + 0.02, y + sp, M.frost]); y += sp; } pcs.push([y, b1, M.frost]); }
+  else pcs.push([b0, b1, M.frost]);
+  pcs.push([b1, top, M.glass]); return pcs;
+}
+function wallPiece(horiz, a0, a1, fixed, t, type, wo = {}, inward = 0) {
   const len = a1 - a0; if (len < 0.005) return;
   const c = (a0 + a1) / 2, cx = horiz ? c : fixed, cz = horiz ? fixed : c;
   const Wd = horiz ? len : t, Dd = horiz ? t : len;
   const sz = (along, thick) => horiz ? [along, thick] : [thick, along];
   WALLSEGS.push(horiz ? { x1: a0, z1: fixed, x2: a1, z2: fixed, t, type } : { x1: fixed, z1: a0, x2: fixed, z2: a1, t, type });
   if (type === 'solid') { box(Wd, H, Dd, M.paint, cx, 0, cz); return; }
+  if (type === 'window' && wo.style === 'tall') {   // 바닥~천장 통창 (소회의실 사진 IMG_0414·0415): 밝은 회색 프레임, 가로 창살 2개, 롤스크린
+    const sill = wo.sill ?? 0.1, head = wo.head ?? 2.55, fwid = wo.frameW ?? 0.07, fdep = 0.1;
+    box(Wd, sill, Dd, M.paint, cx, 0, cz); box(Wd, H - head, Dd, M.paint, cx, head, cz);
+    const [pw, pd] = sz(len, 0.02); const pane = new THREE.Mesh(new THREE.BoxGeometry(pw, head - sill, pd), M.glass); pane.position.set(cx, (sill + head) / 2, cz); root.add(pane);
+    const [fw, fd] = sz(len, fdep);
+    box(fw, fwid, fd, M.winFrame, cx, sill, cz); box(fw, fwid, fd, M.winFrame, cx, head - fwid, cz);
+    for (const y of (wo.transoms || [1.62, 2.25])) box(fw, fwid * 0.8, fd, M.winFrame, cx, y - fwid * 0.4, cz);
+    const n = Math.max(1, Math.round(len / (wo.bay || 1.4)));
+    for (let i = 0; i <= n; i++) { const f = a0 + len * i / n; box(horiz ? fwid : fdep, head - sill, horiz ? fdep : fwid, M.winFrame, horiz ? f : cx, sill, horiz ? cz : f); }
+    const [kw, kd] = sz(len, t + 0.02); box(kw, 0.02, kd, M.white, cx, sill - 0.02, cz);      // 낮은 창턱
+    if (inward) {
+      const off = inward * (t / 2 + 0.06), bx = horiz ? cx : cx + off, bz = horiz ? cz + off : cz;
+      const [bw, bd] = sz(len, 0.09); box(bw, 0.1, bd, M.white, bx, H - 0.1, bz);                // 롤스크린 박스(천장 아래)
+      const bl = wo.blind ?? 0; if (bl > 0.001) { const yb = H - 0.1 - (H - 0.1 - sill) * bl; const [cw, cd] = sz(len - 0.04, 0.008); box(cw, H - 0.1 - yb, cd, M.blind, bx, yb, bz); box(cw, 0.025, 0.02, M.winFrame, bx, yb - 0.01, bz); }
+    }
+    return;
+  }
   if (type === 'window') {
     const sill = 0.45, head = 2.35;
     box(Wd, sill, Dd, M.paint, cx, 0, cz); box(Wd, H - head, Dd, M.paint, cx, head, cz);
@@ -144,6 +179,14 @@ function wallPiece(horiz, a0, a1, fixed, t, type) {
     const n = Math.max(1, Math.round(len / 1.3));
     for (let i = 0; i <= n; i++) { const f = a0 + len * i / n; box(0.05, head - sill, 0.05, M.frame, horiz ? f : cx, sill, horiz ? cz : f); }
     const [bw, bd] = sz(len, 0.1); box(bw, 0.11, bd, M.white, cx, head - 0.16, cz);          // 롤 블라인드 박스
+    return;
+  }
+  if (wo.style === 'band') {   // 라운지 쪽 유리 파티션 (사용자 사진): 바닥~천장 유리, 블랙 알루미늄 프레임, 0.9~2.0m 반투명 시트 띠(+선택: 위쪽 가는 줄무늬)
+    const pcs = bandPieces(wo);
+    for (const [y0, y1, m] of pcs) { const [pw, pd] = sz(len, 0.012); const p = new THREE.Mesh(new THREE.BoxGeometry(pw, y1 - y0, pd), m); p.position.set(cx, (y0 + y1) / 2, cz); root.add(p); }
+    const [fw, fd] = sz(len, 0.05); box(fw, 0.035, fd, M.frame, cx, 0, cz); box(fw, 0.06, fd, M.frame, cx, H - 0.06, cz);   // 바닥 레일·상부 트랙
+    const n = Math.max(1, Math.round(len / (wo.bay || 1.2)));
+    for (let i = 0; i <= n; i++) { const f = a0 + len * i / n; box(horiz ? 0.04 : 0.055, H, horiz ? 0.055 : 0.04, M.frame, horiz ? f : cx, 0, horiz ? cz : f); }   // 블랙 세로 멀리언
     return;
   }
   // glass: 블랙 프레임 + 반투명 시트(하부) + 투명 유리(상부)
@@ -171,19 +214,35 @@ for (const w of L.walls) {
   if (w.outer) { if (fixed <= 0.001) fixed += t / 2; else if (horiz ? fixed >= D - 0.001 : fixed >= W - 0.001) fixed -= t / 2; }
   const ops = [...(w.openings || [])].sort((p, q) => p.at - q.at);
   let cur = a0;
-  for (const o of ops) { wallPiece(horiz, cur, o.at, fixed, t, w.type); cur = o.at + o.width; }
-  wallPiece(horiz, cur, a1, fixed, t, w.type);
+  const inward = w.outer ? (fixed < (horiz ? D : W) / 2 ? 1 : -1) : 0;
+  for (const o of ops) { wallPiece(horiz, cur, o.at, fixed, t, w.type, w, inward); cur = o.at + o.width; }
+  wallPiece(horiz, cur, a1, fixed, t, w.type, w, inward);
+  if (w.sign) {   // 유리벽 레터링 (예: COACHING ROOM)
+    const sg = w.sign, c = document.createElement('canvas'); c.width = 1024; c.height = 128; const cx2 = c.getContext('2d');
+    cx2.fillStyle = sg.color || '#1d1f23'; cx2.font = '600 84px Pretendard, sans-serif'; cx2.textAlign = 'center'; cx2.textBaseline = 'middle';
+    const tw = cx2.measureText(sg.text).width, ic = sg.icon ? 90 : 0; cx2.fillText(sg.text, 512 + ic / 2, 68);
+    if (sg.icon) { const ix = 512 - tw / 2 - ic / 2 + 10; cx2.lineWidth = 7; cx2.strokeStyle = cx2.fillStyle; cx2.beginPath(); cx2.arc(ix, 66, 30, 0, Math.PI * 2); cx2.stroke(); cx2.beginPath(); cx2.arc(ix, 66, 11, 0, Math.PI * 2); cx2.fill(); }
+    const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+    const hgt = sg.size || 0.16, wd = hgt * 8, side = sg.side || 1;
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(wd, hgt), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false }));
+    pl.userData.keep = true; pl.renderOrder = 10; pl.position.set(horiz ? sg.at : fixed + side * 0.012, sg.y || 1.48, horiz ? fixed + side * 0.012 : sg.at);
+    pl.rotation.y = horiz ? (side > 0 ? 0 : Math.PI) : (side > 0 ? Math.PI / 2 : -Math.PI / 2); root.add(pl);
+  }
   for (const o of ops) {
     const len = o.width, c = o.at + len / 2, cx = horiz ? c : fixed, cz = horiz ? fixed : c;
     const lintel = 2.12;
-    if (w.type === 'glass') { const p = new THREE.Mesh(new THREE.BoxGeometry(horiz ? len : 0.02, H - lintel, horiz ? 0.02 : len), M.glass); p.position.set(cx, (H + lintel) / 2, cz); root.add(p); box(horiz ? len : 0.06, 0.05, horiz ? 0.06 : len, M.frame, cx, H - 0.05, cz); }
+    if (o.door === 'frameless') { const [fw, fd] = sz2(horiz, len, 0.05); box(fw, 0.06, fd, M.frame, cx, H - 0.06, cz); box(horiz ? 0.04 : 0.055, H, horiz ? 0.055 : 0.04, M.frame, horiz ? o.at : cx, 0, horiz ? cz : o.at); box(horiz ? 0.04 : 0.055, H, horiz ? 0.055 : 0.04, M.frame, horiz ? o.at + len : cx, 0, horiz ? cz : o.at + len); }
+    else if (w.type === 'glass') { const p = new THREE.Mesh(new THREE.BoxGeometry(horiz ? len : 0.02, H - lintel, horiz ? 0.02 : len), M.glass); p.position.set(cx, (H + lintel) / 2, cz); root.add(p); box(horiz ? len : 0.06, 0.05, horiz ? 0.06 : len, M.frame, cx, H - 0.05, cz); }
     else box(horiz ? len : t, H - lintel, horiz ? t : len, M.paint, cx, lintel, cz);
     const fm = o.frame === 'white' ? M.white : M.frame;
-    box(horiz ? len + 0.06 : t + 0.02, 0.05, horiz ? t + 0.02 : len + 0.06, fm, cx, lintel - 0.05, cz);
+    if (o.door !== 'frameless') box(horiz ? len + 0.06 : t + 0.02, 0.05, horiz ? t + 0.02 : len + 0.06, fm, cx, lintel - 0.05, cz);
     if (!o.door || o.door === 'none') continue;
     const leafMat = o.door === 'wood' ? M.white : (w.type === 'glass' ? M.frost : M.glass);
     const baseStart = horiz ? 0 : -Math.PI / 2, baseEnd = horiz ? Math.PI : Math.PI / 2;
-    if (o.double) {
+    if (o.door === 'frameless') {
+      const start = (o.hinge || 'start') === 'start', sw = (o.swing || 80) * DEG, hp = start ? o.at : o.at + len;
+      registerDoor([door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, M.glass, fm, { frameless: true, band: w.band, stripes: w.stripes })], o.open === true, o.name);
+    } else if (o.double) {
       const hw = len / 2, sw = (o.swing || 80) * DEG;
       registerDoor([door(horiz ? o.at : fixed, horiz ? fixed : o.at, hw, baseStart, -sw, leafMat, fm),
                     door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm)], o.open === true, o.name);
@@ -219,6 +278,32 @@ for (const p of (L.ceiling?.panels || [])) {
     box(0.62, 0.02, 0.62, M.fixture, x, H - 0.025, z); box(0.58, 0.01, 0.58, M.led, x, H - 0.032, z);
   }
 }
+for (const p of (L.ceiling?.strips || [])) {          // 일자형(라인) LED 조명
+  const len = p.len || 1.2, wd = p.w || 0.16, sg = new THREE.Group(); sg.position.set(p.x, 0, p.z); sg.rotation.y = (p.rot || 0) * DEG; root.add(sg);
+  box(wd + 0.03, 0.02, len + 0.03, M.fixture, 0, H - 0.025, 0, sg); box(wd, 0.01, len, M.led, 0, H - 0.032, 0, sg);
+}
+const projLabels = []; const pm0 = (p) => p.color ? matOf(p.color) : M.white;
+for (const [x, z] of (L.ceiling?.downlights || [])) { cyl(0.075, 0.075, 0.012, M.fixture, x, H - 0.014, z, 20); cyl(0.058, 0.058, 0.006, M.led, x, H - 0.02, z, 20); }
+for (const p of (L.ceiling?.projectors || [])) {      // 천장형 빔 프로젝터 (흰 본체 + 렌즈, 짧은 천장 행거)
+  const pg = new THREE.Group(); pg.position.set(p.x, 0, p.z); root.add(pg);
+  const aim = p.aim || [p.x, 0]; pg.rotation.y = Math.atan2(-(aim[0] - p.x), -(aim[1] - p.z));   // 렌즈(로컬 -z)가 aim 을 향함
+  const drop = p.drop ?? 0.32, by = H - drop - 0.13;
+  cyl(0.09, 0.09, 0.012, pm0(p), 0, H - 0.012, 0, 24, pg);                        // 천장 플레이트
+  cyl(0.018, 0.018, drop - 0.03, M.metal, 0, by + 0.13 + 0.02, 0, 12, pg);          // 행거 봉
+  box(0.16, 0.025, 0.12, M.black, 0, by + 0.125, 0, pg);                            // 마운트 브래킷
+  const pm = p.color ? matOf(p.color) : M.white; const body = box(0.36, 0.12, 0.30, pm, 0, by, 0, pg); body.rotation.x = -0.05; // 본체
+  const lens = cyl(0.042, 0.048, 0.035, p.color === 'black' ? M.metal : M.black, 0, 0, 0, 24, pg); lens.rotation.x = Math.PI / 2; lens.position.set(0.09, by + 0.06, -0.165);
+  const glass = cyl(0.03, 0.03, 0.006, new THREE.MeshStandardMaterial({ color: 0x1b2a44, roughness: 0.05, metalness: 0.6 }), 0, 0, 0, 20, pg); glass.rotation.x = Math.PI / 2; glass.position.set(0.09, by + 0.06, -0.185);
+  box(0.2, 0.004, 0.03, M.black, -0.06, by + 0.12, 0.13, pg);                       // 통풍구
+  if (p.label !== false) {
+    const c = document.createElement('canvas'); c.width = 320; c.height = 72; const cx = c.getContext('2d');
+    cx.fillStyle = 'rgba(11,46,103,0.88)'; cx.beginPath(); cx.roundRect(2, 2, 316, 68, 18); cx.fill();
+    cx.fillStyle = '#fff'; cx.font = '700 40px Pretendard, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(p.label || '프로젝트 빔', 160, 38);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthWrite: false })); const th = p.labelSize || 0.12;
+    sp.scale.set(th * 320 / 40, th * 72 / 40, 1);   /* 글자 높이 ≈ th(m) */ sp.position.set(p.x, by - 0.14, p.z); sp.renderOrder = 5; scene.add(sp); projLabels.push(sp);
+  }
+}
 for (const [x, z] of (L.ceiling?.aircon || [])) { box(0.84, 0.04, 0.84, M.fixture, x, H - 0.045, z); box(0.5, 0.012, 0.5, M.fixture, x, H - 0.055, z); }
 
 /* ---------------- furniture builders ---------------- */
@@ -227,7 +312,8 @@ function chair(g, o = {}) {      // 사무용 회전의자 (등받이 = 로컬 +
   const m = o.color ? matOf(o.color) : M.black;
   box(0.46, 0.07, 0.44, m, 0, 0.42, 0, g); box(0.44, 0.42, 0.05, m, 0, 0.52, 0.22, g);
   cyl(0.025, 0.025, 0.38, M.metal, 0, 0.05, 0, 8, g);
-  for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; const leg = box(0.28, 0.03, 0.04, M.black, Math.cos(a) * 0.13, 0.03, Math.sin(a) * 0.13, g); leg.rotation.y = -a; }
+  for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; const leg = box(0.28, 0.03, 0.04, o.base === 'silver' ? M.metal : M.black, Math.cos(a) * 0.13, 0.03, Math.sin(a) * 0.13, g); leg.rotation.y = -a; if (o.base === 'silver') cyl(0.022, 0.022, 0.03, M.black, Math.cos(a) * 0.26, 0, Math.sin(a) * 0.26, 8, g); }
+  if (o.tag) box(0.09, 0.055, 0.004, M.white, 0, 0.82, 0.248, g);   // 등받이 뒤 흰 이름표
 }
 function meshChair(g) {   // 사진 속 NEOBOX 의자: 흰 5발 베이스 + 베이지 시트 + 흰 루프 팔걸이 + 연회색 메쉬 등받이 (등받이 = 로컬 +z, 정면 = -z)
   const W2 = M.white, seat = matOf('fabricBeige');
@@ -300,10 +386,11 @@ function legs4(g, w, d, h, m, inset = 0.06, sz = 0.04) {
 function desk(g, o) {
   const w = o.w || 1.4, d = o.d || 0.6, h = o.h || 0.72;
   box(w, 0.035, d, matOf(o.top || 'white'), 0, h - 0.035, 0, g); legs4(g, w, d, h - 0.035, matOf(o.legs || 'metal'));
+  if (o.casters) { box(w - 0.1, 0.25, 0.012, M.white, 0, h - 0.29, -d / 2 + 0.08, g); for (const sx of [-1, 1]) for (const sz2 of [-1, 1]) cyl(0.025, 0.025, 0.04, M.black, sx * (w / 2 - 0.06), 0, sz2 * (d / 2 - 0.06), 8, g); }   // 접이식 강의 책상: 앞 가림판 + 바퀴
 }
 function deskPair(g, o) {   // 책상 + 뒤쪽 의자 n개(기본 2), 의자는 책상(북쪽, -z)을 바라봄
-  const w = o.w || 1.5, d = o.d || 0.5, n = o.chairs || 2; desk(g, { w, d });
-  for (let i = 0; i < n; i++) chair(grp(n === 2 ? (i ? 1 : -1) * w * 0.24 : -w / 2 + w / (2 * n) + i * w / n, d / 2 + 0.3, 0, g), {});
+  const w = o.w || 1.5, d = o.d || 0.5, n = o.chairs || 2; desk(g, { w, d, casters: o.casters });
+  for (let i = 0; i < n; i++) chair(grp(n === 2 ? (i ? 1 : -1) * w * 0.24 : -w / 2 + w / (2 * n) + i * w / n, d / 2 + 0.3, 0, g), { tag: o.tag, base: o.chairBase });
 }
 /* 단상(무대): 걸어 올라갈 수 있는 낮은 플랫폼. 위에 놓는 가구는 elev(바닥에서 띄우는 높이)를 단상 높이로 */
 const PLATFORMS = [];
@@ -330,7 +417,16 @@ function tableSet(g, o) {   // 테이블(세로 d 방향으로 길게) + 양옆 
   const place = (cnt, side) => { for (let i = 0; i < cnt; i++) { const z = cnt === 1 ? 0 : -d / 2 + inset + i * (d - 2 * inset) / (cnt - 1); chair(grp(side * (w / 2 + 0.275), z, side * 90, g), {}); } };
   place(o.chairsLeft || 0, -1); place(o.chairsRight || 0, 1);
 }
-function whiteboard(g, o) { box(o.w || 2, 1.05, 0.04, M.mint, 0, 0.95, 0, g); }
+function whiteboard(g, o) {
+  if (o.style === 'mirror') {   // 대형 유리/거울 패널 + 하부 선반(교육장 동쪽 벽, 사진 IMG_0382)
+    const w = o.w || 2, n = Math.max(1, Math.round(w / 1.2)), y0 = o.y0 ?? 0.9, y1 = o.y1 ?? 2.45;
+    box(w, y1 - y0, 0.02, M.mirror, 0, y0, 0, g);
+    for (let i = 0; i <= n; i++) box(0.02, y1 - y0, 0.035, M.frame, -w / 2 + w * i / n, y0, -0.008, g);
+    box(w, 0.025, 0.035, M.frame, 0, y1, -0.008, g);
+    box(w, 0.03, 0.1, M.white, 0, y0 - 0.03, -0.04, g); return;   // 선반(레지)
+  }
+  box(o.w || 2, 1.05, 0.04, M.mint, 0, 0.95, 0, g);
+}
 function screen(g, o) { const w = o.w || 2.2; box(w + 0.06, 1.46, 0.015, M.black, 0, 0.92, 0.01, g); box(w, 1.4, 0.02, M.screen, 0, 0.95, -0.01, g); box(w + 0.2, 0.12, 0.14, M.black, 0, 2.38, -0.04, g); }
 function tvStand(g) { box(1.3, 0.75, 0.07, M.tv, 0, 0.55, 0, g); box(0.05, 0.6, 0.05, M.black, -0.45, 0, 0, g); box(0.05, 0.6, 0.05, M.black, 0.45, 0, 0, g); box(1.1, 0.04, 0.5, M.black, 0, 0, 0, g); }
 function tvWall(g, o) {
