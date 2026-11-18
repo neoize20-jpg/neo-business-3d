@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11181930';
+import { makeTextures, textTexture } from './textures.js?v=11181960';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -301,10 +301,24 @@ function desk(g, o) {
   const w = o.w || 1.4, d = o.d || 0.6, h = o.h || 0.72;
   box(w, 0.035, d, matOf(o.top || 'white'), 0, h - 0.035, 0, g); legs4(g, w, d, h - 0.035, matOf(o.legs || 'metal'));
 }
-function deskPair(g, o) {
-  const w = o.w || 1.5, d = o.d || 0.5; desk(g, { w, d });
-  for (const dx of [-w * 0.24, w * 0.24]) chair(grp(dx, d / 2 + 0.3, 0, g), {});
+function deskPair(g, o) {   // 책상 + 뒤쪽 의자 n개(기본 2), 의자는 책상(북쪽, -z)을 바라봄
+  const w = o.w || 1.5, d = o.d || 0.5, n = o.chairs || 2; desk(g, { w, d });
+  for (let i = 0; i < n; i++) chair(grp(n === 2 ? (i ? 1 : -1) * w * 0.24 : -w / 2 + w / (2 * n) + i * w / n, d / 2 + 0.3, 0, g), {});
 }
+/* 단상(무대): 걸어 올라갈 수 있는 낮은 플랫폼. 위에 놓는 가구는 elev(바닥에서 띄우는 높이)를 단상 높이로 */
+const PLATFORMS = [];
+function stage(g, o) {
+  const w = o.w || 4, d = o.d || 1.5, h = o.h || 0.2;
+  box(w, h - 0.02, d, M.black, 0, 0, 0, g);                                 // 몸체(검정 측면)
+  box(w, 0.02, d, matOf(o.top || 'oak'), 0, h - 0.02, 0, g);               // 상판
+  box(w, 0.012, 0.05, M.metal, 0, h - 0.012, d / 2 - 0.025, g);           // 앞 모서리 논슬립 금속 엣지
+  if (o.step !== false) { box(Math.min(1.2, w * 0.3), h / 2, 0.3, matOf(o.top || 'oak'), o.stepX || 0, 0, d / 2 + 0.15, g); }   // 앞쪽 계단 한 칸
+  g.userData.noCollide = true; g.userData.noBlob = true;
+  const r = o.rot || 0; if (r % 180 !== 0) console.warn('stage 는 rot 0/180 만 지원');
+  PLATFORMS.push({ x0: o.x - w / 2, x1: o.x + w / 2, z0: o.z - d / 2, z1: o.z + d / 2, h });
+  if (o.step !== false) { const sx = o.x + (o.stepX || 0), sw = Math.min(1.2, w * 0.3); PLATFORMS.push({ x0: sx - sw / 2, x1: sx + sw / 2, z0: o.z + d / 2, z1: o.z + d / 2 + 0.3, h: h / 2 }); }
+}
+function floorHeight(x, z) { let h = 0; for (const p of PLATFORMS) if (x >= p.x0 - 0.05 && x <= p.x1 + 0.05 && z >= p.z0 - 0.05 && z <= p.z1 + 0.05) h = Math.max(h, p.h); return h; }
 function tableSet(g, o) {   // 테이블(세로 d 방향으로 길게) + 양옆 의자
   const w = o.w, d = o.d, h = 0.72, mods = o.modules || 1, legs = matOf(o.legs || (o.top === 'darkTop' ? 'metal' : 'black'));
   for (let i = 0; i < mods; i++) {
@@ -394,8 +408,8 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
-const NOBLOB = new Set(['whiteboard', 'screen', 'tvWall', 'mat', 'slats', 'booth']);
+const BUILDERS = { stage, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
+const NOBLOB = new Set(['stage', 'whiteboard', 'screen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o) {
   if (o.type === 'array') {
@@ -405,7 +419,7 @@ function place(o) {
   }
   if (o.type === 'slats') { slats(o); return; }
   const fn = BUILDERS[o.type]; if (!fn) { console.warn('알 수 없는 가구 type:', o.type, o); return; }
-  const g = grp(o.x, o.z, o.rot || 0); fn(g, o);
+  const g = grp(o.x, o.z, o.rot || 0); if (o.elev) g.position.y = o.elev; fn(g, o);
   if (!NOBLOB.has(o.type) && !g.userData.noBlob) blobs.push(g);
 }
 for (const f of L.furniture) place(f);
@@ -800,7 +814,8 @@ function step(dt) {
     if (stuck || !blocked(player.x + dx, player.z)) player.x += dx;
     if (stuck || !blocked(player.x, player.z + dz)) player.z += dz;
   }
-  camera.position.set(player.x, EYE, player.z); camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
+  player.y = (player.y ?? 0) + (floorHeight(player.x, player.z) - (player.y ?? 0)) * Math.min(1, dt * 10);   // 단상 위로 올라가면 눈높이도 올라감
+  camera.position.set(player.x, EYE + player.y, player.z); camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
 }
 function tick() {
   requestAnimationFrame(tick);
