@@ -304,9 +304,11 @@ function booth(g, o) {   // NEOBOX 1인 부스: 앞(문) = 로컬 -z
   box(0.04, 2.1, 0.055, M.black, 0.02, 0, 0, dg); box(0.04, 2.1, 0.055, M.black, lw - 0.02, 0, 0, dg);
   box(0.22, ph, 0.05, M.black, x1 - 0.13, 0, z0 + 0.02, g); box(0.04, ph - 0.1, 0.05, M.black, x0 + 0.12, 0.04, z0 + 0.02, g); box(w, ph - 2.1, 0.05, M.black, 0, 2.1, z0 + 0.02, g);
   if (o.label) { const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.17), new THREE.MeshBasicMaterial({ map: textTexture(o.label) })); lab.position.set(0, 2.15, z0 - 0.01); lab.rotation.y = Math.PI; lab.userData.keep = true; g.add(lab); }
-  box(w - 0.2, 0.035, 0.5, M.oak, 0, 0.72, z1 - 0.33, g); box(0.04, 0.72, 0.4, M.white, x0 + 0.14, 0, z1 - 0.33, g);
-  box(0.5, 0.3, 0.03, M.tv, 0, 0.82, z1 - 0.15, g); box(0.04, 0.1, 0.04, M.black, 0, 0.75, z1 - 0.15, g);
-  chair(grp(0, z1 - 0.85, 180, g), { color: 'chairLight' });
+  // 책상: 문에서 봤을 때 왼쪽 벽(로컬 +x)에 붙어 있고, 의자는 그 벽을 바라봄
+  const dz = 0.15, dl = d - 0.45;
+  box(0.55, 0.035, dl, M.white, x1 - 0.35, 0.72, dz, g); box(0.4, 0.72, 0.04, M.white, x1 - 0.35, 0, dz + dl / 2 - 0.05, g);
+  box(0.03, 0.3, 0.5, M.tv, x1 - 0.14, 0.82, dz + 0.2, g); box(0.04, 0.1, 0.04, M.black, x1 - 0.14, 0.75, dz + 0.2, g);
+  chair(grp(x1 - 0.95, dz + 0.05, -90, g), { color: 'chairLight' });
 }
 function pantry(g, o) {   // 탕비 카운터: 뒤(벽) = 로컬 +z
   const w = o.w || 5, x0 = -w / 2;
@@ -493,7 +495,7 @@ function stepFlight(dt) {
   camera.fov = f.f0 + (f.f1 - f.f0) * ease(t); camera.updateProjectionMatrix();
   if (t >= 1) { flight = null; document.body.classList.remove('flying'); f.done && f.done(); }
 }
-function setModeUI() {
+function setModeUI() { if (mode !== "walk" && document.pointerLockElement) document.exitPointerLock();
   document.body.classList.toggle('orbit', mode === 'orbit'); document.body.classList.toggle('walk', mode === 'walk');
   document.querySelectorAll('#modes button').forEach((b) => b.classList.toggle('on', b.dataset.mode === mode));
 }
@@ -542,7 +544,26 @@ addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const cv = renderer.domElement; let drag = null;
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
 function floorAt(cx, cy) { ndc.set(cx / innerWidth * 2 - 1, -(cy / innerHeight) * 2 + 1); ray.setFromCamera(ndc, camera); return ray.ray.intersectPlane(floorPlane, hit) && hit.x >= 0 && hit.x <= W && hit.z >= 0 && hit.z <= D ? hit.clone() : null; }
-cv.addEventListener('pointerdown', (e) => { drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now() }; if (mode === 'walk') cv.setPointerCapture(e.pointerId); });
+/* 걷기 모드(PC): 화면을 한 번 클릭하면 마우스가 시점에 고정되어, 마우스를 움직이는 방향으로 둘러봐요. Esc로 해제. */
+const LOCKABLE = !TOUCH && !SHOT && 'requestPointerLock' in cv;
+const isLocked = () => document.pointerLockElement === cv;
+const lockHint = document.createElement('div'); lockHint.id = 'lockHint';
+lockHint.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 18px;border-radius:12px;background:rgba(18,36,82,.82);color:#fff;font:600 14px Pretendard,sans-serif;pointer-events:none;z-index:30;display:none;text-align:center;line-height:1.5';
+lockHint.innerHTML = '화면을 클릭하면 마우스로 둘러볼 수 있어요<br><span style="font-weight:400;opacity:.8">Esc를 누르면 해제 · 이름표·버튼을 누르려면 먼저 Esc</span>';
+document.body.appendChild(lockHint);
+const crosshair = document.createElement('div');
+crosshair.style.cssText = 'position:fixed;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px rgba(18,36,82,.7);pointer-events:none;z-index:30;display:none';
+document.body.appendChild(crosshair);
+function updLockUI() { const w = LOCKABLE && mode === 'walk' && !flight; lockHint.style.display = w && !isLocked() ? 'block' : 'none'; crosshair.style.display = isLocked() ? 'block' : 'none'; }
+document.addEventListener('pointerlockchange', updLockUI);
+setInterval(updLockUI, 300);
+document.addEventListener('mousemove', (e) => {
+  if (!isLocked() || mode !== 'walk') return;
+  player.yaw -= e.movementX * 0.0022; player.pitch = Math.max(-1.1, Math.min(0.9, player.pitch - e.movementY * 0.0022));
+});
+cv.addEventListener('pointerdown', (e) => {
+  if (LOCKABLE && mode === 'walk' && !flight && e.pointerType === 'mouse') { if (!isLocked()) cv.requestPointerLock(); return; }
+  drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now() }; if (mode === 'walk') cv.setPointerCapture(e.pointerId); });
 cv.addEventListener('pointermove', (e) => {
   if (EDIT && editTip) { const p = floorAt(e.clientX, e.clientY); editTip.textContent = p ? `x ${p.x.toFixed(2)} m · z ${p.z.toFixed(2)} m` : '건물 밖'; }
   if (!drag || drag.id !== e.pointerId || mode !== 'walk') return;
@@ -647,7 +668,7 @@ function tick() {
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); labelR.setSize(innerWidth, innerHeight); });
 
 /* ---------------- start ---------------- */
-const SHOTS = { entrance: 'entrance', lounge: 'lounge', edu: 'classroom' };
+const SHOTS = { entrance: 'entrance', lounge: 'lounge', edu: 'classroom', focus: 'focus' };
 const startMode = SHOT ? (SHOT === 'orbit' || SHOT === 'dollhouse' ? 'orbit' : 'walk') : (params.get('mode') || L.start?.mode || 'orbit');
 if (startMode === 'walk') goRoom(SHOTS[SHOT] || params.get('room') || L.start?.room || 'entrance', true);
 else { player.x = ROOMS.entrance.jump.x; player.z = ROOMS.entrance.jump.z; enterOrbit(true); }
