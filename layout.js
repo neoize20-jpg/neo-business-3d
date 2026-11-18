@@ -192,9 +192,6 @@ window.LAYOUT = {
     { type:'armchair', x:7.45, z:12.46, rot:9,  color:'fabricTeal' },
     { type:'cube', x:8.05, z:12.56, size:0.45, color:'fabricTeal' },
     { type:'purifier', x:9.34, z:13.41 },
-    { type:'roundTable', x:3.4, z:13.39, r:0.42 },
-    { type:'armchair', x:2.6, z:13.69, rot:72,  color:'fabricBeige' },
-    { type:'armchair', x:4.1, z:14.09, rot:-54, color:'fabricTeal' },
     { type:'plant', x:0.52, z:16.39, scale:1.1 },
 
     /* --- 입구 --- */
