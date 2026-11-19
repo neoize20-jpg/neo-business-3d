@@ -39,7 +39,7 @@ window.LAYOUT = {
       card:{ photos:['IMG_0415','IMG_0418','IMG_0419','IMG_0416'],
              desc:'창가 쪽 코너에 있는 작은 회의실이에요. 블랙 미팅 테이블과 화이트보드가 있고, 기둥 뒤 창가에는 L자 바 테이블과 바 스툴이 있어요.' } },
     { id:'meeting', name:'회의실', en:'Meeting Room', rect:[2.63, 0, 6.75, 6.22], floor:'floor', capacity:12, area:23,
-      label:[4.63, 3.0], jump:{ x:3.35, z:5.6, look:[4.9, 0.6] },
+      label:[3.35, 3.0], jump:{ x:3.35, z:5.6, look:[4.9, 0.6] },
       card:{ photos:['IMG_0393','IMG_0391','IMG_0390'],
              desc:'MEETING ROOM. 긴 화이트 테이블과 블랙 체어, 프로젝터 스크린과 화이트보드를 갖춘 회의실이에요. 라운지 쪽은 통유리벽이에요.',
              use:'교육 · 면접 · 회의 · 간담회 · 세미나',
@@ -154,7 +154,8 @@ window.LAYOUT = {
       { x:8.2, z:7.4, len:1.2 }, { x:11.2, z:7.4, len:1.2 }
     ],
     projectors: [
-      { x:9.69, z:5.9, aim:[9.555, 0.64], drop:0.3, color:'black', label:'프로젝트 빔' }   // 에어컨 뒤쪽, 내려오는 스크린 정면을 향함
+      { x:9.69, z:5.9, aim:[9.555, 0.64], drop:0.3, color:'black', label:'프로젝트 빔' },
+      { x:4.63, z:4.2, aim:[4.63, 0.59], drop:0.15, color:'white', label:'프로젝트 빔' }   // 회의실: 천장 흰색 프로젝터(사진 IMG_0391), 스크린을 향함   // 에어컨 뒤쪽, 내려오는 스크린 정면을 향함
     ],
     downlights: [[7.4, 1.0], [8.2, 1.0], [10.9, 1.0], [11.8, 1.0]],   // 앞쪽 작은 원형 다운라이트
     aircon: [[4.63, 2.96], [9.69, 4.0, 1.0], [1.96, 8.9, 1.0]]   // [x, z, 크기] — 회의실, 교육장 1대, 라운지 1대
@@ -193,7 +194,8 @@ window.LAYOUT = {
     { type:'block', x:2.63, z:6.22, w:0.16, d:0.08, h:2.7, color:'black' },   // 두 문 사이 블랙 기둥(벽 끝 마감)
     { type:'tableSet', x:4.63, z:1.83, w:0.98, d:2.1, top:'white', chairsLeft:3, chairsRight:3 },    // 회의 테이블 ① x4.14–5.12, z0.78–2.88
     { type:'tableSet', x:4.63, z:4.115, w:0.98, d:2.13, top:'white', chairsLeft:3, chairsRight:3 },  // 회의 테이블 ② x4.14–5.12, z3.05–5.18 (총 12석)
-    { type:'screen', x:4.63, z:0.18, w:1.8, rot:180 },
+    // 천장 매입형 전동 스크린: 사진(IMG_0391·0393)처럼 창문 쪽(북쪽) 벽 앞 천장에서 내려와 긴 테이블 축을 바라봄. 북쪽 벽 안쪽 면(z0.24)에서 0.35m 앞
+    { type:'ceilingScreen', x:4.63, z:0.59, w:2.0, h:1.65 },   // 아래 바가 바닥에서 약 0.95m
     { type:'whiteboard', x:2.72, z:3.0, w:2.0, rot:-90 },
     { type:'cabinet', x:6.05, z:0.45, w:0.9, d:0.4, h:0.6, color:'white' },
 
