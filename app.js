@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191420';
+import { makeTextures, textTexture } from './textures.js?v=11191500';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -789,12 +789,13 @@ const DESK_COLL = deskGroups.map((lg) => {
   return out;
 });
 const PR = 0.24;
+const DESK_BB = DESK_COLL.map((l) => l.length ? l.reduce((b, [a, c, e, f]) => [Math.min(b[0], a - PR), Math.min(b[1], c - PR), Math.max(b[2], e + PR), Math.max(b[3], f + PR)], [1e9, 1e9, -1e9, -1e9]) : null);   // 배치별 책상 영역(충돌 검사 범위)
 const circleHits = (x, z, a, b, c, d) => { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); return (x - cx) ** 2 + (z - cz) ** 2 < PR * PR; };
 const doorClosed = (d, plan) => d.target === 0 || (!plan && d.cur < 0.85);
 function blocked(x, z, plan = false) {
   if (x < PR || z < PR || x > W - PR || z > D - PR) { const cr = L.corridor?.rect; if (!(cr && x > cr[0] + PR && x < cr[2] - PR && z >= D - PR && z < cr[3] - PR)) return true; }
   for (const d of DOORS) if (doorClosed(d, plan) && circleHits(x, z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) return true;
-  const dc = DESK_COLL[deskIdx]; if (dc && x > 6.6 && z < 9.4) for (const [a, b, c, d] of dc) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
+  const dc = DESK_COLL[deskIdx], db = DESK_BB[deskIdx]; if (dc && db && x > db[0] && x < db[2] && z > db[1] && z < db[3]) for (const [a, b, c, d] of dc) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
   const gx = Math.floor(x / CELL), gz = Math.floor(z / CELL);
   for (let i = gx - 1; i <= gx + 1; i++) for (let j = gz - 1; j <= gz + 1; j++) {
     const l = grid.get(i + ',' + j); if (!l) continue;
@@ -848,9 +849,9 @@ function openCard(id) {
   const r = ROOMS[id], c = r.card || { photos: [], desc: '' };
   Object.values(tagEls).forEach((e) => e.classList.remove('active')); tagEls[id].classList.add('active');
   document.getElementById('cEn').textContent = r.en; document.getElementById('cTitle').textContent = r.name;
-  const main = document.getElementById('cMain'); main.src = c.photos[0] ? `photos/${c.photos[0]}.jpg` : ''; main.alt = r.name;
+  const main = document.getElementById('cMain'); main.src = c.photos[0] ? `${L.photoDir || 'photos/'}${c.photos[0]}.jpg` : ''; main.alt = r.name;
   const th = document.getElementById('cThumbs'); th.innerHTML = '';
-  c.photos.forEach((p, i) => { const im = document.createElement('img'); im.src = `photos/${p}.jpg`; if (!i) im.className = 'on'; im.onclick = () => { main.src = im.src; th.querySelectorAll('img').forEach((x) => x.classList.remove('on')); im.classList.add('on'); }; th.appendChild(im); });
+  c.photos.forEach((p, i) => { const im = document.createElement('img'); im.src = `${L.photoDir || 'photos/'}${p}.jpg`; if (!i) im.className = 'on'; im.onclick = () => { main.src = im.src; th.querySelectorAll('img').forEach((x) => x.classList.remove('on')); im.classList.add('on'); }; th.appendChild(im); });
   document.getElementById('cInfo').innerHTML = `<span>수용 인원 ${r.capacity ?? '○○'}명</span><span>면적 ${r.area ?? '○○'}㎡</span>`;
   document.getElementById('cDesc').textContent = c.desc;
   const ex = document.getElementById('cExtra'); ex.innerHTML = '';

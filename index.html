@@ -107,17 +107,51 @@ body.walk .tag{display:none}   /* 걷기: 방 이름 핀은 숨기고 왼쪽 위
 #equipTip{position:fixed;z-index:9;pointer-events:none;max-width:260px;background:rgba(11,46,103,.72);color:#fff;border-radius:10px;padding:7px 11px 8px;font-size:11.5px;line-height:1.5;box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .12s;backdrop-filter:blur(3px)}
 #equipTip.on{opacity:1}#equipTip b{font-size:13px;font-weight:800;margin-right:6px}#equipTip small{font-size:10.5px;opacity:.7}#equipTip div{opacity:.92}
 #equipTip.top{left:50%!important;top:112px!important;transform:translateX(-50%)}
+#siteBtn{margin-left:8px;vertical-align:4px;font:700 11px Pretendard,sans-serif;color:var(--navy);background:#eef2f8;border:1px solid #d5ddea;border-radius:999px;padding:3px 9px;cursor:pointer;pointer-events:auto}
+#siteBtn:hover{background:var(--orange);border-color:var(--orange);color:#fff}
+#siteMenu{display:none;margin-top:8px;border-top:1px solid #e6ebf3;padding-top:6px;pointer-events:auto}
+#siteMenu.on{display:block}#siteMenu a{display:flex;justify-content:space-between;gap:10px;padding:6px 4px;font-size:12.5px;font-weight:700;color:var(--navy);text-decoration:none;border-radius:6px}
+#siteMenu a:hover{background:#f3f6fb}#siteMenu a.cur{color:var(--orange)}#siteMenu a small{font-weight:600;color:#8a94a6;font-size:11px}
+#picker{display:none;position:fixed;inset:0;z-index:30;overflow:auto;background:linear-gradient(160deg,#f6f8fc 0%,#e9eef7 100%)}
+body.picker #picker{display:block}body.picker header,body.picker #modes,body.picker #mapwrap,body.picker #jumps,body.picker #help,body.picker #quality,body.picker #deskBtn,body.picker #loading,body.picker #card{display:none!important}
+.pk-in{max-width:1080px;margin:0 auto;padding:64px 24px 40px}
+.pk-brand{font-size:12px;font-weight:800;letter-spacing:2.6px;color:var(--orange)}
+.pk-h{margin:8px 0 6px;font-size:34px;font-weight:800;color:var(--navy);letter-spacing:-1px}
+.pk-p{margin:0 0 30px;color:#55607a;font-size:15px}
+.pk-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.pk-card{display:block;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(11,46,103,.10);text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s;position:relative}
+a.pk-card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(11,46,103,.18)}
+.pk-card .th{height:180px;background:#0B2E67 center/cover no-repeat;position:relative}
+.pk-card .th.ph{background:linear-gradient(135deg,#0B2E67,#1d4a91);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-weight:800;font-size:15px;letter-spacing:1px}
+.pk-card .bd{padding:18px 20px 20px}.pk-card .nm{font-size:21px;font-weight:800;color:var(--navy)}.pk-card .sb{font-size:12px;font-weight:700;color:var(--orange);letter-spacing:.5px;margin-top:2px}
+.pk-card .ad{font-size:12.5px;color:#6b7489;margin-top:8px}.pk-card .ds{font-size:13px;color:#3d4659;margin-top:6px}
+.pk-card .go{margin-top:14px;display:inline-block;background:var(--orange);color:#fff;font-weight:800;font-size:13px;padding:8px 14px;border-radius:999px}
+.pk-card.soon{cursor:default}.pk-card.soon .go{background:#c9d1df}
+.pk-card .badge{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.92);color:var(--navy);font-weight:800;font-size:12px;padding:5px 10px;border-radius:999px}
+.pk-card.soon .badge{background:var(--orange);color:#fff}
+.pk-foot{margin-top:36px;color:#97a0b3;font-size:12px;text-align:center}
+@media (max-width:700px){.pk-in{padding:36px 16px}.pk-h{font-size:26px}#siteBtn{font-size:10px;padding:2px 7px}}
 </style>
 </head>
 <body>
 <div id="loading">네오비즈니스 3D 투어 불러오는 중<div class="bar"><i></i></div></div>
 <div id="app"></div>
 <header>
-  <div class="brand">NEOIZE · NEOFUL BUSINESS SPACE</div>
-  <h1>네오비즈니스 3D 투어</h1>
+  <div class="brand" id="hBrand">NEOIZE · NEOFUL BUSINESS SPACE</div>
+  <h1><span id="hTitle">네오비즈니스 3D 투어</span><button id="siteBtn" type="button" title="다른 교육장 보기">교육장 선택 ▾</button></h1>
   <div id="where">현재 위치 <b id="whereName">입구</b></div>
-  <div class="addr">서울시 구로구 디지털로26길 43, L동 210호 (2F)</div>
+  <div class="addr" id="hAddr">서울시 구로구 디지털로26길 43, L동 210호 (2F)</div>
+  <div id="siteMenu"></div>
 </header>
+<section id="picker">
+  <div class="pk-in">
+    <div class="pk-brand">NEOIZE · 3D 교육장 투어</div>
+    <h1 class="pk-h">교육장을 선택하세요</h1>
+    <p class="pk-p">원하는 교육장을 고르면 3D로 둘러볼 수 있어요. 3D 보기로 전체 배치를, 걷기로 실제처럼 걸어 다니며 볼 수 있어요.</p>
+    <div class="pk-cards" id="pkCards"></div>
+    <div class="pk-foot">neoize · Neoful Business Space</div>
+  </div>
+</section>
 <div id="modes">
   <button data-mode="orbit"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>3D 보기</button>
   <button data-mode="walk"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-7 3 3v4M8 12l3-4 3 2 3 2M11 8l-1 5"/></svg>걷기</button>
@@ -143,9 +177,38 @@ body.walk .tag{display:none}   /* 걷기: 방 이름 핀은 숨기고 왼쪽 위
     <a class="cta" href="#" onclick="return false">대관 · 이용 문의</a>
   </div>
 </aside>
-<!-- 공간 설정: 치수·가구 배치는 layout.js 에서 수정 -->
-<script src="layout.js?v=11191420"></script>
+<!-- 교육장 목록: sites/sites.js / 교육장별 공간 설정: sites/<id>/layout.js (치수·가구 배치는 거기서 수정) -->
+<script src="sites/sites.js?v=11191500"></script>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
-<script type="module" src="app.js?v=11191420"></script>
+<script type="module">
+const V = '11191500', SITES = window.SITES || [], q = new URLSearchParams(location.search);
+let id = q.get('site');
+if (!id && [...q.keys()].length) id = 'seoul';            // 예전 링크(?room=… 등)는 서울 구로로
+const S = SITES.find((s) => s.id === id);
+const url = (s) => '?site=' + s.id;
+if (!S) {   // 첫 화면: 교육장 선택
+  document.body.classList.add('picker'); document.title = '교육장 선택 · NEOIZE 3D 투어';
+  const box = document.getElementById('pkCards');
+  for (const s of SITES) {
+    const el = document.createElement(s.ready ? 'a' : 'div'); el.className = 'pk-card' + (s.ready ? '' : ' soon'); if (s.ready) el.href = url(s);
+    el.innerHTML = `<div class="th${s.thumb ? '' : ' ph'}"${s.thumb ? ` style="background-image:url('${s.thumb}')"` : ''}>${s.thumb ? '' : s.sub}</div>
+      <span class="badge">${s.ready ? '3D 투어' : '준비 중'}</span>
+      <div class="bd"><div class="nm">${s.name}</div><div class="sb">${s.sub}</div><div class="ad">${s.addr}</div><div class="ds">${s.desc || ''}</div>
+      <span class="go">${s.ready ? '3D 투어 보기 →' : '준비 중'}</span></div>`;
+    box.appendChild(el);
+  }
+} else {
+  document.title = `${S.title} · NEOIZE`;
+  document.getElementById('hBrand').textContent = S.brand; document.getElementById('hTitle').textContent = S.title; document.getElementById('hAddr').textContent = S.addr;
+  const ld = document.getElementById('loading'); if (ld) ld.firstChild.textContent = `${S.title} 불러오는 중`;
+  const menu = document.getElementById('siteMenu');
+  menu.innerHTML = SITES.map((s) => `<a href="${url(s)}" class="${s.id === S.id ? 'cur' : ''}">${s.name}<small>${s.id === S.id ? '보는 중' : (s.ready ? '' : '준비 중')}</small></a>`).join('') + `<a href="./">전체 교육장 선택 화면<small>↩</small></a>`;
+  document.getElementById('siteBtn').addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('on'); });
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target)) menu.classList.remove('on'); });
+  window.__site = S.id;
+  await new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = `sites/${S.id}/layout.js?v=${V}`; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+  await import(`./app.js?v=${V}`);
+}
+</script>
 </body>
 </html>
