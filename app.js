@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191730';
+import { makeTextures, textTexture } from './textures.js?v=11191800';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -288,6 +288,7 @@ for (const w of L.walls) {
   for (const o of ops) {
     const len = o.width, c = o.at + len / 2, cx = horiz ? c : fixed, cz = horiz ? fixed : c;
     const lintel = 2.12;
+    if (o.full) continue;   // 바닥~천장 열린 틈(문·인방 없음)
     if (o.door === 'frameless') { const [fw, fd] = sz2(horiz, len, 0.05); box(fw, 0.06, fd, M.frame, cx, H - 0.06, cz); box(horiz ? 0.04 : 0.055, H, horiz ? 0.055 : 0.04, M.frame, horiz ? o.at : cx, 0, horiz ? cz : o.at); box(horiz ? 0.04 : 0.055, H, horiz ? 0.055 : 0.04, M.frame, horiz ? o.at + len : cx, 0, horiz ? cz : o.at + len); }
     else if (w.type === 'glass') { const p = new THREE.Mesh(new THREE.BoxGeometry(horiz ? len : 0.02, H - lintel, horiz ? 0.02 : len), M.glass); p.position.set(cx, (H + lintel) / 2, cz); root.add(p); box(horiz ? len : 0.06, 0.05, horiz ? 0.06 : len, M.frame, cx, H - 0.05, cz); }
     else if (o.transom) {   // 문 위 유리 채광창(흰 프레임) — 천장까지
