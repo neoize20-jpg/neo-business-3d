@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191415';
+import { makeTextures, textTexture } from './textures.js?v=11191420';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -400,11 +400,12 @@ function arcWall(R0, R1, h, open, m, y, p, bevel = 0.025) {
   geo.rotateX(-Math.PI / 2); geo.translate(0, y + bevel, 0); geo.computeVertexNormals();
   const g = new THREE.Mesh(geo, m); p.add(g); return g;
 }
-function armchair(g, o) {   // 라운지 암체어(이전 모델로 되돌림, 사용자 11/19)
-  const m = matOf(o.color || 'fabricTeal');
-  box(0.72, 0.36, 0.68, m, 0, 0.04, 0, g); box(0.72, 0.36, 0.14, m, 0, 0.38, 0.27, g);
-  box(0.12, 0.2, 0.62, m, -0.3, 0.38, 0.03, g); box(0.12, 0.2, 0.62, m, 0.3, 0.38, 0.03, g);
-  box(0.6, 0.04, 0.56, M.black, 0, 0, 0, g);
+function armchair(g, o) {   // 라운지 암체어(상자형): 폭 0.66 × 깊이 0.64 × 높이 0.75, 앞 = 로컬 -z
+  const m = matOf(o.color || 'fabricTeal'), w = o.w || 0.66, d = o.d || 0.64, aw = 0.09;
+  box(w - 0.08, 0.05, d - 0.08, M.black, 0, 0, 0, g);                          // 낮은 검정 받침
+  box(w, 0.37, d, m, 0, 0.05, 0, g);                                           // 몸통 + 방석 (앉는 높이 0.42)
+  box(w, 0.33, 0.12, m, 0, 0.42, d / 2 - 0.06, g);                             // 등받이 (위 끝 0.75)
+  box(aw, 0.18, d - 0.1, m, -(w / 2 - aw / 2), 0.42, 0.05, g); box(aw, 0.18, d - 0.1, m, w / 2 - aw / 2, 0.42, 0.05, g);   // 팔걸이
 }
 function cube(g, o) { const s = o.size || 0.42; rbox(s, o.h || s, s, 0.045, matOf(o.color || 'fabricOrange'), 0, 0, 0, g); }   // 패브릭 큐브 스툴(둥근 모서리)
 function roundTable(g, o) {   // 카페 원형 테이블: 대리석 상판 + 가는 검정 기둥 + 둥근 검정 원판 받침

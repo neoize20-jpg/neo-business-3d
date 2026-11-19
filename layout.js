@@ -320,8 +320,8 @@ window.LAYOUT = {
     { type:'cube', x:6.36, z:8.55, color:'fabricOrange' },                         // 벤치 남쪽 끝 주황 큐브 z8.34–8.76
     { type:'roundTable', x:5.0,  z:7.22, r:0.3, h:0.72 },                          // 큐브 앞 카페 테이블
     { type:'roundTable', x:5.75, z:7.78, r:0.3, h:0.72 },                          // 벤치 앞(코너 쪽) 카페 테이블
-    { type:'armchair', x:4.3,  z:8.65, rot:-30, color:'fabricTeal' },              // 앞쪽 청록 터브 암체어
-    { type:'armchair', x:5.25, z:8.38, rot:-40, color:'fabricBeige' },             // 뒤 오른쪽 베이지 암체어
+    { type:'armchair', x:5.0,  z:8.55, rot:0, color:'fabricTeal' },               // 청록 암체어 — 카페 테이블(5.0, 7.22)을 정면으로 봄
+    { type:'armchair', x:5.75, z:8.55, rot:0, color:'fabricBeige' },              // 베이지 암체어 — 옆에 나란히, 테이블(5.75, 7.78)을 봄
     { type:'purifier', x:6.4, z:8.96 },                                            // LG 공기청정기 z8.80–9.13 — 몰딩 벽 남쪽 끝(z9.18)보다 5cm 안쪽
 
     /* --- 입구 --- */
