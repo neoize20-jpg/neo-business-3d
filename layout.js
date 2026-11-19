@@ -316,13 +316,13 @@ window.LAYOUT = {
     { type:'cube', x:5.0,  z:6.58, color:'fabricBlue' },
     { type:'cube', x:5.45, z:6.58, color:'fabricGreen' },
     { type:'cube', x:5.9,  z:6.58, color:'fabricOrange' },
-    { type:'bench', x:6.36, z:7.45, w:0.45, d:2.1, h:0.42, color:'fabricGray' },   // 몰딩 벽 아래 긴 벤치 z6.4–8.5
-    { type:'cube', x:6.36, z:8.75, color:'fabricOrange' },                         // 벤치 남쪽 끝 주황 큐브
+    { type:'bench', x:6.36, z:7.36, w:0.45, d:1.92, h:0.42, color:'fabricGray' },  // 몰딩 벽 아래 벤치 z6.4–8.32 (벽 끝 z9.18 안쪽에 벤치·큐브·청정기가 모두 들어가게)
+    { type:'cube', x:6.36, z:8.55, color:'fabricOrange' },                         // 벤치 남쪽 끝 주황 큐브 z8.34–8.76
     { type:'roundTable', x:5.0,  z:7.22, r:0.3, h:0.72 },                          // 큐브 앞 카페 테이블
     { type:'roundTable', x:5.75, z:7.78, r:0.3, h:0.72 },                          // 벤치 앞(코너 쪽) 카페 테이블
     { type:'armchair', x:4.3,  z:8.65, rot:-30, color:'fabricTeal' },              // 앞쪽 청록 터브 암체어
     { type:'armchair', x:5.25, z:8.38, rot:-40, color:'fabricBeige' },             // 뒤 오른쪽 베이지 암체어
-    { type:'purifier', x:6.35, z:9.32 },                                           // LG 공기청정기(몰딩 벽 쪽)
+    { type:'purifier', x:6.4, z:8.96 },                                            // LG 공기청정기 z8.80–9.13 — 몰딩 벽 남쪽 끝(z9.18)보다 5cm 안쪽
 
     /* --- 입구 --- */
     { type:'mat', x:11.52, z:11.4, w:1.4, d:0.8, color:'orange' }
