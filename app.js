@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191630';
+import { makeTextures, textTexture } from './textures.js?v=11191700';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -581,46 +581,47 @@ function ledClock(g, o) {   // 빨간 LED 디지털 시계 (벽걸이)
   const m = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.17), new THREE.MeshBasicMaterial({ map: tx })); m.position.set(0, y + 0.1, -0.021); m.rotation.y = Math.PI; m.userData.keep = true; g.add(m);
   g.userData.noBlob = true;
 }
-function coffeeCorner(g, o) {   // 대전 커피 코너(사진 11/19): 그룹 원점 = 벽면, 앞(-z)이 실내. u = 벽을 바라볼 때 왼→오른쪽 거리 → 로컬 x = -u
+function coffeeCorner(g, o) {   // 대전 커피 코너(사진 11/19, 책상 0.72m 기준 실제 크기): 그룹 원점 = 벽면, 앞(-z)이 실내. u = 벽을 바라볼 때 왼→오른쪽 거리 → 로컬 x = -u
   const X = (u) => -u, W = plain(0xf4f4f2), BK = plain(0x1c1d20), GR = plain(0x9aa0a6);
-  // 흰 낮은 2문 수납장 1.0 × 0.45 × 0.85
-  { const u = o.cab ?? -0.1, x = X(u), h = 0.85, d = 0.45;
-    box(0.98, 0.06, d - 0.04, plain(0xd9d9d6), x, 0, -d / 2 + 0.01, g); box(1.0, h - 0.06, d, W, x, 0.06, -d / 2, g); box(1.02, 0.025, d + 0.02, W, x, h - 0.025, -d / 2, g);
-    box(0.006, h - 0.14, 0.01, plain(0xc9ccd1), x, 0.09, -d - 0.002, g);
-    for (const s of [-1, 1]) box(0.012, 0.12, 0.02, M.metal, x + s * 0.04, 0.6, -d - 0.012, g);
+  // 흰 2문 수납장 1.2 × 0.5 × 0.9
+  { const u = o.cab ?? -0.3, x = X(u), cw = 1.2, h = 0.9, d = 0.5;
+    box(cw - 0.02, 0.07, d - 0.05, plain(0xd9d9d6), x, 0, -d / 2 + 0.01, g); box(cw, h - 0.07, d, W, x, 0.07, -d / 2, g); box(cw + 0.02, 0.03, d + 0.02, W, x, h - 0.03, -d / 2, g);
+    box(0.006, h - 0.16, 0.01, plain(0xc9ccd1), x, 0.1, -d - 0.002, g);
+    for (const s of [-1, 1]) box(0.014, 0.16, 0.022, M.metal, x + s * 0.05, 0.62, -d - 0.013, g);
     const t = h;
-    // 종이컵 묶음(왼쪽) + 검정 받침 서랍 위 캡슐 커피머신
-    { const cx = X(u - 0.38); for (let i = 0; i < 2; i++) cyl(0.04, 0.03, 0.26, W, cx + i * 0.09 * 0, t, -0.14 - i * 0.1, 14, g); }
-    { const cx = X(u - 0.12); box(0.32, 0.12, 0.36, BK, cx, t, -0.21, g); box(0.2, 0.004, 0.005, GR, cx, t + 0.06, -0.392, g);
-      box(0.28, 0.32, 0.34, BK, cx, t + 0.12, -0.2, g); box(0.26, 0.08, 0.3, plain(0x2a2c30), cx, t + 0.44, -0.2, g);
-      box(0.16, 0.04, 0.08, plain(0x3a3d42), cx, t + 0.3, -0.39, g); box(0.12, 0.012, 0.1, M.metal, cx, t + 0.13, -0.33, g); }
-    // 검정 제빙기(둥근 윗면)
-    { const ix = X(u + 0.27); box(0.35, 0.36, 0.34, BK, ix, t, -0.2, g);
-      const top = cyl(0.17, 0.17, 0.34, BK, ix, 0, 0, 24, g); top.rotation.x = Math.PI / 2; top.scale.set(1, 1, 0.25); top.position.set(ix, t + 0.36, -0.2);
-      box(0.22, 0.12, 0.005, plain(0x30343a), ix, t + 0.2, -0.373, g); box(0.06, 0.02, 0.005, plain(0x5ab0ff), ix, t + 0.3, -0.373, g); }
+    // 종이컵 묶음 0.35m (왼쪽)
+    { const cx = X(u - 0.48); cyl(0.045, 0.035, 0.35, W, cx, t, -0.16, 16, g); cyl(0.045, 0.035, 0.3, W, cx, t, -0.28, 16, g); }
+    // 캡슐 커피머신 0.38 × 0.55(받침 서랍 0.14 포함)
+    { const cx = X(u - 0.2); box(0.38, 0.14, 0.42, BK, cx, t, -0.23, g); box(0.24, 0.005, 0.006, GR, cx, t + 0.07, -0.443, g);
+      box(0.34, 0.33, 0.38, BK, cx, t + 0.14, -0.22, g); box(0.32, 0.08, 0.34, plain(0x2a2c30), cx, t + 0.47, -0.22, g);
+      box(0.2, 0.05, 0.1, plain(0x3a3d42), cx, t + 0.34, -0.45, g); box(0.15, 0.014, 0.12, M.metal, cx, t + 0.15, -0.37, g); }
+    // 검정 제빙기 0.4 × 0.45 × 0.45 (둥근 윗면)
+    { const ix = X(u + 0.28), dd = 0.45; box(0.4, 0.39, dd, BK, ix, t, -dd / 2 - 0.01, g);
+      const top = cyl(0.2, 0.2, dd, BK, ix, 0, 0, 28, g); top.rotation.x = Math.PI / 2; top.scale.set(1, 1, 0.3); top.position.set(ix, t + 0.39, -dd / 2 - 0.01);
+      box(0.26, 0.15, 0.005, plain(0x30343a), ix, t + 0.2, -dd - 0.013, g); box(0.07, 0.022, 0.005, plain(0x5ab0ff), ix, t + 0.33, -dd - 0.013, g); }
   }
-  // 바닥형 흰 정수기 0.35 × 1.15 + 앞 패널 · 꼭지 2개 · 물받이, 위에 비품
-  { const x = X(o.water ?? 0.625), d = 0.36, fz = -d - 0.02;
-    box(0.35, 1.15, d, W, x, 0, -d / 2 - 0.02, g); box(0.29, 0.42, 0.01, plain(0xe9eaec), x, 0.72, fz - 0.005, g);
-    box(0.25, 0.1, 0.06, plain(0xdfe1e4), x, 0.82, fz - 0.03, g);
-    cyl(0.012, 0.012, 0.05, plain(0xd23b2b), x - 0.06, 0.94, fz - 0.03, 8, g); cyl(0.012, 0.012, 0.05, plain(0x2b6fd2), x + 0.06, 0.94, fz - 0.03, 8, g);
-    box(0.24, 0.025, 0.1, plain(0x4a4d52), x, 0.68, fz - 0.05, g);
-    box(0.2, 0.06, 0.005, plain(0x2b3440), x, 1.03, fz - 0.006, g);
-    cyl(0.045, 0.045, 0.18, plain(0xf2c230), x - 0.08, 1.15, -0.22, 14, g);   // 노란 컵 홀더
-    box(0.12, 0.1, 0.16, plain(0x2f6fd6), x + 0.07, 1.15, -0.17, g);           // 파란 상자
-    box(0.1, 0.07, 0.12, W, x + 0.06, 1.25, -0.2, g); box(0.08, 0.12, 0.08, W, x + 0.02, 1.15, -0.32, g);
+  // 바닥형 흰 정수기 0.4 × 0.45 × 1.35, 꼭지 1.0m + 물받이, 위에 비품
+  { const x = X(o.water ?? 0.54), d = 0.45, fz = -d - 0.01;
+    box(0.4, 1.35, d, W, x, 0, -d / 2 - 0.01, g); box(0.34, 0.5, 0.01, plain(0xe9eaec), x, 0.82, fz - 0.005, g);
+    box(0.3, 0.12, 0.07, plain(0xdfe1e4), x, 0.95, fz - 0.035, g);
+    cyl(0.014, 0.014, 0.06, plain(0xd23b2b), x - 0.07, 0.9, fz - 0.04, 8, g); cyl(0.014, 0.014, 0.06, plain(0x2b6fd2), x + 0.07, 0.9, fz - 0.04, 8, g);
+    box(0.3, 0.03, 0.12, plain(0x4a4d52), x, 0.74, fz - 0.06, g);
+    box(0.22, 0.07, 0.005, plain(0x2b3440), x, 1.2, fz - 0.006, g);
+    cyl(0.05, 0.05, 0.22, plain(0xf2c230), x - 0.1, 1.35, -0.26, 16, g);       // 노란 컵 홀더
+    box(0.14, 0.12, 0.2, plain(0x2f6fd6), x + 0.08, 1.35, -0.2, g);            // 파란 상자
+    box(0.12, 0.08, 0.14, W, x + 0.07, 1.47, -0.22, g); box(0.1, 0.14, 0.1, W, x + 0.02, 1.35, -0.38, g);
   }
-  // 검정 사각 쓰레기통 0.4(앞뒤) × 0.35 × 0.6 (모서리) + 위 회색 벽 선반
-  { const x = X(o.bin ?? 1.0); box(0.35, 0.6, 0.4, BK, x, 0, -0.22, g); box(0.37, 0.04, 0.42, plain(0x2a2b2e), x, 0.6, -0.22, g);
-    box(0.32, 0.02, 0.18, GR, x, 1.25, -0.09, g); box(0.02, 0.1, 0.16, GR, x - 0.15, 1.16, -0.09, g); box(0.02, 0.1, 0.16, GR, x + 0.15, 1.16, -0.09, g); }
-  // 테 없는 흰(분홍기) LED 숫자 시계 + 왼쪽 빨간 화재 경보함
-  { const x = X(o.clock ?? -0.1), y = o.clockY ?? 2.08;
-    const c = document.createElement('canvas'); c.width = 512; c.height = 160; const k = c.getContext('2d');
-    k.shadowColor = '#ffd6dc'; k.shadowBlur = 18; k.fillStyle = '#fff2f4'; k.font = '700 132px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(o.text || '13:39', 256, 84);
+  // 검정 사각 쓰레기통 0.4(벽 방향) × 0.45(앞뒤) × 0.75 (모서리) + 위 회색 벽 선반
+  { const x = X(o.bin ?? 0.98); box(0.4, 0.72, 0.45, BK, x, 0, -0.245, g); box(0.42, 0.04, 0.47, plain(0x2a2b2e), x, 0.71, -0.245, g);
+    box(0.42, 0.025, 0.24, GR, x, 1.55, -0.12, g); box(0.025, 0.14, 0.22, GR, x - 0.2, 1.43, -0.12, g); box(0.025, 0.14, 0.22, GR, x + 0.2, 1.43, -0.12, g); }
+  // 테 없는 흰(분홍기) LED 숫자 시계 0.9 × 0.25 @2.2m + 왼쪽 빨간 화재 경보함 0.2
+  { const x = X(o.clock ?? -0.3), y = o.clockY ?? 2.2;
+    const c = document.createElement('canvas'); c.width = 768; c.height = 220; const k = c.getContext('2d');
+    k.shadowColor = '#ffd6dc'; k.shadowBlur = 22; k.fillStyle = '#fff2f4'; k.font = '700 200px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(o.text || '13:39', 384, 116, 740);
     const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.19), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false })); m.position.set(x, y + 0.1, -0.012); m.rotation.y = Math.PI; m.userData.keep = true; m.renderOrder = 5; g.add(m);
-    const ax = X(o.alarm ?? -0.75); box(0.16, 0.22, 0.06, plain(0xd8261c), ax, (o.alarmY ?? 1.95), -0.03, g); cyl(0.035, 0.035, 0.015, plain(0xf2f2f2), ax, 0, 0, 16, g).position.set(ax, (o.alarmY ?? 1.95) + 0.12, -0.065);
-    g.children[g.children.length - 1].rotation.x = Math.PI / 2; }
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.26), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false })); m.position.set(x, y, -0.012); m.rotation.y = Math.PI; m.userData.keep = true; m.renderOrder = 5; g.add(m);
+    const ax = X(o.alarm ?? -1.05), ay = o.alarmY ?? 2.05; box(0.2, 0.26, 0.07, plain(0xd8261c), ax, ay, -0.035, g);
+    const bt = cyl(0.045, 0.045, 0.015, plain(0xf2f2f2), 0, 0, 0, 16, g); bt.rotation.x = Math.PI / 2; bt.position.set(ax, ay + 0.15, -0.075); }
   g.userData.noBlob = true;
 }
 function cabinet(g, o) { box(o.w || 1.2, o.h || 0.7, o.d || 0.4, matOf(o.color || 'white'), 0, 0, 0, g); }
