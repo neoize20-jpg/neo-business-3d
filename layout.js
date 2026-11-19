@@ -16,7 +16,7 @@ window.LAYOUT = {
   building: {
     name: '네오비즈니스',
     width: 18.0,        // 건물 가로(동서) 길이
-    depth: 19.6,        // 건물 세로(남북) 길이
+    depth: 18.3,        // 건물 세로(남북) 길이 — 바꾸면 남쪽 벽·입구·부스·커피존 좌표(z)도 같이 옮겨 주세요 (11/19 실측 스케치: 19.6 → 18.3)
     ceiling: 2.7,       // 천장 높이
     eye: 1.6,           // 걷기 모드 눈높이
     wall: { exterior: 0.24, interior: 0.14, thick: 0.30 }  // 벽 두께 기본값 (벽마다 t 로 따로 지정 가능)
@@ -51,21 +51,21 @@ window.LAYOUT = {
              desc:'Neoful biz space EDUCATION CENTER. 라운지 쪽 출입구에는 백라이트 패널과 TV, 안내 배너가 있고, 내부는 앞쪽에 단상과 와이드 스크린, 화이트 강의용 책상 5줄이 놓인 교육장이에요.',
              use:'교육 · 면접 · 회의(온라인) · 워크숍 · 시상식 · 세미나',
              services:['와이드 스크린','빔프로젝터','무선마이크(2대)','TV 모니터(55인치)','공기청정기','정수기','냉난방 · 시스템 공기청정기','강사 대기석','행사 전 물품 택배 배송 가능'] } },
-    { id:'focus', name:'NEOBOX', en:'Focus Booth · NEOBOX', small:true, rect:[0.24, 17.6, 7.52, 19.6], floor:'floor',
-      label:[3.9, 17.3], labelY:2.35, jump:{ x:5.1, z:16.0, look:[3.4, 19.3] },
+    { id:'focus', name:'NEOBOX', en:'Focus Booth · NEOBOX', small:true, rect:[0.24, 16.3, 7.52, 18.3], floor:'floor',
+      label:[3.9, 16.0], labelY:2.35, jump:{ x:5.1, z:14.7, look:[3.4, 18.0] },
       card:{ photos:['IMG_0398','IMG_0397','IMG_0401','IMG_0403'],
              desc:'NEOBOX1 · NEOBOX2 · NEOBOX3, 모니터와 책상이 있는 1인용 부스 3개예요. 커피존 바로 옆, 우드 슬랫 파티션 너머에 나란히 있어요.' } },
-    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[7.52, 17.2, 13.8, 19.6], floor:'floor',
-      label:[10.7, 18.0], labelY:1.6, jump:{ x:10.9, z:16.4, look:[10.3, 19.4] },
+    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[7.52, 17.0, 13.75, 18.3], floor:'floor',
+      label:[10.7, 16.7], labelY:1.6, jump:{ x:10.9, z:15.1, look:[10.3, 18.1] },
       card:{ photos:['IMG_0386','IMG_0387','IMG_0398'],
              desc:'공용 사용 공간(LOUNGE & AMENITIES). 커피머신과 수납장, 분리수거함이 있는 탕비 공간이에요. 우드 슬랫 파티션으로 라운지와 나뉘어 있어요.',
              services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방'] } },
-    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[13.8, 16.9, 18, 19.6], floor:'floor',
-      label:[15.9, 18.6], jump:{ x:17.3, z:18.25, look:[6.0, 10.4] },
+    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[13.75, 17.0, 18, 18.3], floor:'floor',
+      label:[15.9, 17.3], jump:{ x:17.3, z:16.95, look:[6.0, 10.4] },
       card:{ photos:['IMG_0378','IMG_0380','IMG_0388'],
              desc:'유리문 위에 Neoful business space 사인이 있는 입구예요. 들어오면 교육장 앞 디스플레이 월과 배너가 보여요.' } },
-    { id:'lounge', name:'라운지', en:'Lounge', rect:[0, 9.74, 18, 19.6], floor:'floor',
-      label:[4.4, 14.2], jump:{ x:2.8, z:16.1, look:[8.2, 10.7] },
+    { id:'lounge', name:'라운지', en:'Lounge', rect:[0, 9.74, 18, 18.3], floor:'floor',
+      label:[4.4, 14.2], jump:{ x:2.8, z:15.0, look:[8.2, 10.7] },
       card:{ photos:['IMG_0420','IMG_0421','IMG_0422','IMG_0424'],
              desc:'공용 사용 공간(LOUNGE & AMENITIES) — 탁 트인 휴식 공간이에요. 흰 몰딩 벽을 따라 긴 바 테이블과 스툴이 놓여 있고, 회의실 유리벽 앞 코너에는 회색 벤치, 컬러 큐브 스툴, 원형 테이블과 블루·베이지 암체어가 있어요.',
              services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방','휴식 공간'] } }
@@ -109,12 +109,12 @@ window.LAYOUT = {
     { from:[0, 3.3],   to:[0, 5.1],   type:'solid',  outer:true },
     { from:[0, 5.1],   to:[0, 8.4],   type:'window', outer:true, style:'tall', blind:0 },      // 소회의실 창 ② (가운데) — 사진 IMG_0414·0415: 롤스크린 올림
     { from:[0, 8.4],   to:[0, 9.21],  type:'solid',  outer:true },
-    { from:[0, 9.21],  to:[0, 19.6],  type:'solid',  outer:true, molding:'east', moldingFrom:9.9, moldingTo:17.3 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
+    { from:[0, 9.21],  to:[0, 18.3],  type:'solid',  outer:true, molding:'east', moldingFrom:9.9, moldingTo:16.0 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
     // 바깥벽 — 남쪽(아래), 입구 유리 양문
-    { from:[0, 19.6],  to:[18, 19.6], type:'solid',  outer:true,
+    { from:[0, 18.3],  to:[18, 18.3], type:'solid',  outer:true,
       openings:[ { at:14.56, width:2.7, door:'glass', double:true, entrance:true } ] },
     // 바깥벽 — 동쪽(오른쪽)
-    { from:[18, 0],    to:[18, 19.6], type:'solid',  outer:true },
+    { from:[18, 0],    to:[18, 18.3], type:'solid',  outer:true },
 
     // 안쪽 벽
     { from:[3.81, 0],  to:[3.81, 9.74], type:'solid' },                       // 소회의실 | 회의실
@@ -144,8 +144,8 @@ window.LAYOUT = {
     panels: [
       { rect:[0, 2.4, 3.81, 9.74],   nx:1, nz:3 },
       { rect:[3.81, 0, 9.79, 9.74],  nx:2, nz:3 },
-      { rect:[0, 9.74, 9.79, 17.7],  nx:3, nz:2 },
-      { rect:[9.79, 14.14, 18, 19.6], nx:2, nz:1 }
+      { rect:[0, 9.74, 9.79, 16.4],  nx:3, nz:2 },
+      { rect:[9.79, 14.14, 18, 18.3], nx:2, nz:1 }
     ],
     // 교육장: 사진 IMG_0382·0384 기준 — 남북 방향 일자 LED 2열 × 3줄, 가운데 줄에 천장 에어컨과 빔 프로젝터
     strips: [
@@ -212,14 +212,14 @@ window.LAYOUT = {
     { type:'plant', x:17.69, z:14.74, scale:1.05 },
 
     /* --- NEOBOX 부스 --- */
-    { type:'booth', x:1.405, z:18.6, w:1.85, d:1.69, label:'NEOBOX1' },
-    { type:'booth', x:3.89,  z:18.6, w:1.86, d:1.69, label:'NEOBOX2' },
-    { type:'booth', x:6.38,  z:18.6, w:1.86, d:1.69, label:'NEOBOX3' },
+    { type:'booth', x:1.385, z:17.3, w:1.85, d:1.69, label:'NEOBOX1' },   // x0.46–2.31 (11/19 스케치)
+    { type:'booth', x:3.885, z:17.3, w:1.85, d:1.69, label:'NEOBOX2' },   // x2.96–4.81
+    { type:'booth', x:6.335, z:17.3, w:1.85, d:1.69, label:'NEOBOX3' },   // x5.41–7.26
 
     /* --- 커피존 --- */
-    { type:'slats', from:[7.46, 19.37], to:[7.46, 17.92], h:2.45, count:13, thick:true },
-    { type:'pantry', x:10.64, z:19.17, w:5.74 },
-    { type:'plant', x:13.56, z:18.57, scale:1.15 },
+    { type:'slats', from:[7.46, 18.07], to:[7.46, 16.62], h:2.45, count:13, thick:true },
+    { type:'pantry', x:10.64, z:17.87, w:5.74 },
+    { type:'plant', x:13.56, z:17.27, scale:1.15 },
 
     /* --- 라운지 --- */
     { type:'barCounter', x:0.39, z:13.09, w:0.5, d:4.4, h:1.04 },
@@ -238,9 +238,9 @@ window.LAYOUT = {
     { type:'armchair', x:7.45, z:12.46, rot:9,  color:'fabricTeal' },
     { type:'cube', x:8.05, z:12.56, size:0.45, color:'fabricTeal' },
     { type:'purifier', x:9.34, z:13.41 },
-    { type:'plant', x:0.52, z:16.39, scale:1.1 },
+    { type:'plant', x:0.55, z:10.3, scale:1.0 },            // 바 테이블 북쪽 끝(라운지가 좁아져 부스 앞에서 옮김)
 
     /* --- 입구 --- */
-    { type:'mat', x:15.91, z:18.68, w:2.1, d:1.3, color:'orange' }
+    { type:'mat', x:15.91, z:17.38, w:2.1, d:1.3, color:'orange' }
   ]
 };
