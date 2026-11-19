@@ -90,7 +90,7 @@ const M = {
 };
 M.led.userData.noShadow = M.ceiling.userData.noShadow = M.fixture.userData.noShadow = true;
 M.ceiling.emissive = new THREE.Color(0xffffff); M.ceiling.emissiveMap = T.ceiling.map; M.ceiling.emissiveIntensity = 0.14;
-const FABRIC = { fabricGray: 0x9a9da3, fabricTeal: 0x2f8fb0, fabricBeige: 0xc2b496, fabricOrange: 0xe0682f, fabricGreen: 0x86a659, fabricBlue: 0x3584bd, fabricRed: 0xd2482f, orange: 0xff8207, chairLight: 0xe9e9e9 };
+const FABRIC = { fabricGray: 0x9a9da3, fabricTeal: 0x2f8fb0, fabricBeige: 0xc2b496, fabricOrange: 0xe0682f, fabricGreen: 0x86a659, fabricBlue: 0x3584bd, fabricRed: 0xd2482f, orange: 0xff8207, chairLight: 0xe9e9e9, carpetDark: 0x4a4d53 };
 const fabCache = {};
 function fabric(name) {
   if (!fabCache[name]) fabCache[name] = world(std({ color: FABRIC[name], map: T.fabric.map, normalMap: T.fabric.normalMap, normalScale: V2(0.7), roughness: 0.95 }));
@@ -680,16 +680,25 @@ function restroom(g) {   // 화장실 표시: 문 + 남/녀 픽토그램 판 (�
 function wallPlate(g, o) { box(o.w || 0.2, o.h || 0.12, 0.012, matOf(o.color || 'white'), 0, o.y || 1.6, 0, g); g.userData.noCollide = true; g.userData.noBlob = true; }
 /* 단상(무대): 걸어 올라갈 수 있는 낮은 플랫폼. 위에 놓는 가구는 elev(바닥에서 띄우는 높이)를 단상 높이로 */
 const PLATFORMS = [];
-function stage(g, o) {
-  const w = o.w || 4, d = o.d || 1.5, h = o.h || 0.2;
-  box(w, h - 0.02, d, M.black, 0, 0, 0, g);                                 // 몸체(검정 측면)
-  box(w, 0.02, d, matOf(o.top || 'oak'), 0, h - 0.02, 0, g);               // 상판
-  box(w, 0.012, 0.05, M.metal, 0, h - 0.012, d / 2 - 0.025, g);           // 앞 모서리 논슬립 금속 엣지
-  if (o.step !== false) { box(Math.min(1.2, w * 0.3), h / 2, 0.3, matOf(o.top || 'oak'), o.stepX || 0, 0, d / 2 + 0.15, g); }   // 앞쪽 계단 한 칸
+function stage(g, o) {   // 닫힌 상자형 단상: 짙은 회색 몸체 + 카펫 상판 + 보이는 모든 모서리 금속 트림 + 가운데 계단
+  const w = o.w || 4, d = o.d || 1.5, h = o.h || 0.2, side = plain(0x2c2e33), top = matOf(o.top || 'carpetDark'), tr = M.metal, t = 0.022;
+  box(w, h - 0.018, d, side, 0, 0, 0, g);                                                        // 몸체(6면 닫힘)
+  box(w - 0.02, 0.018, d - 0.02, top, 0, h - 0.018, 0, g);                                       // 카펫 상판
+  box(w, 0.012, t, tr, 0, h - 0.012, d / 2 - t / 2, g); box(w, 0.012, t, tr, 0, h - 0.012, -d / 2 + t / 2, g);          // 앞·뒤 위 모서리
+  box(t, 0.012, d, tr, -w / 2 + t / 2, h - 0.012, 0, g); box(t, 0.012, d, tr, w / 2 - t / 2, h - 0.012, 0, g);         // 양옆 위 모서리
+  box(w + 0.008, 0.035, 0.004, tr, 0, h - 0.035, d / 2 + 0.002, g); box(w + 0.008, 0.035, 0.004, tr, 0, h - 0.035, -d / 2 - 0.002, g);   // 앞·뒤 금속 띠
+  box(0.004, 0.035, d + 0.008, tr, -w / 2 - 0.002, h - 0.035, 0, g); box(0.004, 0.035, d + 0.008, tr, w / 2 + 0.002, h - 0.035, 0, g);   // 양옆 금속 띠
+  box(w - 0.02, 0.025, 0.004, plain(0x16171a), 0, 0, d / 2 + 0.002, g);                           // 아래 걸레받이 그늘
+  const sx = o.stepX || 0, sw = Math.min(1.2, w * 0.3), sh = h / 2;
+  if (o.step !== false) {
+    box(sw, sh - 0.015, 0.3, side, sx, 0, d / 2 + 0.15, g); box(sw - 0.02, 0.015, 0.28, top, sx, sh - 0.015, d / 2 + 0.15, g);   // 계단 한 칸(닫힘)
+    box(sw + 0.008, 0.03, 0.004, tr, sx, sh - 0.03, d / 2 + 0.302, g); box(sw, 0.01, t, tr, sx, sh - 0.01, d / 2 + 0.3 - t / 2, g);
+    for (const e of [-1, 1]) box(0.004, 0.03, 0.3, tr, sx + e * (sw / 2 + 0.002), sh - 0.03, d / 2 + 0.15, g);
+  }
   g.userData.noCollide = true; g.userData.noBlob = true;
   const r = o.rot || 0; if (r % 180 !== 0) console.warn('stage 는 rot 0/180 만 지원');
   PLATFORMS.push({ x0: o.x - w / 2, x1: o.x + w / 2, z0: o.z - d / 2, z1: o.z + d / 2, h });
-  if (o.step !== false) { const sx = o.x + (o.stepX || 0), sw = Math.min(1.2, w * 0.3); PLATFORMS.push({ x0: sx - sw / 2, x1: sx + sw / 2, z0: o.z + d / 2, z1: o.z + d / 2 + 0.3, h: h / 2 }); }
+  if (o.step !== false) { const px = o.x + sx; PLATFORMS.push({ x0: px - sw / 2, x1: px + sw / 2, z0: o.z + d / 2, z1: o.z + d / 2 + 0.3, h: sh }); }
 }
 function floorHeight(x, z) { let h = 0; for (const p of PLATFORMS) if (x >= p.x0 - 0.05 && x <= p.x1 + 0.05 && z >= p.z0 - 0.05 && z <= p.z1 + 0.05) h = Math.max(h, p.h); return h; }
 function tableSet(g, o) {   // 테이블(세로 d 방향으로 길게) + 양옆 의자
