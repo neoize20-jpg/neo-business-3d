@@ -51,17 +51,17 @@ window.LAYOUT = {
              desc:'Neoful biz space EDUCATION CENTER. 라운지 쪽 출입구에는 백라이트 패널과 TV, 안내 배너가 있고, 내부는 앞쪽에 단상과 와이드 스크린, 화이트 강의용 책상 5줄이 놓인 교육장이에요.',
              use:'교육 · 면접 · 회의(온라인) · 워크숍 · 시상식 · 세미나',
              services:['와이드 스크린','빔프로젝터','무선마이크(2대)','TV 모니터(55인치)','공기청정기','정수기','냉난방 · 시스템 공기청정기','강사 대기석','행사 전 물품 택배 배송 가능'] } },
-    { id:'focus', name:'NEOBOX', en:'Focus Booth · NEOBOX', small:true, rect:[0.24, 10.8, 5.1, 12.1], floor:'floor',
+    { id:'focus', name:'NEOBOX', en:'Focus Booth · NEOBOX', small:true, rect:[0.24, 10.8, 4.8, 12.1], floor:'floor',
       label:[2.7, 10.55], labelY:2.35, jump:{ x:2.7, z:9.7, look:[2.7, 12.0] },
       card:{ photos:['IMG_0398','IMG_0397','IMG_0401','IMG_0403'],
-             desc:'NEOBOX1 · NEOBOX2 · NEOBOX3, 모니터와 책상이 있는 1인용 부스 3개예요. 남쪽 벽을 따라 커피존 카운터 바로 서쪽에 나란히 있어요.' } },
-    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[5.1, 11.2, 9.1, 12.1], floor:'floor',
-      label:[6.97, 11.3], labelY:1.6, jump:{ x:7.0, z:9.9, look:[7.0, 11.8] },
+             desc:'NEOBOX1 · NEOBOX2 · NEOBOX3, 모니터와 책상이 있는 1인용 부스 3개예요. 남쪽 벽을 따라 나란히 있고, 동쪽 끝 나무 가벽 너머가 커피존이에요.' } },
+    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[4.8, 11.2, 9.2, 12.1], floor:'floor',
+      label:[7.05, 11.3], labelY:1.6, jump:{ x:7.05, z:9.9, look:[7.05, 11.8] },
       card:{ photos:['IMG_0386','IMG_0387','IMG_0398'],
              desc:'공용 사용 공간(LOUNGE & AMENITIES). 흰 상·하부장 카운터에 전자레인지, 커피머신, 얼음 디스펜서, 싱크가 있고 하부장에 분리수거함(일반쓰레기·플라스틱·캔/병)이 있어요. 입구 옆 우드 슬랫 가벽 바로 뒤예요.',
              services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방'] } },
-    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[9.3, 11.0, 12.45, 12.1], floor:'floor',
-      label:[10.5, 11.6], jump:{ x:10.5, z:11.3, look:[5.0, 7.6] },
+    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[9.2, 11.0, 12.45, 12.1], floor:'floor',
+      label:[11.0, 11.6], jump:{ x:11.5, z:11.3, look:[11.2, 8.0] },
       card:{ photos:['IMG_0378','IMG_0380','IMG_0388'],
              desc:'유리문 위에 Neoful business space 사인이 있는 입구예요. 들어오면 교육장 앞 디스플레이 월과 배너가 보여요.' } },
     { id:'lounge', name:'라운지', en:'Lounge', rect:[0, 6.22, 12.45, 12.1], floor:'floor',
@@ -110,9 +110,11 @@ window.LAYOUT = {
     { from:[0, 3.05],  to:[0, 5.38],  type:'window', outer:true, style:'tall', blind:0 },      // 소회의실 창 ② — 롤스크린 올림
     { from:[0, 5.38],  to:[0, 5.9],   type:'solid',  outer:true },
     { from:[0, 5.9],   to:[0, 12.1],  type:'solid',  outer:true, molding:'east', moldingFrom:6.35, moldingTo:10.7 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
-    // 바깥벽 — 남쪽(아래), 입구 유리 양문 (동쪽 끝 x9.4–11.6, 가벽 바로 옆)
-    { from:[0, 12.1],  to:[12.45, 12.1], type:'solid', outer:true,
-      openings:[ { at:9.4, width:2.2, door:'glass', double:true, entrance:true } ] },   // 입구 유리 양문 x9.4–11.6: 남쪽 벽 동쪽 끝, 가벽(슬랫 x9.1) 바로 옆 (사용자 스케치 11/19 3차)
+    // 바깥벽 — 남쪽(아래): 서쪽 벽 x0–9.6 | 고정 통유리 x9.6–10.8 | 입구 유리 양문 x10.8–12.25 (사용자 스케치 11/19 4차)
+    { from:[0, 12.1],    to:[9.6, 12.1],   type:'solid', outer:true },
+    { from:[9.6, 12.1],  to:[10.8, 12.1],  type:'glass', style:'clear', outer:true, t:0.24 },   // 입구 왼쪽 고정 통유리(바닥~천장)
+    { from:[10.8, 12.1], to:[12.45, 12.1], type:'solid', outer:true,
+      openings:[ { at:10.8, width:1.45, door:'glass', double:true, entrance:true, frame:'white' } ] },   // 입구 프레임리스 유리 양문
     // 바깥벽 — 동쪽(오른쪽)
     { from:[12.45, 0], to:[12.45, 12.1], type:'solid', outer:true },
 
@@ -128,6 +130,11 @@ window.LAYOUT = {
     { from:[6.75, 9.18], to:[12.45, 9.18], type:'solid', t:0.30, sign:{ text:'EDUCATION CENTER', at:11.475, y:2.33, size:0.1 },   // 문 위 사인
       openings:[ { at:11.0, width:0.95, door:'glass', frame:'white', hinge:'end', swing:-88 } ] }  // 교육장 출입문(남쪽 벽 동쪽 끝). 경첩은 동쪽, 교육장 안으로 88° 열려 동쪽 벽 쪽에 붙음 → 통로 쪽 길을 막지 않음
   ],
+
+  /* 입구 바깥 복도(건물 밖 짧은 복도) + 입구 포털(바깥에서 본 모습, 사용자 사진)
+     rect : 복도 [x1, z1, x2, z2] (z1 = 건물 남쪽 바깥면), portal : 세이지 그린 프레임 x0~x1, door = 양문 [x 시작, x 끝], text = 간판 글씨, room = 호수 */
+  corridor: { rect:[7.8, 12.1, 13.4, 14.3],
+    portal: { x0:9.4, x1:12.45, door:[10.8, 12.25], top:2.12, color:'#9BA59A', text:'Neoful business space', room:'210호' } },
 
   /* 벽 블록(소회의실 안 흰 정사각형) 같은 기둥: rect = [x1,z1,x2,z2], slats = 우드 슬랫을 붙일 면 */
   columns: [
@@ -154,7 +161,7 @@ window.LAYOUT = {
       { x:8.2, z:7.4, len:1.2 }, { x:11.2, z:7.4, len:1.2 }
     ],
     projectors: [
-      { x:9.69, z:5.9, aim:[9.555, 0.64], drop:0.3, color:'black', label:'빔프로젝트' },
+      { x:9.69, z:5.9, aim:[9.555, 0.4], drop:0.3, color:'black', label:'빔프로젝트' },
       { x:4.63, z:4.2, aim:[4.63, 0.59], drop:0.15, color:'white', label:'빔프로젝트' }   // 회의실: 천장 흰색 프로젝터(사진 IMG_0391), 스크린을 향함   // 에어컨 뒤쪽, 내려오는 스크린 정면을 향함
     ],
     downlights: [[7.4, 1.0], [8.2, 1.0], [10.9, 1.0], [11.8, 1.0]],   // 앞쪽 작은 원형 다운라이트
@@ -216,13 +223,13 @@ window.LAYOUT = {
     // 교육장
     { id:'edu_projector', name:'빔프로젝트', room:'교육장', box:[9.4, 5.6, 10.0, 6.15, 2.15, 2.7],
       lines:['연결 케이블: (예: HDMI) — 수정 필요', '리모컨 위치: (예: 강사 단상 서랍) — 수정 필요', '사용 방법: (예: 전원 → 입력 HDMI 선택) — 수정 필요'] },
-    { id:'edu_screen', name:'전동 스크린', room:'교육장', box:[8.3, 0.5, 10.8, 0.8, 1.05, 2.7],
+    { id:'edu_screen', name:'전동 스크린', room:'교육장', box:[8.3, 0.28, 10.8, 0.52, 1.05, 2.7],
       lines:['내리기/올리기: (예: 벽 스위치) — 수정 필요', '크기: 약 2.4m 폭(3D 모델 기준)'] },
     { id:'edu_speaker', name:'스피커', room:'교육장', boxes:[[6.85, 0.2, 7.3, 0.8, 2.2, 2.7], [6.85, 7.9, 7.3, 8.5, 2.2, 2.7]],
       lines:['음량 조절: (예: 앰프·리모컨 위치) — 수정 필요', '마이크: (예: 무선 마이크 2개) — 수정 필요'] },
     { id:'edu_ac', name:'에어컨', room:'교육장', box:[9.15, 3.45, 10.25, 4.55, 2.5, 2.75],
       lines:['리모컨/조작: (예: 출입문 옆 벽 컨트롤러) — 수정 필요'] },
-    { id:'edu_podium', name:'강사 단상', room:'교육장', box:[7.28, 0.58, 8.02, 1.22, 0.15, 1.5],
+    { id:'edu_podium', name:'강사 단상', room:'교육장', box:[7.6, 1.0, 8.3, 1.6, 0.15, 1.5],
       lines:['구성: (예: 노트북 거치, HDMI 단자) — 수정 필요'] },
     { id:'edu_board', name:'유리 화이트보드', room:'교육장', boxes:[[6.88, 1.2, 7.08, 8.8, 0.8, 2.2], [12.08, 1.2, 12.26, 8.8, 0.8, 2.2]],
       lines:['마커·지우개: (예: 레지 위 비치) — 수정 필요'] },
@@ -237,13 +244,13 @@ window.LAYOUT = {
     { id:'mtg_table', name:'회의 테이블', room:'회의실', box:[4.14, 0.78, 5.12, 5.18, 0.6, 0.8],
       lines:['테이블 2개 · 12석', '전원: (예: 테이블 콘센트) — 수정 필요'] },
     // 커피존 (항상 이름 표시)
-    { id:'microwave', name:'전자레인지', room:'커피존', box:[8.19, 11.3, 8.69, 11.8, 0.9, 1.22], label:true,
+    { id:'microwave', name:'전자레인지', room:'커피존', box:[8.37, 11.3, 8.87, 11.8, 0.9, 1.22], label:true,
       lines:['사용 후 문을 닫아 주세요 (예시) — 수정 필요'] },
-    { id:'coffee', name:'커피머신', room:'커피존', box:[7.77, 11.3, 8.12, 11.8, 0.9, 1.62], label:true,
+    { id:'coffee', name:'커피머신', room:'커피존', box:[7.94, 11.3, 8.3, 11.8, 0.9, 1.62], label:true,
       lines:['사용 방법: (예: 컵 올리고 메뉴 선택) — 수정 필요', '원두 보충: (예: 상부장) — 수정 필요'] },
-    { id:'ice', name:'제빙기', room:'커피존', box:[7.35, 11.3, 7.7, 11.8, 0.9, 1.37], label:true,
+    { id:'ice', name:'제빙기', room:'커피존', box:[7.52, 11.3, 7.88, 11.8, 0.9, 1.37], label:true,
       lines:['사용 방법: (예: 컵을 대고 버튼) — 수정 필요'] },
-    { id:'water', name:'정수기', room:'커피존 · 개수대', boxes:[[5.25, 11.3, 5.85, 11.86, 0.88, 1.38]], labelAt:[5.55, 1.42, 11.32], label:true,
+    { id:'water', name:'정수기', room:'커피존 · 개수대', boxes:[[5.22, 11.3, 5.82, 11.86, 0.88, 1.38]], labelAt:[5.52, 1.42, 11.32], label:true,
       lines:['냉수·온수: (예: 온수 잠금 버튼) — 수정 필요'] }
   ],
 
@@ -268,10 +275,10 @@ window.LAYOUT = {
     { type:'cabinet', x:6.05, z:0.45, w:0.9, d:0.4, h:0.6, color:'white' },
 
     /* --- 교육장 (x6.75~12.45, z0~9.18) --- */
-    { type:'stage', x:9.555, z:0.87, w:5.31, d:1.26, h:0.2, top:'darkTop', stepX:0.9 },   // 단상: 북쪽 벽 전체(벽 안쪽 면 사이), z0.24–1.5, 높이 0.2, 계단은 통로 앞
+    { type:'stage', x:9.6, z:1.3, w:4.0, d:0.6, h:0.2, top:'darkTop', stepX:0.9 },   // 단상: x7.6–11.6, z1.0–1.6 (양 끝 0.6m 이상 비워 뒤로 들어갈 수 있음), 높이 0.2 — 뒤(창문 쪽 z0.24–1.0)로 걸어갈 수 있게 깊이를 줄임 (사용자 11/19)
     // 천장 매입형 전동 스크린: 북쪽 벽·창문에서 약 0.4m 앞 천장에서 내려옴 (2.4 × 1.45m, 단상·방 가운데)
-    { type:'ceilingScreen', x:9.555, z:0.64, w:2.4, h:1.45 },
-    { type:'podium', x:7.65, z:0.9, w:0.62, d:0.48, rot:180, elev:0.2 },   // 발표용 강연대 — 단상 왼쪽 (x7.2–8.1, z0.6–1.2)
+    { type:'ceilingScreen', x:9.555, z:0.4, w:2.4, h:1.45 },
+    { type:'podium', x:7.95, z:1.36, w:0.62, d:0.48, rot:180, elev:0.2 },   // 발표용 강연대 — 단상 왼쪽 끝 위 (x7.64–8.26, z1.12–1.6)
     { type:'whiteboard', x:6.92, z:5.0, w:7.4, rot:-90, style:'glass' },   // 서쪽 벽 연두 유리 화이트보드 0.9~2.1m + 레지
     { type:'whiteboard', x:12.19, z:5.0, w:7.4, rot:90, style:'glass' },   // 동쪽 벽도 같은 연두 유리 화이트보드 (단상에서 본 사진 11/19)
     // 수강 책상은 아래 deskLayouts(책상 배치 바꾸기)에서 정해요.
@@ -292,13 +299,13 @@ window.LAYOUT = {
 
     /* --- NEOBOX 부스 (스케치 폭 그대로, 내부 책상·모니터는 폭에 맞게 축소) --- */
     { type:'booth', x:0.97,  z:11.4, w:1.26, d:1.2, label:'NEOBOX1' },   // x0.34–1.60
-    { type:'booth', x:2.685, z:11.4, w:1.29, d:1.2, label:'NEOBOX2' },   // x2.04–3.33
-    { type:'booth', x:4.395, z:11.4, w:1.29, d:1.2, label:'NEOBOX3' },   // x3.75–5.04
+    { type:'booth', x:2.545, z:11.4, w:1.29, d:1.2, label:'NEOBOX2' },   // x1.90–3.19
+    { type:'booth', x:4.135, z:11.4, w:1.29, d:1.2, label:'NEOBOX3' },   // x3.49–4.78 (가벽 x4.95 앞)
 
-    /* --- 커피존 카운터(x5.12–8.82) + 가벽(슬랫 x9.1) + 입구(x9.4–11.6) — 남쪽 벽, 서쪽부터 NEOBOX → 카운터 → 가벽 → 입구 --- */
-    { type:'slats', from:[9.1, 11.85], to:[9.1, 10.85], h:2.45, count:9, thick:true },   // 가벽: 커피존 카운터 동쪽 끝과 입구 사이
-    { type:'pantry', x:6.97, z:11.56, w:3.7 },   // 커피존 카운터 x5.12–8.82: 동쪽(가벽 쪽)부터 전자레인지·커피머신·얼음통 … 서쪽 끝 싱크+정수기
-    { type:'zzPlant', x:12.05, z:11.7, scale:1.25 },   // 흰 화분 ZZ 플랜트 (입구 동쪽 모서리)
+    /* --- 남쪽 벽, 서쪽부터: NEOBOX(x0.34–4.78) → 가벽(슬랫 x4.95) → 커피존 카운터(x5.1–9.0) → 고정 유리(x9.6–10.8) → 입구 양문(x10.8–12.25) --- */
+    { type:'slats', from:[4.95, 11.85], to:[4.95, 10.85], h:2.45, count:9, thick:true },   // 가벽: NEOBOX3 과 커피존 카운터 사이
+    { type:'pantry', x:7.05, z:11.56, w:3.9 },   // 커피존 카운터 x5.1–9.0: 서쪽 끝(가벽 옆) 싱크+정수기 … 동쪽으로 제빙기·커피머신·전자레인지(동쪽 끝)
+    { type:'zzPlant', x:9.32, z:11.68, scale:1.25 },   // 흰 화분 ZZ 플랜트 (카운터 동쪽 끝과 입구 고정 유리 사이)
 
     /* --- 라운지 --- */
     { type:'barCounter', x:0.39, z:8.1, w:0.5, d:3.0, h:1.04 },         // 서쪽 몰딩 벽 바 테이블
@@ -314,6 +321,6 @@ window.LAYOUT = {
     { type:'purifier', x:6.35, z:8.6 },
 
     /* --- 입구 --- */
-    { type:'mat', x:10.5, z:11.4, w:1.8, d:0.9, color:'orange' }
+    { type:'mat', x:11.52, z:11.4, w:1.4, d:0.8, color:'orange' }
   ]
 };
