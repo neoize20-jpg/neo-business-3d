@@ -196,6 +196,27 @@ function wallPiece(horiz, a0, a1, fixed, t, type, wo = {}, inward = 0) {
     }
     return;
   }
+  if (type === 'window' && wo.style === 'ribbon') {   // 가로로 긴 알루미늄 창(대전 바깥벽 사진): 왼쪽(위 고정+아래 안으로 젖히는 창) · 가운데 큰 고정창 · 오른쪽(위 고정+아래 젖힘창), 흰 미장 창대
+    const sill = wo.sill ?? 0.85, head = wo.head ?? 2.58, fw0 = 0.06, fd0 = 0.07, hh = head - sill;
+    const lw = wo.left ?? 0.8, rw = wo.right ?? 0.7, ty = sill + hh * (wo.split ?? 1 / 3);
+    box(Wd, sill, Dd, M.paint, cx, 0, cz); box(Wd, H - head, Dd, M.paint, cx, head, cz);
+    const [pw, pd] = sz(len, 0.02); const pane = new THREE.Mesh(new THREE.BoxGeometry(pw, hh, pd), M.glass); pane.position.set(cx, (sill + head) / 2, cz); root.add(pane);
+    const [fw, fd] = sz(len, fd0); box(fw, fw0, fd, M.winFrame, cx, sill, cz); box(fw, fw0, fd, M.winFrame, cx, head - fw0, cz);
+    const vbar = (f, ww = fw0) => box(horiz ? ww : fd0, hh, horiz ? fd0 : ww, M.winFrame, horiz ? f : cx, sill, horiz ? cz : f);
+    vbar(a0 + fw0 / 2); vbar(a1 - fw0 / 2); vbar(a0 + lw); vbar(a1 - rw);
+    const io = inward || 0, at = (f, off) => horiz ? [f, cz + off] : [cx + off, f];
+    for (const [s0, s1] of [[a0, a0 + lw], [a1 - rw, a1]]) {
+      const sc = (s0 + s1) / 2, sl = s1 - s0;
+      const [tw, td] = sz(sl, fd0); box(tw, 0.05, td, M.winFrame, horiz ? sc : cx, ty - 0.025, horiz ? cz : sc);              // 가로 창살(아래 1/3)
+      const [hw, hd] = sz(sl - 0.12, 0.03), [hx, hz] = at(sc, io * (fd0 / 2 + 0.015));                                          // 아래 젖힘창 안쪽 창틀
+      box(hw, 0.035, hd, M.winFrame, hx, ty - 0.085, hz); box(hw, 0.035, hd, M.winFrame, hx, sill + fw0, hz);
+      for (const e of [s0 + 0.06, s1 - 0.06]) { const [ex, ez] = at(e, io * (fd0 / 2 + 0.015)); box(horiz ? 0.035 : 0.03, ty - sill - 0.11, horiz ? 0.03 : 0.035, M.winFrame, ex, sill + fw0, ez); }
+      const [kx, kz] = at(sc, io * (fd0 / 2 + 0.04)); box(horiz ? 0.1 : 0.025, 0.025, horiz ? 0.025 : 0.1, M.metal, kx, ty - 0.12, kz);   // 손잡이
+    }
+    const [rvw, rvd] = sz(len + 0.08, t / 2 + 0.06), [rx, rz] = at(horiz ? cx : cz, io * (t / 4 + 0.03));                     // 흰 미장 창대(실내 쪽)
+    box(rvw, 0.03, rvd, M.white, rx, sill - 0.03, rz);
+    return;
+  }
   if (type === 'window' && wo.style === 'casement') {   // 흰 프레임 여닫이 창(대전 사진): 창턱 + 세로 창살(좁은 창) + 가로 바, 실내 쪽 흰 창대
     const sill = wo.sill ?? 0.8, head = wo.head ?? 2.4, fw0 = 0.06, fd0 = 0.09;
     box(Wd, sill, Dd, M.paint, cx, 0, cz); box(Wd, H - head, Dd, M.paint, cx, head, cz);

@@ -56,16 +56,16 @@ window.LAYOUT = {
     // 윗부분 서쪽 바깥벽(사용자 도면 x150) + 입구 유리 양문(도면 y128–172) — 바로 바깥에 엘리베이터
     { from:[3.28, 0], to:[3.28, 8.19], type:'solid', outer:true,
       openings:[ { at:3.05, width:2.0, door:'glass', double:true, entrance:true, frame:'white', open:true } ] },
-    // 남쪽: 초록 = 창문 4개 (px 145–172, 185–212, 262–289, 302–329)
-    { from:[0, 16.15],     to:[4.99, 16.15],  type:'solid',  outer:true },
-    { from:[4.99, 16.15],  to:[7.10, 16.15],  type:'window', outer:true, style:'casement', sill:0.8, head:2.4, bar:1.95, bay:0.7 },
-    { from:[7.10, 16.15],  to:[8.11, 16.15],  type:'solid',  outer:true },
-    { from:[8.11, 16.15],  to:[10.22, 16.15], type:'window', outer:true, style:'casement', sill:0.8, head:2.4, bar:1.95, bay:0.7 },
-    { from:[10.22, 16.15], to:[14.12, 16.15], type:'solid',  outer:true },
-    { from:[14.12, 16.15], to:[16.22, 16.15], type:'window', outer:true, style:'casement', sill:0.8, head:2.4, bar:1.95, bay:0.7 },
-    { from:[16.22, 16.15], to:[17.24, 16.15], type:'solid',  outer:true },
-    { from:[17.24, 16.15], to:[19.34, 16.15], type:'window', outer:true, style:'casement', sill:0.8, head:2.4, bar:1.95, bay:0.7 },
-    { from:[19.34, 16.15], to:[31.36, 16.15], type:'solid',  outer:true },
+    // 남쪽: 사진 기준 가로로 긴 알루미늄 창 4개(3.3×1.73m, 창대 0.85·윗선 2.58) — 도면 창 위치(px x190–240, 260–310, 390–440, 465–515)를 기둥 사이에 고르게 넓힘
+    { from:[0, 16.15], to:[3.88, 16.15], type:'solid', outer:true },
+    { from:[3.88, 16.15], to:[7.18, 16.15], type:'window', outer:true, style:'ribbon', sill:0.85, head:2.58, left:0.8, right:0.7 },
+    { from:[7.18, 16.15], to:[7.58, 16.15], type:'solid', outer:true },
+    { from:[7.58, 16.15], to:[10.88, 16.15], type:'window', outer:true, style:'ribbon', sill:0.85, head:2.58, left:0.8, right:0.7 },
+    { from:[10.88, 16.15], to:[13.33, 16.15], type:'solid', outer:true },
+    { from:[13.33, 16.15], to:[16.63, 16.15], type:'window', outer:true, style:'ribbon', sill:0.85, head:2.58, left:0.8, right:0.7 },
+    { from:[16.63, 16.15], to:[17.03, 16.15], type:'solid', outer:true },
+    { from:[17.03, 16.15], to:[20.33, 16.15], type:'window', outer:true, style:'ribbon', sill:0.85, head:2.58, left:0.8, right:0.7 },
+    { from:[20.33, 16.15], to:[31.36, 16.15], type:'solid', outer:true },
 
     // 북쪽 복도 동쪽 끝 문 (px x345, y28–50)
     { from:[20.83, 0], to:[20.83, 2.11], type:'solid',
@@ -201,8 +201,6 @@ window.LAYOUT = {
     { type:'exitSign', x:4.425, z:8.28, y:2.2, rot:180 },   // 출입문 위 비상구 유도등(교육장 쪽)
 
     /* --- 남쪽 창 사이 벽의 작은 파란 표지판 --- */
-    { type:'wallPlate', x:7.6, z:16.02, rot:0, y:1.75, w:0.22, h:0.14, color:'fabricBlue' },
-    { type:'wallPlate', x:16.73, z:16.02, rot:0, y:1.75, w:0.22, h:0.14, color:'fabricBlue' },
 
     /* --- 비상구 유도등 + 소화기 (안내도) --- */
     { type:'exitSign', x:18.9, z:0.14, y:2.2, rot:180 },        // 북쪽 복도
