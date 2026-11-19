@@ -120,10 +120,11 @@ window.LAYOUT = {
     { from:[3.81, 0],  to:[3.81, 9.74], type:'solid' },                       // 소회의실 | 회의실
     { from:[9.79, 0],  to:[9.79, 14.14], type:'solid', t:0.30, molding:'west', moldingFrom:9.86, moldingTo:14.14 },  // 회의실·라운지 | 교육장
     // 라운지 쪽 유리벽 (사용자 사진): 바닥~천장 유리 + 블랙 프레임, 0.9~2.0m 반투명 시트 띠, 문은 프레임리스 시트 유리문 + 세로 블랙 손잡이
-    { from:[0, 9.74],  to:[3.81, 9.74], type:'glass', style:'band', band:[0.9, 2.0], sign:{ text:'COACHING ROOM', at:1.0, y:1.5, size:0.11, icon:true },
-      openings:[ { at:2.0, width:1.6, door:'frameless', hinge:'end', swing:-63 } ] },    // 소회의실 앞 유리벽 + 문(동쪽 끝)
-    { from:[3.81, 9.74], to:[9.79, 9.74], type:'glass', style:'band', band:[0.9, 2.0], stripes:3, sign:{ text:'MEETING ROOM', at:7.0, y:1.5, size:0.11 },
-      openings:[ { at:4.0, width:1.6, door:'frameless', hinge:'start', swing:63 } ] },   // 회의실 앞 유리벽 + 문(서쪽 끝, 소회의실 문과 블랙 기둥 사이로 나란히)
+    { from:[0.24, 9.74], to:[3.74, 9.74], type:'glass', style:'band', band:[0.9, 2.0], bay:2.5, sign:{ text:'COACHING ROOM', at:2.2, y:1.45, size:0.1, icon:true },
+      openings:[ { at:2.74, width:1.0, door:'frameless', hinge:'end', swing:-63 } ] },    // 소회의실 앞 통유리 2장(고정 1 + 문 1, 문은 동쪽 끝)
+    { from:[3.88, 9.74], to:[9.64, 9.74], type:'glass', style:'band', band:[0.9, 2.0], stripes:3, bay:2.5, sign:{ text:'MEETING ROOM', at:5.4, y:1.45, size:0.1 },
+      openings:[ { at:3.88, width:1.0, door:'frameless', hinge:'start', swing:63 } ] },   // 회의실 앞 통유리 3장(문 1 + 고정 2, 문은 서쪽 끝 — 소회의실 문과 블랙 기둥 사이로 나란히)
+    // bay = 유리 한 장의 대략 폭(m). 구간 길이 ÷ bay 를 반올림한 수만큼 유리가 나뉘어요.
     { from:[9.79, 14.14], to:[18, 14.14], type:'solid', t:0.30, sign:{ text:'EDUCATION CENTER', at:16.88, y:2.33, size:0.12 },   // 문 위 사인 (사진 IMG_0380·0381)
       openings:[ { at:16.41, width:0.95, door:'glass', frame:'white', hinge:'start', swing:66 } ] }  // 교육장 출입문
   ],
@@ -184,6 +185,7 @@ window.LAYOUT = {
     { type:'block', x:0.32, z:1.4, w:0.08, d:0.06, h:0.14, y:1.02, color:'black' },   // 바 테이블 위 폰 거치대
 
     /* --- 회의실 --- */
+    { type:'block', x:3.81, z:9.74, w:0.16, d:0.08, h:2.7, color:'black' },   // 두 문 사이 블랙 기둥(벽 끝 마감)
     { type:'tableSet', x:6.7, z:2.5, w:1.4, d:3.0, top:'white', chairsLeft:3, chairsRight:3 },   // 회의 테이블 ① x6.0–7.4, z1.0–4.0
     { type:'tableSet', x:6.7, z:5.8, w:1.4, d:3.0, top:'white', chairsLeft:3, chairsRight:3 },   // 회의 테이블 ② x6.0–7.4, z4.3–7.3
     { type:'screen', x:6.7, z:0.18, w:2.2, rot:180 },
