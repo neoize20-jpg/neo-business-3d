@@ -119,6 +119,23 @@ if (B.floorColor) {   // 시트 비닐 바닥(대전 사진: 회베이지) — �
   const t = canvasTex(512, (k, n) => { k.fillStyle = '#' + base.getHexString(); k.fillRect(0, 0, n, n); for (let i = 0; i < 2600; i++) { const v = rnd(); k.fillStyle = v > 0.5 ? 'rgba(255,255,255,.05)' : 'rgba(60,50,40,.05)'; const r = 1 + rnd() * 5; k.fillRect(rnd() * n, rnd() * n, r * 2, r); } }, 2.0);
   M.floor = world(std({ color: 0xffffff, map: t, roughness: 0.7, envMapIntensity: 0.4 }));
 }
+if (B.floorPattern === 'tile') {   // 짙은 갈색 나뭇결/얼룩 무늬 광택 비닐 타일(부산 사진) — 0.45m 정사각 타일, 타일마다 결 방향 교차
+  const base = new THREE.Color(B.floorColor || '#4a3b30'), tile = B.floorTile || 0.45;
+  const t = canvasTex(512, (k, n) => {
+    const h = n / 2;
+    for (let ty = 0; ty < 2; ty++) for (let tx = 0; tx < 2; tx++) {
+      const x0 = tx * h, y0 = ty * h, c = base.clone().offsetHSL(0, 0, (rnd() - 0.5) * 0.025);
+      k.fillStyle = '#' + c.getHexString(); k.fillRect(x0, y0, h, h);
+      const vert = (tx + ty) % 2 === 0;
+      for (let i = 0; i < 70; i++) { const a = 0.05 + rnd() * 0.1; k.fillStyle = rnd() > 0.45 ? `rgba(190,160,130,${a})` : `rgba(20,12,8,${a + 0.05})`;
+        const L1 = 10 + rnd() * 70, T1 = 1 + rnd() * 4, px = x0 + rnd() * h, py = y0 + rnd() * h;
+        if (vert) k.fillRect(px, py, T1, Math.min(L1, y0 + h - py)); else k.fillRect(px, py, Math.min(L1, x0 + h - px), T1); }
+      for (let i = 0; i < 260; i++) { k.fillStyle = `rgba(${rnd() > 0.5 ? '210,180,150' : '15,10,6'},${0.05 + rnd() * 0.08})`; const r = 1 + rnd() * 4; k.beginPath(); k.arc(x0 + rnd() * h, y0 + rnd() * h, r, 0, 7); k.fill(); }
+      k.strokeStyle = 'rgba(15,10,6,.22)'; k.lineWidth = 2; k.strokeRect(x0 + 1, y0 + 1, h - 2, h - 2);
+    }
+  }, tile * 2);
+  M.floor = world(std({ color: 0xffffff, map: t, roughness: 0.28, metalness: 0.05, envMapIntensity: 1.0 }));
+}
 if (B.ceilingTex === 'acoustic') {   // 흰 흡음 텍스 천장(미세 점 무늬) 0.6m 타일
   const t = canvasTex(512, (k, n) => { k.fillStyle = '#f7f7f5'; k.fillRect(0, 0, n, n); for (let i = 0; i < 5200; i++) { k.fillStyle = `rgba(90,90,90,${0.12 + rnd() * 0.25})`; const r = 0.6 + rnd() * 1.4; k.beginPath(); k.arc(rnd() * n, rnd() * n, r, 0, 7); k.fill(); }
     k.strokeStyle = 'rgba(150,150,150,.55)'; k.lineWidth = 3; k.strokeRect(0, 0, n, n); }, 0.6);
@@ -194,6 +211,25 @@ function wallPiece(horiz, a0, a1, fixed, t, type, wo = {}, inward = 0) {
       const [bw, bd] = sz(len, 0.09); box(bw, 0.1, bd, M.white, bx, H - 0.1, bz);                // 롤스크린 박스(천장 아래)
       const bl = wo.blind ?? 0; if (bl > 0.001) { const yb = H - 0.1 - (H - 0.1 - sill) * bl; const [cw, cd] = sz(len - 0.04, 0.008); box(cw, H - 0.1 - yb, cd, M.blind, bx, yb, bz); box(cw, 0.025, 0.02, M.winFrame, bx, yb - 0.01, bz); }
     }
+    return;
+  }
+  if (type === 'window' && wo.style === 'curtain') {   // 연속 창(부산 사진): 아래 흰 스팬드럴 → 작은 젖힘창 띠 → 큰 고정창, 회색 알루미늄 프레임
+    const sp = wo.spandrel ?? 0.72, band = wo.band ?? 1.18, head = wo.head ?? 2.5, fw0 = 0.06, fd0 = 0.08;
+    box(Wd, 0.05, Dd, M.paint, cx, 0, cz); box(Wd, H - head, Dd, M.paint, cx, head, cz);
+    if (!M.spandrel) M.spandrel = std({ color: 0xeef0ef, roughness: 0.35 });
+    const [sw, sd] = sz(len, 0.04); box(sw, sp - 0.05, sd, M.spandrel, cx, 0.05, cz);
+    const [pw, pd] = sz(len, 0.02); const pane = new THREE.Mesh(new THREE.BoxGeometry(pw, head - sp, pd), M.glass); pane.position.set(cx, (sp + head) / 2, cz); root.add(pane);
+    const [fw, fd] = sz(len, fd0);
+    for (const y of [0.05, sp - fw0 / 2, band - 0.03]) box(fw, fw0, fd, M.winFrame, cx, y, cz);
+    box(fw, fw0, fd, M.winFrame, cx, head - fw0, cz);
+    const n = Math.max(1, Math.round(len / (wo.bay || 1.5)));
+    for (let i = 0; i <= n; i++) { const f = a0 + len * i / n, ww = (i === 0 || i === n) ? 0.08 : 0.06; box(horiz ? ww : fd0, head - 0.05, horiz ? fd0 : ww, M.winFrame, horiz ? f : cx, 0.05, horiz ? cz : f); }
+    const io = inward || 0;
+    for (let i = 0; i < n; i++) {   // 젖힘창 띠: 큰 칸마다 2개, 가운데 세로살 + 손잡이
+      const f = a0 + len * (i + 0.5) / n; box(horiz ? 0.04 : fd0, band - sp, horiz ? fd0 : 0.04, M.winFrame, horiz ? f : cx, sp, horiz ? cz : f);
+      for (const q of [0.25, 0.75]) { const fq = a0 + len * (i + q) / n, off = io * (fd0 / 2 + 0.02); box(horiz ? 0.08 : 0.02, 0.02, horiz ? 0.02 : 0.08, M.metal, horiz ? fq : cx + off, band - 0.09, horiz ? cz + off : fq); }
+    }
+    const [kw, kd] = sz(len, t / 2 + 0.04), off = io * (t / 4 + 0.02); box(kw, 0.025, kd, M.winFrame, horiz ? cx : cx + off, sp - 0.01, horiz ? cz + off : cz);   // 창대
     return;
   }
   if (type === 'window' && wo.style === 'ribbon') {   // 가로로 긴 알루미늄 창(대전 바깥벽 사진): 왼쪽(위 고정+아래 안으로 젖히는 창) · 가운데 큰 고정창 · 오른쪽(위 고정+아래 젖힘창), 흰 미장 창대
@@ -389,7 +425,10 @@ for (const bd of (L.backdrop || [])) {   // 창밖 풍경: 하늘 + 도시 실�
 for (const [x, z] of (L.ceiling?.round || [])) { cyl(0.11, 0.11, 0.012, M.white, x, H - 0.014, z, 24); cyl(0.085, 0.085, 0.006, plain(0xd6d8db), x, H - 0.02, z, 24); }   // 원형 천장 스피커/센서
 for (const p of (L.ceiling?.strips || [])) {          // 일자형(라인) LED 조명
   const len = p.len || 1.2, wd = p.w || 0.16, sg = new THREE.Group(); sg.position.set(p.x, 0, p.z); sg.rotation.y = (p.rot || 0) * DEG; root.add(sg);
-  box(wd + 0.03, 0.02, len + 0.03, M.fixture, 0, H - 0.025, 0, sg); box(wd, 0.01, len, M.led, 0, H - 0.032, 0, sg);
+  if (p.twin) {   // 2등용 형광등 기구(부산 사진): 흰 반사판 + 관 2개
+    box(wd + 0.04, 0.03, len + 0.05, M.fixture, 0, H - 0.035, 0, sg);
+    for (const sx of [-1, 1]) box(0.032, 0.03, len, M.led, sx * wd * 0.24, H - 0.065, 0, sg);
+  } else { box(wd + 0.03, 0.02, len + 0.03, M.fixture, 0, H - 0.025, 0, sg); box(wd, 0.01, len, M.led, 0, H - 0.032, 0, sg); }
 }
 const projLabels = []; const pm0 = (p) => p.color ? matOf(p.color) : M.white;
 for (const [x, z] of (L.ceiling?.downlights || [])) { cyl(0.075, 0.075, 0.012, M.fixture, x, H - 0.014, z, 20); cyl(0.058, 0.058, 0.006, M.led, x, H - 0.02, z, 20); }
@@ -546,19 +585,32 @@ function shellChair(g, o = {}) {   // 검정 플라스틱 쉘 의자 + 메쉬 �
   for (const sx of [-1, 1]) box(0.03, 0.12, 0.03, CR, sx * 0.17, -0.1, -0.01, bk);
   if (o.tag) box(0.09, 0.055, 0.004, M.white, 0, 0.36, 0.02, bk);
 }
+function nestChair(g, o = {}) {   // 짙은 회색 플라스틱 쉘 + 흰 튜브 프레임 + 바퀴 4개 (부산 사진, 등받이 = 로컬 +z)
+  const SH = M.nestShell || (M.nestShell = std({ color: 0x3b3d41, roughness: 0.5 })), WF = M.nestFrame || (M.nestFrame = std({ color: 0xf1f2f3, roughness: 0.35, metalness: 0.2 }));
+  for (const sx of [-1, 1]) {
+    for (const z of [-0.19, 0.2]) box(0.026, 0.42, 0.026, WF, sx * 0.22, 0.03, z, g);   // 다리(흰 튜브)
+    for (const z of [-0.2, 0.22]) { const w = new THREE.Mesh(new THREE.SphereGeometry(0.028, 8, 6), M.black); w.position.set(sx * 0.22, 0.03, z); g.add(w); }
+    box(0.026, 0.026, 0.42, WF, sx * 0.22, 0.42, 0.01, g);                       // 좌판 아래 옆 바
+    box(0.026, 0.4, 0.026, WF, sx * 0.2, 0.44, 0.2, g);                           // 등받이 기둥
+  }
+  box(0.47, 0.05, 0.44, SH, 0, 0.44, -0.01, g);                                   // 좌판
+  const bk = new THREE.Group(); bk.position.set(0, 0.6, 0.22); bk.rotation.x = -0.14; g.add(bk);
+  box(0.46, 0.38, 0.035, SH, 0, 0, 0, bk);
+  g.userData.noBlob = false;
+}
 function deskPair(g, o) {   // 책상 + 뒤쪽 의자 n개(기본 2), 의자는 책상(북쪽, -z)을 바라봄
   const w = o.w || 1.5, d = o.d || 0.5, n = o.chairs || 2; desk(g, { w, d, casters: o.casters });
   const cz = d / 2 + (o.tuck ?? 0.3);
-  for (let i = 0; i < n; i++) { const cg = grp(n === 2 ? (i ? 1 : -1) * w * 0.24 : -w / 2 + w / (2 * n) + i * w / n, cz, 0, g); if (o.chairStyle === 'shell') shellChair(cg, { tag: o.tag }); else chair(cg, { tag: o.tag, base: o.chairBase }); }
+  for (let i = 0; i < n; i++) { const cg = grp(n === 2 ? (i ? 1 : -1) * w * 0.24 : -w / 2 + w / (2 * n) + i * w / n, cz, 0, g); if (o.chairStyle === 'shell') shellChair(cg, { tag: o.tag }); else if (o.chairStyle === 'nest') nestChair(cg, { tag: o.tag }); else chair(cg, { tag: o.tag, base: o.chairBase }); }
 }
 function extinguisher(g) { cyl(0.075, 0.075, 0.5, plain(0xd8261c), 0, 0, 0, 16, g); cyl(0.03, 0.04, 0.06, M.black, 0, 0.5, 0, 10, g); box(0.12, 0.02, 0.03, M.black, 0.03, 0.56, 0, g); box(0.08, 0.1, 0.005, M.white, 0, 0.25, -0.076, g); }
-function elevator(g) {   // 엘리베이터: 벽판 + 스테인리스 문 2짝 + 프레임 + 호출 버튼 + 층 표시 (정면 = 로컬 -z)
+function elevator(g, o) {   // 엘리베이터: 벽판 + 스테인리스 문 2짝 + 프레임 + 호출 버튼 + 층 표시 (정면 = 로컬 -z)
   box(2.4, H, 0.12, plain(0xe4e1da), 0, 0, 0.06, g);
   const st = M.chrome || (M.chrome = std({ color: 0xd9dde2, metalness: 0.9, roughness: 0.18 }));
   box(1.2, 2.2, 0.06, plain(0xb9bcc0), 0, 0, -0.02, g); box(0.53, 2.1, 0.02, st, -0.27, 0, -0.06, g); box(0.53, 2.1, 0.02, st, 0.27, 0, -0.06, g);
   box(0.06, 0.12, 0.02, M.black, 0.8, 1.1, -0.01, g); cyl(0.015, 0.015, 0.01, plain(0xffffff), 0.8, 1.15, -0.02, 10, g);
   box(0.36, 0.12, 0.02, M.black, 0, 2.3, -0.01, g);
-  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const k = c.getContext('2d'); k.fillStyle = '#ff6a2a'; k.font = '700 44px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('▲ 10', 128, 34);
+  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const k = c.getContext('2d'); k.fillStyle = '#ff6a2a'; k.font = '700 44px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('▲ ' + (o && o.floor || 10), 128, 34);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.09), new THREE.MeshBasicMaterial({ map: t })); m.position.set(0, 2.36, -0.021); m.rotation.y = Math.PI; m.userData.keep = true; g.add(m);
   const c2 = document.createElement('canvas'); c2.width = 256; c2.height = 64; const k2 = c2.getContext('2d'); k2.fillStyle = '#1b2333'; k2.font = '700 40px Pretendard, sans-serif'; k2.textAlign = 'center'; k2.textBaseline = 'middle'; k2.fillText('엘리베이터', 128, 34);
   const t2 = new THREE.CanvasTexture(c2); t2.colorSpace = THREE.SRGBColorSpace; const m2 = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.125), new THREE.MeshBasicMaterial({ map: t2, transparent: true })); m2.position.set(0, 2.52, -0.004); m2.rotation.y = Math.PI; m2.userData.keep = true; g.add(m2);
@@ -870,7 +922,7 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, wallPlate, extinguisher, elevator, restroom };
+const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, nestChair, wallPlate, extinguisher, elevator, restroom };
 const NOBLOB = new Set(['clock', 'exitSign', 'stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o, parent = root) {

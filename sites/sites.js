@@ -9,6 +9,7 @@ window.SITES = [
     desc:'교육장 55㎡ · 30명 / 회의실 23㎡ · 12명 / 소회의실 · NEOBOX · 라운지', thumb:'shot_plan.png' },
   { id:'daejeon', name:'대전 교육장', sub:'Daejeon Education Center', ready:true,
     title:'대전 교육장', brand:'NEOIZE · DAEJEON EDUCATION CENTER', addr:'대전시 서구 둔산서로 59 고운손빌딩 1002호 (10층)', desc:'10층 엘리베이터 바로 옆 출입문 · L자 교육장 · 책상 4줄(32석) · 전동 스크린 · 정수기·제빙기·커피머신', thumb:'shot_dj_plan.png' },
-  { id:'busan',   name:'부산 교육장', sub:'Busan Education Center', ready:false,
-    title:'부산 교육장 3D 투어', brand:'NEOIZE · BUSAN', addr:'부산 (주소 준비 중)', desc:'사진·도면 반영 후 공개 예정' }
+  { id:'busan',   name:'부산 교육장', sub:'Busan Education Center', ready:true,
+    title:'부산 교육장', brand:'NEOIZE · BUSAN EDUCATION CENTER', addr:'부산시 부산진구 중앙대로900 양정타임스퀘어 901호 (9층)',
+    desc:'9층 · 교육장 책상 2구역 × 6줄(48석) · 스크린 · 유리 화이트보드 · 빔프로젝트 · 동쪽·남쪽 연속 창', thumb:'shot_bs_plan.png' }
 ];
