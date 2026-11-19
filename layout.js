@@ -126,7 +126,7 @@ window.LAYOUT = {
       openings:[ { at:2.70, width:1.0, door:'frameless', hinge:'start', swing:63 } ] },   // 회의실 앞 통유리 3장(문 1 + 고정 2, 문은 서쪽 끝)
     // bay = 유리 한 장의 대략 폭(m). 구간 길이 ÷ bay 를 반올림한 수만큼 유리가 나뉘어요.
     { from:[6.75, 9.18], to:[12.45, 9.18], type:'solid', t:0.30, sign:{ text:'EDUCATION CENTER', at:11.475, y:2.33, size:0.1 },   // 문 위 사인
-      openings:[ { at:11.0, width:0.95, door:'glass', frame:'white', hinge:'start', swing:66 } ] }  // 교육장 출입문(남쪽 벽 동쪽 끝, 오른쪽에 슬랫 자리 남김)
+      openings:[ { at:11.0, width:0.95, door:'glass', frame:'white', hinge:'end', swing:-88 } ] }  // 교육장 출입문(남쪽 벽 동쪽 끝). 경첩은 동쪽, 교육장 안으로 88° 열려 동쪽 벽 쪽에 붙음 → 통로 쪽 길을 막지 않음
   ],
 
   /* 벽 블록(소회의실 안 흰 정사각형) 같은 기둥: rect = [x1,z1,x2,z2], slats = 우드 슬랫을 붙일 면 */
@@ -175,7 +175,7 @@ window.LAYOUT = {
   speakers: [
     { x:7.12,  z:0.36, rot:200 },   // 앞벽(북쪽) 왼쪽 모서리, 방 안쪽으로 살짝
     { x:12.0,  z:0.36, rot:160 },   // 앞벽(북쪽) 오른쪽 모서리
-    { x:7.02,  z:5.0,  rot:-90 },   // 서쪽 벽 가운데
+    { x:7.02,  z:7.6,  rot:-90 },   // 서쪽 벽 뒤쪽 (단상에서 본 사진)
     { x:12.09, z:5.0,  rot:90 }     // 동쪽 벽 가운데
   ],
 
@@ -204,12 +204,19 @@ window.LAYOUT = {
     // 천장 매입형 전동 스크린: 북쪽 벽·창문에서 약 0.4m 앞 천장에서 내려옴 (2.4 × 1.45m, 단상·방 가운데)
     { type:'ceilingScreen', x:9.555, z:0.64, w:2.4, h:1.45 },
     { type:'podium', x:7.65, z:0.9, w:0.62, d:0.48, rot:180, elev:0.2 },   // 발표용 강연대 — 단상 왼쪽 (x7.2–8.1, z0.6–1.2)
-    { type:'whiteboard', x:6.92, z:5.2, w:6.6, rot:-90 },                   // 서쪽 벽 유리 화이트보드
-    { type:'whiteboard', x:12.19, z:5.25, w:7.0, rot:90, style:'mirror' },  // 동쪽 벽 유리 패널 + 선반
-    // 수강 책상 5줄: 붙은 책상 2개 | 통로 x9.92–10.98 | 동쪽 벽 쪽 1개. 책상마다 의자 2개(총 30석), 의자는 단상(북쪽)을 바라봄
-    { type:'array', xs:[7.70],   zs:[2.5, 3.9, 5.08, 6.33, 7.65], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x6.97–8.43
-    { type:'array', xs:[9.19],   zs:[2.5, 3.9, 5.08, 6.33, 7.65], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x8.46–9.92
-    { type:'array', xs:[11.595], zs:[2.5, 3.9, 5.08, 6.33, 7.65], item:{ type:'deskPair', w:1.23, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x10.98–12.21(동쪽 벽 안쪽 면)
+    { type:'whiteboard', x:6.92, z:5.0, w:7.4, rot:-90, style:'glass' },   // 서쪽 벽 연두 유리 화이트보드 0.9~2.1m + 레지
+    { type:'whiteboard', x:12.19, z:5.0, w:7.4, rot:90, style:'glass' },   // 동쪽 벽도 같은 연두 유리 화이트보드 (단상에서 본 사진 11/19)
+    // 수강 책상 5줄(간격 1.15m — 맨 뒷줄 의자 등받이 z≈7.8, 교육장 문 열림 반경(경첩 x11.0, 0.95m → z≈8.2) 밖): 붙은 책상 2개 | 통로 x9.92–10.98 | 동쪽 벽 쪽 1개. 책상마다 의자 2개(총 30석), 의자는 단상(북쪽)을 바라봄
+    { type:'array', xs:[7.70],   zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x6.97–8.43
+    { type:'array', xs:[9.19],   zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x8.46–9.92
+    { type:'array', xs:[11.595], zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.23, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x10.98–12.21(동쪽 벽 안쪽 면)
+    // 교육장 뒤쪽 벽(남쪽, 안쪽 면 z9.03) — 단상에서 문을 본 사진(11/19)
+    { type:'clock', x:9.55, z:9.03, y:2.1 },                              // 둥근 벽시계
+    { type:'exitSign', x:11.475, z:9.03, y:2.2 },                         // 문 위 비상구 유도등
+    { type:'block', x:10.86, z:9.02, w:0.08, d:0.02, h:0.12, y:1.15, color:'white' },   // 문 옆 키패드/스위치
+    { type:'heater', x:9.2, z:8.96, w:1.2, h:0.5 },                       // 저상형 히터
+    { type:'purifier', x:7.7, z:8.8 },                                    // 공기청정기(라운지와 같은 모델)
+    { type:'block', x:10.45, z:5.3, w:0.12, d:0.12, h:0.006, color:'metal' },   // 바닥 콘센트 커버
     // 교육장 입구(라운지 쪽): 문 왼쪽 백라이트 TV 패널 + 배너, 오른쪽 슬랫 + 화분
     { type:'tvWall', x:9.85, z:9.38, w:2.0, rot:180 },
     { type:'signStand', x:10.35, z:9.85 },

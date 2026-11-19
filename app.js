@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191030';
+import { makeTextures, textTexture } from './textures.js?v=11191050';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -437,7 +437,39 @@ function whiteboard(g, o) {
     box(w, 0.025, 0.035, M.frame, 0, y1, -0.008, g);
     box(w, 0.03, 0.1, M.white, 0, y0 - 0.03, -0.04, g); return;   // 선반(레지)
   }
+  if (o.style === 'glass') {   // 연두빛 유리 화이트보드(벽 길이 거의 전체) + 하부 레지 (교육장 양쪽 벽, 사진)
+    const w = o.w || 2, y0 = o.y0 ?? 0.9, y1 = o.y1 ?? 2.1;
+    box(w, y1 - y0, 0.02, M.mint, 0, y0, 0, g);
+    box(w + 0.02, 0.015, 0.03, M.white, 0, y1, -0.005, g); box(0.015, y1 - y0, 0.03, M.white, -w / 2, y0, -0.005, g); box(0.015, y1 - y0, 0.03, M.white, w / 2, y0, -0.005, g);
+    box(w, 0.025, 0.08, M.white, 0, y0 - 0.025, -0.035, g); return;   // 레지(마커 받침)
+  }
   box(o.w || 2, 1.05, 0.04, M.mint, 0, 0.95, 0, g);
+}
+// 벽시계: 검은 테두리 + 흰 판 + 바늘 (앞면 = 로컬 -z)
+function wallClock(g, o) {
+  const r = o.r || 0.17, y = o.y || 2.1;
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(r, 0.018, 10, 36), M.black); rim.position.set(0, y, -0.03); g.add(rim);
+  const face = cyl(r, r, 0.03, M.white, 0, 0, 0, 36, g); face.rotation.x = Math.PI / 2; face.position.set(0, y, -0.02);
+  const hh = box(0.012, r * 0.55, 0.006, M.black, 0, 0, 0, g); hh.position.set(0.03, y + 0.02, -0.04); hh.rotation.z = -0.9;
+  const mh = box(0.008, r * 0.8, 0.006, M.black, 0, 0, 0, g); mh.position.set(-0.02, y + 0.06, -0.042); mh.rotation.z = 0.35;
+  g.userData.noBlob = true; g.userData.noCollide = true;
+}
+// 비상구 유도등 (초록, 문 위)
+function exitSign(g, o) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 96; const x = c.getContext('2d');
+  x.fillStyle = '#12a150'; x.fillRect(0, 0, 256, 96); x.fillStyle = '#fff'; x.font = '700 40px Pretendard, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('비상구', 150, 40); x.font = '600 22px Pretendard, sans-serif'; x.fillText('EXIT', 150, 76);
+  x.beginPath(); x.arc(46, 30, 9, 0, 7); x.fill(); x.fillRect(38, 42, 16, 30);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  box(0.36, 0.14, 0.04, M.white, 0, o.y || 2.25, 0, g);
+  const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.125), new THREE.MeshBasicMaterial({ map: t })); pl.position.set(0, (o.y || 2.25) + 0.07, -0.021); pl.rotation.y = Math.PI; g.add(pl);
+  g.userData.noBlob = true; g.userData.noCollide = true;
+}
+// 벽걸이 저상형 히터(다리 있음)
+function heater(g, o) {
+  const w = o.w || 1.2, h = o.h || 0.5, d = o.d || 0.12;
+  box(w, h - 0.12, d, M.white, 0, 0.12, 0, g);
+  for (let i = 0; i < Math.round(w / 0.06); i++) box(0.012, h - 0.2, 0.005, M.paint, -w / 2 + 0.04 + i * 0.06, 0.16, -d / 2 - 0.002, g);
+  for (const xx of [-w / 2 + 0.08, w / 2 - 0.08]) { box(0.04, 0.12, 0.08, M.white, xx, 0, 0, g); box(0.08, 0.015, 0.2, M.white, xx, 0, -0.02, g); }
 }
 // 천장 매입형 전동 스크린: 천장 슬롯(흰 하우징)에서 흰 막이 내려오고 아래에 얇은 검은 바. 벽에서 떨어져(앞으로) 매달림
 function ceilingScreen(g, o) {   // box(.., y) 의 y 는 아래 끝 높이
@@ -536,8 +568,8 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
-const NOBLOB = new Set(['stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
+const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
+const NOBLOB = new Set(['clock', 'exitSign', 'stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o) {
   if (o.type === 'array') {
