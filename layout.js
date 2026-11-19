@@ -30,20 +30,27 @@ window.LAYOUT = {
      label   : 방 이름표 위치 [x, z], labelY 는 이름표 높이(생략 시 2.05m)
      jump    : 빠른 이동 버튼 위치 {x, z, look:[바라볼 x, z]}
      card    : 이름표를 누르면 뜨는 사진 카드 (photos 폴더 파일 이름)
+     capacity, area : 수용 인원(명)·면적(㎡) — 모르면 생략(○○ 표시)
+     card.use / card.services / card.note : 주요 용도 · 제공 서비스 목록 · 참고 문구 (회사 소개서 기준)
      순서가 중요해요: 위에 있는 방이 먼저 판정돼요(라운지는 나머지 전체라 맨 아래).          */
   rooms: [
     { id:'coaching', name:'소회의실', en:'Small Meeting Room', rect:[0, 0, 3.81, 9.74], floor:'floor',
       label:[1.9, 6.0], jump:{ x:3.0, z:7.9, look:[1.2, 2.2] },
       card:{ photos:['IMG_0415','IMG_0418','IMG_0419','IMG_0416'],
              desc:'창가 쪽 코너에 있는 작은 회의실이에요. 블랙 미팅 테이블과 화이트보드가 있고, 기둥 뒤 창가에는 L자 바 테이블과 바 스툴, 회색 수납 벤치와 주황 큐브 스툴이 있어요.' } },
-    { id:'meeting', name:'회의실', en:'Meeting Room', rect:[3.81, 0, 9.79, 9.74], floor:'floor',
+    { id:'meeting', name:'회의실', en:'Meeting Room', rect:[3.81, 0, 9.79, 9.74], floor:'floor', capacity:12, area:23,
       label:[6.9, 5.6], jump:{ x:6.7, z:8.8, look:[6.7, 0.3] },
       card:{ photos:['IMG_0393','IMG_0391','IMG_0390'],
-             desc:'긴 화이트 테이블과 블랙 체어, 프로젝터 스크린과 화이트보드를 갖춘 회의실이에요. 라운지 쪽은 반투명 유리벽이에요.' } },
-    { id:'classroom', name:'교육장', en:'Education Center', rect:[9.79, 0, 18, 14.14], floor:'floor',
+             desc:'MEETING ROOM. 긴 화이트 테이블과 블랙 체어, 프로젝터 스크린과 화이트보드를 갖춘 회의실이에요. 라운지 쪽은 통유리벽이에요.',
+             use:'교육 · 면접 · 회의 · 간담회 · 세미나',
+             services:['와이드 스크린','빔프로젝터','무선마이크(2대)','TV 모니터(55인치)','공기청정기','정수기','냉난방'],
+             note:'교육장 대관 시 무료 이용 가능' } },
+    { id:'classroom', name:'교육장', en:'Education Center', rect:[9.79, 0, 18, 14.14], floor:'floor', capacity:30, area:55,
       label:[15.07, 7.3], jump:{ x:15.07, z:13.3, look:[13.91, 0.5] },
       card:{ photos:['IMG_0380','IMG_0382','IMG_0384','IMG_0383'],
-             desc:'라운지 쪽 출입구에는 백라이트 패널과 TV, 안내 배너, EDUCATION CENTER 유리문이 있어요. 내부는 앞쪽 창가에 단상이 있고, 화이트 강의용 책상이 5줄로 놓인 대형 교육장이에요.' } },
+             desc:'Neoful biz space EDUCATION CENTER. 라운지 쪽 출입구에는 백라이트 패널과 TV, 안내 배너가 있고, 내부는 앞쪽에 단상과 와이드 스크린, 화이트 강의용 책상 5줄이 놓인 교육장이에요.',
+             use:'교육 · 면접 · 회의(온라인) · 워크숍 · 시상식 · 세미나',
+             services:['와이드 스크린','빔프로젝터','무선마이크(2대)','TV 모니터(55인치)','공기청정기','정수기','냉난방 · 시스템 공기청정기','강사 대기석','행사 전 물품 택배 배송 가능'] } },
     { id:'focus', name:'NEOBOX', en:'Focus Booth · NEOBOX', small:true, rect:[0.24, 17.6, 7.52, 19.6], floor:'floor',
       label:[3.9, 17.3], labelY:2.35, jump:{ x:5.1, z:16.0, look:[3.4, 19.3] },
       card:{ photos:['IMG_0398','IMG_0397','IMG_0401','IMG_0403'],
@@ -51,7 +58,8 @@ window.LAYOUT = {
     { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[7.52, 17.2, 13.8, 19.6], floor:'floor',
       label:[10.7, 18.0], labelY:1.6, jump:{ x:10.9, z:16.4, look:[10.3, 19.4] },
       card:{ photos:['IMG_0386','IMG_0387','IMG_0398'],
-             desc:'커피머신과 수납장, 분리수거함이 있는 탕비 공간이에요. 우드 슬랫 파티션으로 라운지와 나뉘어 있어요.' } },
+             desc:'공용 사용 공간(LOUNGE & AMENITIES). 커피머신과 수납장, 분리수거함이 있는 탕비 공간이에요. 우드 슬랫 파티션으로 라운지와 나뉘어 있어요.',
+             services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방'] } },
     { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[13.8, 16.9, 18, 19.6], floor:'floor',
       label:[15.9, 18.6], jump:{ x:17.3, z:18.25, look:[6.0, 10.4] },
       card:{ photos:['IMG_0378','IMG_0380','IMG_0388'],
@@ -59,7 +67,8 @@ window.LAYOUT = {
     { id:'lounge', name:'라운지', en:'Lounge', rect:[0, 9.74, 18, 19.6], floor:'floor',
       label:[4.4, 14.2], jump:{ x:2.8, z:16.1, look:[8.2, 10.7] },
       card:{ photos:['IMG_0420','IMG_0421','IMG_0422','IMG_0424'],
-             desc:'흰 몰딩 벽을 따라 긴 바 테이블과 스툴이 놓여 있고, 회의실 유리벽 앞 코너에는 회색 벤치, 컬러 큐브 스툴, 원형 테이블과 블루·베이지 암체어가 있는 오픈 라운지예요.' } }
+             desc:'공용 사용 공간(LOUNGE & AMENITIES) — 탁 트인 휴식 공간이에요. 흰 몰딩 벽을 따라 긴 바 테이블과 스툴이 놓여 있고, 회의실 유리벽 앞 코너에는 회색 벤치, 컬러 큐브 스툴, 원형 테이블과 블루·베이지 암체어가 있어요.',
+             services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방','휴식 공간'] } }
   ],
 
   /* 처음 열었을 때 모드: 'orbit' = 3D 보기(전체 조망), 'walk' = 입구에서 걷기 */
@@ -115,7 +124,7 @@ window.LAYOUT = {
       openings:[ { at:2.0, width:1.6, door:'frameless', hinge:'end', swing:-63 } ] },    // 소회의실 앞 유리벽 + 문(동쪽 끝)
     { from:[3.81, 9.74], to:[9.79, 9.74], type:'glass', style:'band', band:[0.9, 2.0], stripes:3, sign:{ text:'MEETING ROOM', at:7.0, y:1.5, size:0.11 },
       openings:[ { at:4.0, width:1.6, door:'frameless', hinge:'start', swing:63 } ] },   // 회의실 앞 유리벽 + 문(서쪽 끝, 소회의실 문과 블랙 기둥 사이로 나란히)
-    { from:[9.79, 14.14], to:[18, 14.14], type:'solid', t:0.30,
+    { from:[9.79, 14.14], to:[18, 14.14], type:'solid', t:0.30, sign:{ text:'EDUCATION CENTER', at:16.88, y:2.33, size:0.12 },   // 문 위 사인 (사진 IMG_0380·0381)
       openings:[ { at:16.41, width:0.95, door:'glass', frame:'white', hinge:'start', swing:66 } ] }  // 교육장 출입문
   ],
 

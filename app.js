@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11190910';
+import { makeTextures, textTexture } from './textures.js?v=11190930';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -225,7 +225,7 @@ for (const w of L.walls) {
     const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
     const hgt = sg.size || 0.16, wd = hgt * 8, side = sg.side || 1;
     const pl = new THREE.Mesh(new THREE.PlaneGeometry(wd, hgt), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false }));
-    pl.userData.keep = true; pl.renderOrder = 10; pl.position.set(horiz ? sg.at : fixed + side * 0.012, sg.y || 1.48, horiz ? fixed + side * 0.012 : sg.at);
+    pl.userData.keep = true; pl.renderOrder = 10; const off = sg.offset ?? (w.type === 'glass' ? 0.012 : t / 2 + 0.006); pl.position.set(horiz ? sg.at : fixed + side * off, sg.y || 1.48, horiz ? fixed + side * off : sg.at);
     pl.rotation.y = horiz ? (side > 0 ? 0 : Math.PI) : (side > 0 ? Math.PI / 2 : -Math.PI / 2); root.add(pl);
   }
   for (const o of ops) {
@@ -660,6 +660,11 @@ function openCard(id) {
   c.photos.forEach((p, i) => { const im = document.createElement('img'); im.src = `photos/${p}.jpg`; if (!i) im.className = 'on'; im.onclick = () => { main.src = im.src; th.querySelectorAll('img').forEach((x) => x.classList.remove('on')); im.classList.add('on'); }; th.appendChild(im); });
   document.getElementById('cInfo').innerHTML = `<span>수용 인원 ${r.capacity ?? '○○'}명</span><span>면적 ${r.area ?? '○○'}㎡</span>`;
   document.getElementById('cDesc').textContent = c.desc;
+  const ex = document.getElementById('cExtra'); ex.innerHTML = '';
+  const esc = (t) => String(t).replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+  if (c.use) ex.innerHTML += `<div class="row"><b>주요 용도</b>${esc(c.use)}</div>`;
+  if (c.services?.length) ex.innerHTML += `<div class="row"><b>제공 서비스</b><div class="chips">${c.services.map((x) => `<i>${esc(x)}</i>`).join('')}</div></div>`;
+  if (c.note) ex.innerHTML += `<div class="row note">${esc(c.note)}</div>`;
   card.classList.add('open');
 }
 document.getElementById('cClose').onclick = () => { card.classList.remove('open'); Object.values(tagEls).forEach((e) => e.classList.remove('active')); };
