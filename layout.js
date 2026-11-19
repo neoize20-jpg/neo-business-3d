@@ -322,10 +322,7 @@ window.LAYOUT = {
     { type:'roundTable', x:5.75, z:7.78, r:0.3, h:0.72 },                          // 벤치 앞(코너 쪽) 카페 테이블
     { type:'armchair', x:4.3,  z:8.65, rot:-30, color:'fabricTeal' },              // 앞쪽 청록 터브 암체어
     { type:'armchair', x:5.25, z:8.38, rot:-40, color:'fabricBeige' },             // 뒤 오른쪽 베이지 암체어
-    { type:'cube', x:4.45, z:9.4, color:'fabricTeal' },                            // 암체어 앞 오토만
-    { type:'cube', x:5.3,  z:9.3, color:'fabricRed' },
     { type:'purifier', x:6.35, z:9.32 },                                           // LG 공기청정기(몰딩 벽 쪽)
-    { type:'stanchion', x:5.98, z:9.5 },                                           // 크롬 차단봉
 
     /* --- 입구 --- */
     { type:'mat', x:11.52, z:11.4, w:1.4, d:0.8, color:'orange' }
