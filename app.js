@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191405';
+import { makeTextures, textTexture } from './textures.js?v=11191410';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -400,13 +400,11 @@ function arcWall(R0, R1, h, open, m, y, p, bevel = 0.025) {
   geo.rotateX(-Math.PI / 2); geo.translate(0, y + bevel, 0); geo.computeVertexNormals();
   const g = new THREE.Mesh(geo, m); p.add(g); return g;
 }
-function armchair(g, o) {   // 라운지 터브 암체어(사진): 둥근 몸통 + 앞이 열린 C자 팔걸이/등받이, 등받이가 조금 더 높음, 낮은 검정 받침
-  const m = matOf(o.color || 'fabricTeal'), R = 0.37;
-  cyl(R - 0.03, R - 0.05, 0.05, M.black, 0, 0, 0, 28, g);                                   // 받침
-  cyl(R, R - 0.02, 0.3, m, 0, 0.05, 0, 32, g);                                                  // 몸통(좌석 아래)
-  cyl(R - 0.1, R - 0.1, 0.07, m, 0, 0.35, -0.02, 28, g);                                        // 방석
-  arcWall(R - 0.12, R, 0.27, 1.75, m, 0.35, g);                                                 // 팔걸이 높이까지 C자 벽
-  arcWall(R - 0.12, R, 0.2, 3.4, m, 0.6, g);                                                    // 등받이(뒤쪽만 더 높게)
+function armchair(g, o) {   // 라운지 암체어(이전 모델로 되돌림, 사용자 11/19)
+  const m = matOf(o.color || 'fabricTeal');
+  box(0.72, 0.36, 0.68, m, 0, 0.04, 0, g); box(0.72, 0.36, 0.14, m, 0, 0.38, 0.27, g);
+  box(0.12, 0.2, 0.62, m, -0.3, 0.38, 0.03, g); box(0.12, 0.2, 0.62, m, 0.3, 0.38, 0.03, g);
+  box(0.6, 0.04, 0.56, M.black, 0, 0, 0, g);
 }
 function cube(g, o) { const s = o.size || 0.42; rbox(s, o.h || s, s, 0.045, matOf(o.color || 'fabricOrange'), 0, 0, 0, g); }   // 패브릭 큐브 스툴(둥근 모서리)
 function roundTable(g, o) {   // 카페 원형 테이블: 대리석 상판 + 가는 검정 기둥 + 둥근 검정 원판 받침
