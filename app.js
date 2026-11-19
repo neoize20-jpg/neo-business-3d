@@ -133,7 +133,7 @@ box(W, 0.04, D, M.ceiling, W / 2, H, D / 2);
 const WALLSEGS = [];   // 미니맵·벽 단면(cap)용
 /* 문: E키로 여닫는 회전 문짝. DOORS 에 등록되고, 닫힌 문은 충돌(통과 불가), 열린 문은 통과 가능 */
 const DOORS = [];
-function registerDoor(leaves, open, name) { const d = { leaves, target: open ? 1 : 0, cur: open ? 1 : 0, name, box: null, c: null }; DOORS.push(d); return d; }
+function registerDoor(leaves, open, name) { const d = { leaves, target: open ? 1 : 0, cur: open ? 1 : 0, name, box: null, c: null, locked: false }; DOORS.push(d); return d; }
 function door(hx, hz, w, baseRad, swingRad, leafMat, frameMat, style) {
   const g = new THREE.Group(); g.position.set(hx, 0, hz); g.rotation.y = baseRad; root.add(g);
   g.userData.noCollide = true; g.userData.dynamic = true;
@@ -307,16 +307,16 @@ for (const w of L.walls) {
     const baseStart = horiz ? 0 : -Math.PI / 2, baseEnd = horiz ? Math.PI : Math.PI / 2;
     if (o.door === 'frameless') {
       const start = (o.hinge || 'start') === 'start', sw = (o.swing || 80) * DEG, hp = start ? o.at : o.at + len;
-      registerDoor([door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, M.glass, fm, { frameless: true, band: w.band, stripes: w.stripes })], o.open === true, o.name);
+      registerDoor([door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, M.glass, fm, { frameless: true, band: w.band, stripes: w.stripes })], o.open === true, o.name).locked = !!o.locked;
     } else if (o.double) {
       const hw = len / 2, sw = (o.swing || 80) * DEG;
       const st = o.entrance ? { entrance: true } : undefined;
       registerDoor([door(horiz ? o.at : fixed, horiz ? fixed : o.at, hw, baseStart, -sw, leafMat, fm, st),
-                    door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm, st)], o.open === true, o.name);
+                    door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm, st)], o.open === true, o.name).locked = !!o.locked;
     } else {
       const start = (o.hinge || 'start') === 'start', sw = (o.swing || 80) * DEG;
       const hp = start ? o.at : o.at + len;
-      registerDoor([door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, leafMat, fm, o.vision ? { vision: o.vision } : undefined)], o.open === true, o.name);
+      registerDoor([door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, leafMat, fm, o.vision ? { vision: o.vision } : undefined)], o.open === true, o.name).locked = !!o.locked;
     }
   }
   if (w.molding) {
@@ -1000,6 +1000,7 @@ const doorClosed = (d, plan) => d.target === 0 || (!plan && d.cur < 0.85);
 function blocked(x, z, plan = false) {
   if (x < PR || z < PR || x > W - PR || z > D - PR) { const cr = L.corridor?.rect; if (!(cr && x > cr[0] + PR && x < cr[2] - PR && z >= D - PR && z < cr[3] - PR)
       && !(L.outside || []).some((r) => x > r[0] + PR && x < r[2] + PR && z > r[1] + PR && z < r[3] - PR && (x < PR || x > W - PR) && z > PR && z < D - PR)) return true; }
+  for (const [a, b, c, d2] of (L.barriers || [])) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d2)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }   // 보이지 않는 출입 금지 선
   for (const d of DOORS) if (doorClosed(d, plan) && circleHits(x, z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) return true;
   const dc = DESK_COLL[deskIdx], db = DESK_BB[deskIdx]; if (dc && db && x > db[0] && x < db[2] && z > db[1] && z < db[3]) for (const [a, b, c, d] of dc) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
   const gx = Math.floor(x / CELL), gz = Math.floor(z / CELL);
@@ -1094,7 +1095,7 @@ function ensureEscape(x, z) {
       const a = Math.floor((d.box.min.x - 0.4) / S), b = Math.floor((d.box.max.x + 0.4) / S), c = Math.floor((d.box.min.z - 0.4) / S), e = Math.floor((d.box.max.z + 0.4) / S);
       let touch = false;
       for (let ix = a; ix <= b && !touch; ix++) for (let iz = c; iz <= e; iz++) { if (ix >= 0 && iz >= 0 && ix < NX && iz < NZ && seen[ix + iz * NX] && !blocked((ix + 0.5) * S, (iz + 0.5) * S, true)) { touch = true; break; } }
-      if (touch) { d.target = 1; opened++; }
+      if (touch && !d.locked) { d.target = 1; opened++; }
     }
     if (!opened) return;
   }
@@ -1115,6 +1116,7 @@ function findNearDoor() {
 }
 function toggleDoor(d) {
   if (!d) return;
+  if (d.locked) { toast('출입 불가 구역이에요'); return; }
   if (d.target === 1) {
     if (circleHits(player.x, player.z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) { toast('문 앞에서 조금 비켜 주세요'); return; }
     d.target = 0;
@@ -1122,13 +1124,13 @@ function toggleDoor(d) {
 }
 function updateDoors(dt) {
   for (const d of DOORS) {
-    const goal = mode === 'orbit' ? 1 : d.target;   // 3D 보기에서는 모든 문을 열어서 보여 줌
+    const goal = d.locked ? 0 : mode === 'orbit' ? 1 : d.target;   // 3D 보기에서는 모든 문을 열어서 보여 줌
     if (d.cur !== goal) { const s = dt / 0.6; d.cur = goal > d.cur ? Math.min(goal, d.cur + s) : Math.max(goal, d.cur - s); for (const l of d.leaves) l.g.rotation.y = l.base + l.swing * ease(d.cur); }
   }
   const nd = findNearDoor();
   if (nd !== nearDoor || (nd && doorPrompt.dataset.st !== String(nd.target))) {
     nearDoor = nd;
-    const label = nd ? (nd.target === 1 ? '닫기' : '열기') : '';
+    const label = nd ? (nd.locked ? '출입 불가' : nd.target === 1 ? '닫기' : '열기') : '';
     doorPrompt.dataset.st = nd ? String(nd.target) : '';
     doorPrompt.innerHTML = nd ? `<kbd>E</kbd>${label}` : ''; doorPrompt.classList.toggle('on', !!nd);
     doorBtn.textContent = label; doorBtn.classList.toggle('on', !!nd);
@@ -1206,7 +1208,7 @@ document.querySelectorAll('#modes button').forEach((b) => b.onclick = () => {
 });
 const jumps = document.getElementById('jumps');
 const jumpOrder = ['entrance', 'lounge', 'classroom', 'meeting', 'coaching', 'focus', 'coffee'].filter((id) => ROOMS[id]).concat(L.rooms.map((r) => r.id).filter((id) => !['entrance', 'lounge', 'classroom', 'meeting', 'coaching', 'focus', 'coffee'].includes(id)));
-for (const id of jumpOrder) {
+for (const id of jumpOrder.filter((id) => !ROOMS[id].noEntry)) {
   const b = document.createElement('button'); b.textContent = ROOMS[id].name; b.dataset.id = id;
   b.onclick = () => { if (flight) return; if (mode === 'orbit') goRoom(id); else { const j = ROOMS[id].jump; enterWalk(j.x, j.z, yawTo(j.x, j.z, j.look[0], j.look[1]), true); } };
   jumps.appendChild(b);
