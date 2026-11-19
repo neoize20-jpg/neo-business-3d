@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191230';
+import { makeTextures, textTexture } from './textures.js?v=11191330';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -594,10 +594,14 @@ function pantry(g, o) {   // 탕비 카운터(사진 IMG_0386): 뒤(벽) = 로�
     const m = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.066), new THREE.MeshBasicMaterial({ map: t })); m.position.set(cx + 0.05, top + 0.585, -0.121); m.rotation.y = Math.PI; g.add(m); }
   // 얼음 디스펜서 (검정 박스)
   const ix = cx - 0.42; box(0.35, 0.45, 0.45, M.black, ix, top, 0.0, g); box(0.25, 0.14, 0.006, plain(0x2a2d33), ix, top + 0.22, -0.226, g);
-  // 정수기 (흰 카운터형, 싱크 옆)
-  const wx = x0 + 1.0; box(0.22, 0.42, 0.34, M.white, wx, top, 0.02, g); box(0.16, 0.1, 0.005, plain(0x2b3440), wx, top + 0.28, -0.152, g); box(0.04, 0.03, 0.08, M.metal, wx, top + 0.16, -0.18, g); box(0.18, 0.015, 0.12, plain(0xb7bbc1), wx, top + 0.02, -0.12, g);
-  // 싱크 + 수전 (가벽 쪽)
-  const sx = x0 + 0.42; box(0.5, 0.012, 0.38, M.metal, sx, top, -0.03, g); cyl(0.014, 0.014, 0.28, M.metal, sx, top, 0.17, 8, g); box(0.03, 0.03, 0.16, M.metal, sx, top + 0.27, 0.1, g);
+  // 싱크 + 정수기(개수대): 가늘고 높은 크롬 수전 + 옆에 작은 정수 꼭지 + 벽(백스플래시)의 작은 흰 정수기 본체
+  const sx = x0 + 0.42; box(0.5, 0.012, 0.38, M.metal, sx, top, -0.03, g);
+  { const fx = sx - 0.06; cyl(0.024, 0.024, 0.02, M.metal, fx, top + 0.012, 0.19, 12, g); cyl(0.012, 0.012, 0.42, M.metal, fx, top, 0.19, 10, g);   // 높은 수전 기둥
+    box(0.022, 0.022, 0.18, M.metal, fx, top + 0.41, 0.11, g); cyl(0.01, 0.01, 0.07, M.metal, fx, top + 0.345, 0.03, 8, g);                        // 거위목 + 토출구
+    box(0.012, 0.012, 0.07, M.metal, fx + 0.025, top + 0.2, 0.19, g); }                                                                             // 레버
+  { const px = sx + 0.14; cyl(0.016, 0.016, 0.015, M.metal, px, top + 0.012, 0.2, 10, g); cyl(0.008, 0.008, 0.25, M.metal, px, top, 0.2, 8, g);      // 정수 꼭지
+    box(0.016, 0.016, 0.09, M.metal, px, top + 0.24, 0.16, g); cyl(0.007, 0.007, 0.035, M.metal, px, top + 0.21, 0.118, 8, g); box(0.02, 0.025, 0.02, M.white, px, top + 0.255, 0.2, g);
+    box(0.14, 0.19, 0.02, plain(0xb9bec6), px, top + 0.265, 0.27, g); box(0.13, 0.18, 0.03, plain(0xfafafa), px, top + 0.27, 0.262, g); box(0.02, 0.008, 0.004, plain(0x2b8cff), px, top + 0.39, 0.246, g); }               // 벽 정수기 본체 + LED
 }
 function zzPlant(g, o) {   // 흰 원통 화분 + 키 큰 ZZ 플랜트
   const s = o.scale || 1; cyl(0.17 * s, 0.15 * s, 0.45 * s, M.white, 0, 0, 0, 20, g);
