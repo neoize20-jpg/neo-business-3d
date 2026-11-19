@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11190990';
+import { makeTextures, textTexture } from './textures.js?v=11191010';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -297,11 +297,11 @@ for (const p of (L.ceiling?.projectors || [])) {      // 천장형 빔 프로젝
   box(0.2, 0.004, 0.03, M.black, -0.06, by + 0.12, 0.13, pg);                       // 통풍구
   if (p.label !== false) {
     const c = document.createElement('canvas'); c.width = 320; c.height = 72; const cx = c.getContext('2d');
-    cx.fillStyle = 'rgba(11,46,103,0.88)'; cx.beginPath(); cx.roundRect(2, 2, 316, 68, 18); cx.fill();
-    cx.fillStyle = '#fff'; cx.font = '700 40px Pretendard, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(p.label || '프로젝트 빔', 160, 38);
+    cx.fillStyle = 'rgba(255,255,255,0.78)'; cx.beginPath(); cx.roundRect(40, 6, 240, 60, 30); cx.fill();   /* 작은 연한 라벨 */
+    cx.fillStyle = '#3a3d42'; cx.font = '600 40px Pretendard, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(p.label || '프로젝트 빔', 160, 38);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthWrite: false })); const th = p.labelSize || 0.12;
-    sp.scale.set(th * 320 / 40, th * 72 / 40, 1);   /* 글자 높이 ≈ th(m) */ sp.position.set(p.x, by - 0.14, p.z); sp.renderOrder = 5; scene.add(sp); projLabels.push(sp);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthWrite: false })); const th = p.labelSize || 0.045;
+    sp.scale.set(th * 320 / 40, th * 72 / 40, 1);   /* 글자 높이 ≈ th(m) */ sp.position.set(p.x, by - 0.075, p.z); sp.renderOrder = 5; scene.add(sp); projLabels.push(sp);
   }
 }
 if (!M.acVent) { M.acVent = std({ color: 0x3a3d42, roughness: 0.6 }); M.acVent.userData.noShadow = true; }
