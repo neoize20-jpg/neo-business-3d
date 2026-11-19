@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191345';
+import { makeTextures, textTexture } from './textures.js?v=11191400';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -382,16 +382,37 @@ function stool(g, o) {
   cyl(0.17, 0.17, 0.06, m, 0, h, 0, 16, g); cyl(0.02, 0.02, h, M.black, 0, 0, 0, 6, g);
   const r = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.012, 6, 16), M.black); r.rotation.x = Math.PI / 2; r.position.set(0, 0.28, 0); g.add(r);
 }
-function armchair(g, o) {
-  const m = matOf(o.color || 'fabricTeal');
-  box(0.72, 0.36, 0.68, m, 0, 0.04, 0, g); box(0.72, 0.36, 0.14, m, 0, 0.38, 0.27, g);
-  box(0.12, 0.2, 0.62, m, -0.3, 0.38, 0.03, g); box(0.12, 0.2, 0.62, m, 0.3, 0.38, 0.03, g);
-  box(0.6, 0.04, 0.56, M.black, 0, 0, 0, g);
+/* 둥근 모서리 상자: 패브릭 큐브·벤치용 (ExtrudeGeometry + bevel) — y 는 아래 끝 */
+function rbox(w, h, d, r, m, x, y, z, p = root) {
+  r = Math.min(r, w / 2 - 0.005, d / 2 - 0.005, h / 2 - 0.005);
+  const sw = w - 2 * r, sd = d - 2 * r, cr = Math.min(0.02, sw / 2, sd / 2), sh = new THREE.Shape();
+  sh.moveTo(-sw / 2 + cr, -sd / 2); sh.lineTo(sw / 2 - cr, -sd / 2); sh.quadraticCurveTo(sw / 2, -sd / 2, sw / 2, -sd / 2 + cr); sh.lineTo(sw / 2, sd / 2 - cr);
+  sh.quadraticCurveTo(sw / 2, sd / 2, sw / 2 - cr, sd / 2); sh.lineTo(-sw / 2 + cr, sd / 2); sh.quadraticCurveTo(-sw / 2, sd / 2, -sw / 2, sd / 2 - cr); sh.lineTo(-sw / 2, -sd / 2 + cr); sh.quadraticCurveTo(-sw / 2, -sd / 2, -sw / 2 + cr, -sd / 2);
+  const geo = new THREE.ExtrudeGeometry(sh, { depth: h - 2 * r, bevelEnabled: true, bevelThickness: r, bevelSize: r, bevelSegments: 4, curveSegments: 4 });
+  geo.rotateX(-Math.PI / 2); geo.translate(0, r, 0); geo.computeVertexNormals();
+  const g = new THREE.Mesh(geo, m); g.position.set(x, y, z); p.add(g); return g;
 }
-function cube(g, o) { const s = o.size || 0.42; box(s, o.h || s, s, matOf(o.color || 'fabricOrange'), 0, 0, 0, g); }
-function roundTable(g, o) {
-  const r = o.r || 0.36, h = o.h || 0.74;
-  cyl(r, r, 0.035, matOf(o.top || 'marble'), 0, h - 0.035, 0, 28, g); cyl(0.035, 0.035, h - 0.04, M.black, 0, 0, 0, 8, g); cyl(0.24, 0.26, 0.03, M.black, 0, 0, 0, 20, g);
+/* 부채꼴 고리(앞이 열린 C자) 압출: 터브 암체어 등받이·팔걸이. open = 앞쪽(로컬 -z) 열림 각도 */
+function arcWall(R0, R1, h, open, m, y, p, bevel = 0.025) {
+  const a0 = Math.PI / 2 + open / 2, a1 = Math.PI / 2 - open / 2 + Math.PI * 2, sh = new THREE.Shape();
+  sh.absarc(0, 0, R1, a0, a1, false); sh.absarc(0, 0, R0, a1, a0, true); sh.closePath();
+  const geo = new THREE.ExtrudeGeometry(sh, { depth: Math.max(0.01, h - 2 * bevel), bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel * 0.8, bevelSegments: 3, curveSegments: 28 });
+  geo.rotateX(-Math.PI / 2); geo.translate(0, y + bevel, 0); geo.computeVertexNormals();
+  const g = new THREE.Mesh(geo, m); p.add(g); return g;
+}
+function armchair(g, o) {   // 라운지 터브 암체어(사진): 둥근 몸통 + 앞이 열린 C자 팔걸이/등받이, 등받이가 조금 더 높음, 낮은 검정 받침
+  const m = matOf(o.color || 'fabricTeal'), R = 0.37;
+  cyl(R - 0.03, R - 0.05, 0.05, M.black, 0, 0, 0, 28, g);                                   // 받침
+  cyl(R, R - 0.02, 0.3, m, 0, 0.05, 0, 32, g);                                                  // 몸통(좌석 아래)
+  cyl(R - 0.1, R - 0.1, 0.07, m, 0, 0.35, -0.02, 28, g);                                        // 방석
+  arcWall(R - 0.12, R, 0.27, 1.75, m, 0.35, g);                                                 // 팔걸이 높이까지 C자 벽
+  arcWall(R - 0.12, R, 0.2, 3.4, m, 0.6, g);                                                    // 등받이(뒤쪽만 더 높게)
+}
+function cube(g, o) { const s = o.size || 0.42; rbox(s, o.h || s, s, 0.045, matOf(o.color || 'fabricOrange'), 0, 0, 0, g); }   // 패브릭 큐브 스툴(둥근 모서리)
+function roundTable(g, o) {   // 카페 원형 테이블: 대리석 상판 + 가는 검정 기둥 + 둥근 검정 원판 받침
+  const r = o.r || 0.3, h = o.h || 0.72;
+  cyl(r, r, 0.03, matOf(o.top || 'marble'), 0, h - 0.03, 0, 36, g); cyl(r - 0.01, r - 0.01, 0.012, M.black, 0, h - 0.042, 0, 36, g);
+  cyl(0.022, 0.022, h - 0.06, M.black, 0, 0.02, 0, 10, g); cyl(0.2, 0.22, 0.02, M.black, 0, 0, 0, 28, g); cyl(0.06, 0.08, 0.04, M.black, 0, 0.02, 0, 16, g);
 }
 function plant(g, o) {
   const s = o.scale || 1;
@@ -526,7 +547,13 @@ function tvWall(g, o) {
   box(w - 0.1, 0.025, 0.03, M.glow, 0, 0.37, -0.07, g); box(w - 0.1, 0.025, 0.03, M.glow, 0, 2.26, -0.07, g);
 }
 function signStand(g) { box(0.32, 0.5, 0.03, M.black, 0, 0.7, 0, g); box(0.025, 0.7, 0.025, M.metal, 0, 0, 0, g); box(0.28, 0.02, 0.22, M.black, 0, 0, 0, g); }
-function bench(g, o) { box(o.w || 0.5, o.h || 0.4, o.d || 1.2, matOf(o.color || 'fabricGray'), 0, 0, 0, g); }
+function bench(g, o) {   // 낮은 패브릭 벤치(둥근 모서리) + 얇은 검정 받침
+  const w = o.w || 0.45, h = o.h || 0.42, d = o.d || 1.2, m = matOf(o.color || 'fabricGray');
+  box(w - 0.06, 0.04, d - 0.06, M.black, 0, 0, 0, g); rbox(w, h - 0.04, d, 0.05, m, 0, 0.04, 0, g);
+}
+function stanchion(g) {   // 크롬 차단봉(벨트 릴) — 둥근 받침 + 기둥 + 위 캡/벨트 카세트
+  cyl(0.16, 0.17, 0.03, M.metal, 0, 0, 0, 24, g); cyl(0.028, 0.028, 0.9, M.metal, 0, 0.03, 0, 14, g); cyl(0.045, 0.04, 0.1, M.metal, 0, 0.88, 0, 16, g); box(0.012, 0.05, 0.03, M.black, 0.05, 0.9, 0, g);
+}
 function cabinet(g, o) { box(o.w || 1.2, o.h || 0.7, o.d || 0.4, matOf(o.color || 'white'), 0, 0, 0, g); }
 function block(g, o) { box(o.w || 0.1, o.h || 0.1, o.d || 0.1, matOf(o.color || 'black'), 0, o.y || 0, 0, g); }   // 단순 박스(소품)
 function barCounter(g, o) {
@@ -535,7 +562,14 @@ function barCounter(g, o) {
   const n = Math.max(1, Math.round(long / 1.4));
   for (let i = 0; i <= n; i++) { const p = -long / 2 + 0.1 + i * (long - 0.2) / n; const sh = (alongX ? d : w) / 2 - 0.06; for (const s of [-1, 1]) box(0.04, h - 0.08, 0.04, M.black, alongX ? p : s * sh, 0, alongX ? s * sh : p, g); }
 }
-function purifier(g) { cyl(0.19, 0.19, 0.95, M.white, 0, 0, 0, 20, g); const r = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.04, 8, 20), M.black); r.position.set(0, 1.05, 0); r.rotation.y = Math.PI / 2; g.add(r); }
+function purifier(g) {   // LG 공기청정기: 흰 원통 모듈 2단 + 사이 회색 띠 + 위 원형 센서 헤드(세운 링)
+  cyl(0.16, 0.165, 0.03, plain(0xd8d9db), 0, 0, 0, 28, g);
+  cyl(0.16, 0.16, 0.44, M.white, 0, 0.03, 0, 32, g); cyl(0.162, 0.162, 0.025, plain(0xb9bcc0), 0, 0.47, 0, 32, g); cyl(0.16, 0.16, 0.44, M.white, 0, 0.495, 0, 32, g);
+  cyl(0.155, 0.16, 0.02, plain(0xcfd2d6), 0, 0.935, 0, 32, g);
+  const r = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.025, 12, 32), M.white); r.position.set(0, 1.11, 0); g.add(r);
+  const dsk = new THREE.Mesh(new THREE.CircleGeometry(0.11, 28), plain(0x2a2d33)); dsk.position.set(0, 1.11, -0.002); dsk.rotation.y = Math.PI; g.add(dsk); const dsk2 = dsk.clone(); dsk2.position.z = 0.002; dsk2.rotation.y = 0; g.add(dsk2);
+  cyl(0.03, 0.04, 0.03, M.white, 0, 0.955, 0, 12, g);
+}
 function mat(g, o) { const m = box(o.w || 2, 0.006, o.d || 1.2, matOf(o.color || 'orange'), 0, 0, 0, g); g.userData.noCollide = true; g.userData.noBlob = true; return m; }
 function booth(g, o) {   // NEOBOX 1인 부스: 앞(문) = 로컬 -z
   const w = o.w || 1.85, d = o.d || 1.7, ph = 2.2, t = 0.07, x0 = -w / 2, x1 = w / 2, z0 = -d / 2, z1 = d / 2;
@@ -637,7 +671,7 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry, zzPlant };
+const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant };
 const NOBLOB = new Set(['clock', 'exitSign', 'stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o, parent = root) {

@@ -311,14 +311,21 @@ window.LAYOUT = {
     { type:'barCounter', x:0.39, z:8.1, w:0.5, d:3.0, h:1.04 },         // 서쪽 몰딩 벽 바 테이블
     { type:'array', xs:[0.97], zs:[6.9, 7.5, 8.1, 8.7, 9.3],
       item:{ type:'stool', h:0.72 }, colors:['fabricRed','fabricRed','fabricGray','fabricRed','fabricGray'] },
-    { type:'cube', x:4.6,  z:6.55, color:'fabricGreen' },
-    { type:'cube', x:5.05, z:6.55, color:'fabricBlue' },
-    { type:'cube', x:5.5,  z:6.55, color:'fabricRed' },
-    { type:'bench', x:6.35, z:7.3, w:0.5, d:1.6, color:'fabricGray' },  // 교육장 벽 쪽 회색 벤치
-    { type:'roundTable', x:5.4, z:7.35 },
-    { type:'armchair', x:4.75, z:7.95, rot:9,  color:'fabricTeal' },
-    { type:'armchair', x:5.75, z:8.3, rot:99, color:'fabricBeige' },
-    { type:'purifier', x:6.35, z:8.6 },
+    // 라운지 북동쪽 코너 (사진: NEOBOX 쪽에서 회의실 유리를 본 모습) — 회의실 유리(z6.22) 앞 큐브 줄 + 교육장 몰딩 벽(x6.6) 앞 L자 회색 벤치
+    { type:'cube', x:4.55, z:6.58, color:'fabricGreen' },
+    { type:'cube', x:5.0,  z:6.58, color:'fabricBlue' },
+    { type:'cube', x:5.45, z:6.58, color:'fabricGreen' },
+    { type:'cube', x:5.9,  z:6.58, color:'fabricOrange' },
+    { type:'bench', x:6.36, z:7.45, w:0.45, d:2.1, h:0.42, color:'fabricGray' },   // 몰딩 벽 아래 긴 벤치 z6.4–8.5
+    { type:'cube', x:6.36, z:8.75, color:'fabricOrange' },                         // 벤치 남쪽 끝 주황 큐브
+    { type:'roundTable', x:5.0,  z:7.22, r:0.3, h:0.72 },                          // 큐브 앞 카페 테이블
+    { type:'roundTable', x:5.75, z:7.78, r:0.3, h:0.72 },                          // 벤치 앞(코너 쪽) 카페 테이블
+    { type:'armchair', x:4.3,  z:8.65, rot:-30, color:'fabricTeal' },              // 앞쪽 청록 터브 암체어
+    { type:'armchair', x:5.25, z:8.38, rot:-40, color:'fabricBeige' },             // 뒤 오른쪽 베이지 암체어
+    { type:'cube', x:4.45, z:9.4, color:'fabricTeal' },                            // 암체어 앞 오토만
+    { type:'cube', x:5.3,  z:9.3, color:'fabricRed' },
+    { type:'purifier', x:6.35, z:9.32 },                                           // LG 공기청정기(몰딩 벽 쪽)
+    { type:'stanchion', x:5.98, z:9.5 },                                           // 크롬 차단봉
 
     /* --- 입구 --- */
     { type:'mat', x:11.52, z:11.4, w:1.4, d:0.8, color:'orange' }
