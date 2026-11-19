@@ -172,8 +172,8 @@ function door(hx, hz, w, baseRad, swingRad, leafMat, frameMat, style) {
   }
   const leaf = new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, 2.04, style?.vision ? 0.04 : 0.02), leafMat); leaf.position.set(w / 2, 1.04, 0); g.add(leaf);
   if (style?.vision) {   // 흰 문 + 반투명 유리 비전창(panel: 넓은 창 / strip: 세로 띠) + 레버 손잡이 (대전 사진)
-    const strip = style.vision === 'strip', vw = strip ? 0.12 : w * 0.5, vh = strip ? 1.3 : 1.05, vx = strip ? w * 0.32 : w * 0.45;
-    box(vw, vh, 0.046, M.visionG || (M.visionG = std({ color: 0xc4d0cc, roughness: 0.3, transparent: true, opacity: 0.9 })), vx, 0.75, 0, g); box(vw + 0.04, 0.02, 0.05, M.white, vx, 0.74, 0, g); box(vw + 0.04, 0.02, 0.05, M.white, vx, 0.75 + vh - 0.01, 0, g);
+    const strip = style.vision === 'strip', tall = style.vision === 'tall', vw = strip ? 0.12 : tall ? w * 0.36 : w * 0.5, vh = strip ? 1.3 : tall ? 1.6 : 1.05, vx = strip ? w * 0.32 : tall ? w * 0.36 : w * 0.45;
+    const vy = tall ? 0.3 : 0.75; box(vw, vh, 0.046, M.visionG || (M.visionG = std({ color: 0xc4d0cc, roughness: 0.3, transparent: true, opacity: 0.9 })), vx, vy, 0, g); box(vw + 0.04, 0.02, 0.05, M.white, vx, vy - 0.01, 0, g); box(vw + 0.04, 0.02, 0.05, M.white, vx, vy + vh - 0.01, 0, g);
     for (const sd of [-1, 1]) { cyl(0.025, 0.025, 0.012, M.metal, w - 0.08, 0, 0, 14, g).position.set(w - 0.08, 1.0, sd * 0.026); box(0.13, 0.018, 0.022, M.metal, w - 0.13, 0.99, sd * 0.045, g); }
     return { g, base: baseRad, swing: swingRad };
   }
@@ -283,6 +283,17 @@ function wallPiece(horiz, a0, a1, fixed, t, type, wo = {}, inward = 0) {
     const [hw, hd] = sz(len, t + 0.02); box(hw, 0.05, hd, M.white, cx, head - 0.05, cz);            // 문과 이어지는 같은 높이의 가로 헤더
     const [fw, fd] = sz(len, 0.04); box(fw, 0.03, fd, M.white, cx, 0, cz);                         // 바닥 레일
     for (const f of [a0 + 0.015, a1 - 0.015]) box(horiz ? 0.03 : 0.04, head, horiz ? 0.04 : 0.03, M.white, horiz ? f : cx, 0, horiz ? cz : f);   // 얇은 세로 프레임
+    return;
+  }
+  if (wo.style === 'blinds') {   // 흰 프레임 유리 칸막이 + 안쪽 흰 베니션 블라인드(부산 복도 사진, 강사대기실 벽)
+    if (!M.venetian) { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const k = c.getContext('2d'); k.fillStyle = '#f3f3f0'; k.fillRect(0, 0, 16, 64); for (let y = 0; y < 64; y += 8) { k.fillStyle = '#d4d6d3'; k.fillRect(0, y + 6, 16, 2); }
+      const tx = new THREE.CanvasTexture(c); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(1, 60); M.venetian = std({ color: 0xffffff, map: tx, roughness: 0.75, side: THREE.DoubleSide }); }
+    const sill = 0.1, head = H - 0.06, [bw, bd] = sz(len - 0.02, 0.006);
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(bw, head - sill, bd), M.venetian); bl.position.set(cx, (sill + head) / 2, cz); root.add(bl);
+    for (const sd of [-1, 1]) { const off = sd * 0.03, [pw, pd] = sz(len, 0.008); const p = new THREE.Mesh(new THREE.BoxGeometry(pw, head - sill, pd), M.glass); p.position.set(horiz ? cx : cx + off, (sill + head) / 2, horiz ? cz + off : cz); root.add(p); }
+    const [fw, fd] = sz(len, t); box(fw, sill, fd, M.white, cx, 0, cz); box(fw, H - head, fd, M.white, cx, head, cz);
+    const n = Math.max(1, Math.round(len / (wo.bay || 0.95)));
+    for (let i = 0; i <= n; i++) { const f = a0 + len * i / n, fwid = (i === 0 || i === n) ? 0.06 : 0.09; box(horiz ? fwid : t, H, horiz ? t : fwid, M.white, horiz ? f : cx, 0, horiz ? cz : f); }
     return;
   }
   if (wo.style === 'frost') {   // 반투명 유리 파티션(대전 사진): 바닥~천장, 연한 녹회색 반투명 유리, 가는 흰 알루미늄 세로 멀리언(bay 0.8)
@@ -677,6 +688,13 @@ function restroom(g) {   // 화장실 표시: 문 + 남/녀 픽토그램 판 (�
   const t2 = new THREE.CanvasTexture(c2); t2.colorSpace = THREE.SRGBColorSpace; const m2 = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.1), new THREE.MeshBasicMaterial({ map: t2, transparent: true })); m2.position.set(0, 2.14, -0.045); m2.rotation.y = Math.PI; m2.userData.keep = true; g.add(m2);
   g.userData.noBlob = true; g.userData.noCollide = true;
 }
+function goldSign(g, o) {   // 복도 벽 금색 사인 패널(사진): 금색 세로 띠 2개 + 가운데 흰 판 + 로고 글자, 앞 = 로컬 -z
+  const GD = M.gold || (M.gold = std({ color: 0xb08a4e, roughness: 0.3, metalness: 0.7 })), w = o.w || 0.9, h = o.h || 2.3;
+  box(0.16, h, 0.01, GD, -w / 2 + 0.08, 0.1, 0, g); box(0.16, h, 0.01, GD, w / 2 - 0.08, 0.1, 0, g); box(w - 0.32, h, 0.008, M.white, 0, 0.1, 0, g);
+  const c = document.createElement('canvas'); c.width = 256; c.height = 64; const k = c.getContext('2d'); k.fillStyle = '#2b3550'; k.font = '800 40px Pretendard, sans-serif'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('NEOIZE', 128, 34);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.105), new THREE.MeshBasicMaterial({ map: t, transparent: true })); m.position.set(0, 1.55, -0.008); m.rotation.y = Math.PI; m.userData.keep = true; g.add(m);
+  g.userData.noCollide = true; g.userData.noBlob = true;
+}
 function wallPlate(g, o) { box(o.w || 0.2, o.h || 0.12, 0.012, matOf(o.color || 'white'), 0, o.y || 1.6, 0, g); g.userData.noCollide = true; g.userData.noBlob = true; }
 /* 단상(무대): 걸어 올라갈 수 있는 낮은 플랫폼. 위에 놓는 가구는 elev(바닥에서 띄우는 높이)를 단상 높이로 */
 const PLATFORMS = [];
@@ -812,7 +830,29 @@ function standFan(g) {   // 둥근 흰 스탠드 선풍기
   const r = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.02, 10, 32), M.white); r.position.set(0, 1.05, -0.02); g.add(r);
   const c = cyl(0.19, 0.19, 0.06, plain(0xe8eaec), 0, 0, 0, 28, g); c.rotation.x = Math.PI / 2; c.position.set(0, 1.05, 0); cyl(0.06, 0.07, 0.12, M.white, 0, 0.98, 0.08, 14, g);
 }
-function bin(g, o) { cyl(o.r || 0.15, (o.r || 0.15) * 0.92, o.h || 0.55, M.black, 0, 0, 0, 20, g); }   // 검정 휴지통
+function cafeTable(g, o) {   // 흰 상판 + 오크 엣지 + 검정 철제 다리 테이블(부산 복도 사진)
+  const w = o.w || 1.2, d = o.d || 0.7, h = o.h || 0.73, BK = M.rPlastic || plain(0x1a1b1e);
+  box(w, 0.025, d, M.white, 0, h - 0.025, 0, g); box(w + 0.004, 0.018, d + 0.004, matOf('oak'), 0, h - 0.043, 0, g);
+  for (const sx of [-1, 1]) for (const sz3 of [-1, 1]) box(0.035, h - 0.043, 0.035, BK, sx * (w / 2 - 0.04), 0, sz3 * (d / 2 - 0.04), g);
+  for (const sz3 of [-1, 1]) box(w - 0.1, 0.03, 0.02, BK, 0, h - 0.075, sz3 * (d / 2 - 0.04), g); for (const sx of [-1, 1]) box(0.02, 0.03, d - 0.1, BK, sx * (w / 2 - 0.04), h - 0.075, 0, g);
+  if (o.sanitizer) { cyl(0.03, 0.03, 0.17, plain(0xdfeaf2), -w / 2 + 0.2, h, 0.05, 12, g); cyl(0.03, 0.03, 0.17, plain(0xdfeaf2), -w / 2 + 0.28, h, 0.1, 12, g); }
+}
+function mobileTv(g, o) {   // 이동형 TV 스탠드(검정) + 약 55형 TV + 아래 선반, 앞 = 로컬 -z
+  const BK = plain(0x17181b);
+  box(1.24, 0.72, 0.06, M.tv, 0, 0.95, 0, g); box(1.26, 0.74, 0.04, BK, 0, 0.94, 0.03, g);
+  for (const sx of [-0.3, 0.3]) box(0.06, 1.55, 0.05, BK, sx, 0.06, 0.07, g);
+  box(0.7, 0.02, 0.35, BK, 0, 0.5, 0.05, g); box(0.62, 0.04, 0.06, BK, 0, 0.06, 0.07, g);
+  for (const sx of [-1, 1]) { box(0.06, 0.04, 0.5, BK, sx * 0.32, 0.03, 0.02, g); for (const ez of [-1, 1]) { const w = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), BK); w.position.set(sx * 0.32, 0.03, 0.02 + ez * 0.23); g.add(w); } }
+}
+function waterDispenser(g, o) {   // 바닥형 흰 정수기(약 0.35 × 0.45 × 1.35) + 컵 디스펜서, 앞 = 로컬 -z
+  const d = 0.45, fz = -d / 2 - 0.005, W = plain(0xf4f4f2);
+  box(0.35, 1.35, d, W, 0, 0, 0, g); box(0.3, 0.45, 0.01, plain(0xe6e8ea), 0, 0.78, fz - 0.005, g);
+  box(0.26, 0.1, 0.07, plain(0xdfe1e4), 0, 0.92, fz - 0.035, g); box(0.26, 0.03, 0.11, plain(0x4a4d52), 0, 0.7, fz - 0.055, g);
+  cyl(0.012, 0.012, 0.05, plain(0xd23b2b), -0.06, 0.87, fz - 0.04, 8, g); cyl(0.012, 0.012, 0.05, plain(0x2b6fd2), 0.06, 0.87, fz - 0.04, 8, g);
+  box(0.16, 0.06, 0.005, plain(0x2b3440), 0, 1.18, fz - 0.006, g);
+  cyl(0.04, 0.04, 0.32, plain(0xeceff2), 0.12, 1.0, fz - 0.03, 14, g).rotation.z = 0;   // 컵 디스펜서
+}
+function bin(g, o) { if (o.square) { box(o.w || 0.26, o.h || 0.4, o.w || 0.26, M.black, 0, 0, 0, g); return; } cyl(o.r || 0.15, (o.r || 0.15) * 0.92, o.h || 0.55, o.color ? matOf(o.color) : M.black, 0, 0, 0, 20, g); }   // 검정 휴지통
 function ledClock(g, o) {   // 빨간 LED 디지털 시계 (벽걸이)
   const y = o.y || 2.0; box(0.5, 0.2, 0.04, M.black, 0, y, 0, g);
   const c = document.createElement('canvas'); c.width = 256; c.height = 96; const k = c.getContext('2d'); k.fillStyle = '#111'; k.fillRect(0, 0, 256, 96);
@@ -982,7 +1022,7 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, nestChair, trainingTable, wallPlate, extinguisher, elevator, restroom };
+const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, nestChair, trainingTable, cafeTable, mobileTv, waterDispenser, goldSign, wallPlate, extinguisher, elevator, restroom };
 const NOBLOB = new Set(['clock', 'exitSign', 'stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o, parent = root) {

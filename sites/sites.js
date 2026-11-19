@@ -11,5 +11,5 @@ window.SITES = [
     title:'대전 교육장', brand:'NEOIZE · DAEJEON EDUCATION CENTER', addr:'대전시 서구 둔산서로 59 고운손빌딩 1002호 (10층)', desc:'10층 엘리베이터 바로 옆 출입문 · L자 교육장 · 책상 4줄(32석) · 전동 스크린 · 정수기·제빙기·커피머신', thumb:'shot_dj_plan.png' },
   { id:'busan',   name:'부산 교육장', sub:'Busan Education Center', ready:true,
     title:'부산 교육장', brand:'NEOIZE · BUSAN EDUCATION CENTER', addr:'부산시 부산진구 중앙대로900 양정타임스퀘어 901호 (9층)',
-    desc:'9층 · 교육장 책상 2구역 × 5줄(40석) · 스크린 · 유리 화이트보드 · 빔프로젝트 · 동쪽 연속 창 · 남쪽 통창 2칸', thumb:'shot_bs_plan.png' }
+    desc:'9층 · 교육장 책상 2구역 × 4줄(32석) · 스크린 · 유리 화이트보드 · 빔프로젝트 · 동쪽 연속 창 · 남쪽 통창 6칸', thumb:'shot_bs_plan.png' }
 ];

@@ -178,10 +178,10 @@ a.pk-card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(11,46,103
   </div>
 </aside>
 <!-- 교육장 목록: sites/sites.js / 교육장별 공간 설정: sites/<id>/layout.js (치수·가구 배치는 거기서 수정) -->
-<script src="sites/sites.js?v=11192300"></script>
+<script src="sites/sites.js?v=11192330"></script>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
 <script type="module">
-const V = "11192300", SITES = window.SITES || [], q = new URLSearchParams(location.search);
+const V = "11192330", SITES = window.SITES || [], q = new URLSearchParams(location.search);
 let id = q.get('site');
 if (!id && [...q.keys()].length) id = 'seoul';            // 예전 링크(?room=… 등)는 서울 구로로
 const S = SITES.find((s) => s.id === id);
