@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11191520';
+import { makeTextures, textTexture } from './textures.js?v=11191600';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -277,7 +277,8 @@ for (const w of L.walls) {
 }
 for (const c of (L.columns || [])) {
   const [x0, z0, x1, z1] = c.rect; box(x1 - x0, H, z1 - z0, M.paint, (x0 + x1) / 2, 0, (z0 + z1) / 2);
-  WALLSEGS.push({ x1: x0, z1: z0, x2: x1, z2: z1, t: 0, type: 'column' });
+  WALLSEGS.push({ x1: x0, z1: z0, x2: x1, z2: z1, t: 0, type: 'column', block: !!c.block });
+  // c.block: 투어에 안 들어가는 다른 공간 덩어리 → 미니맵에 옅은 회색
   for (const f of (c.slats || [])) {
     const vert = f === 'west' || f === 'east', a = vert ? z0 : x0, b = vert ? z1 : x1, n = Math.max(3, Math.round((b - a) / 0.13));
     for (let i = 0; i < n; i++) {
@@ -562,9 +563,9 @@ function coffeeCabinet(g, o) {   // 흰 낮은 수납장 + 커피머신 · 얼�
   box(w, 0.08, d - 0.04, M.paint, 0, 0, 0.01, g); box(w, h - 0.08, d, M.white, 0, 0.08, 0, g); box(w + 0.02, 0.03, d + 0.02, M.white, 0, h, 0, g);
   const n = Math.max(2, Math.round(w / 0.5)); for (let i = 1; i < n; i++) box(0.006, h - 0.12, 0.01, plain(0xc9ccd1), -w / 2 + w * i / n, 0.1, -d / 2 - 0.001, g);
   const t = h + 0.03, x0 = -w / 2;
-  const cx = x0 + 0.3; box(0.32, 0.5, 0.42, M.black, cx, t, 0, g); box(0.18, 0.1, 0.06, M.metal, cx, t + 0.16, -0.22, g);   // 커피머신
-  const ix = cx + 0.5; box(0.48, 0.3, 0.38, M.white, ix, t, 0.02, g); box(0.34, 0.22, 0.005, M.black, ix - 0.05, t + 0.04, -0.172, g);   // 얼음/전자레인지 유닛
-  const wx = x0 + w - 0.25; box(0.28, 0.48, 0.36, M.white, wx, t, 0.02, g); box(0.18, 0.12, 0.005, plain(0x2b3440), wx, t + 0.3, -0.162, g); box(0.05, 0.03, 0.08, M.metal, wx, t + 0.18, -0.19, g);   // 정수기
+  const cx = o.coffeeAt ?? (x0 + 0.3); box(0.32, 0.5, 0.42, M.black, cx, t, 0, g); box(0.18, 0.1, 0.06, M.metal, cx, t + 0.16, -0.22, g);   // 커피머신
+  const ix = o.iceAt ?? (cx + 0.5); box(0.48, 0.3, 0.38, M.white, ix, t, 0.02, g); box(0.34, 0.22, 0.005, M.black, ix - 0.05, t + 0.04, -0.172, g);   // 얼음/전자레인지 유닛
+  const wx = o.waterAt ?? (x0 + w - 0.25); box(0.28, 0.48, 0.36, M.white, wx, t, 0.02, g); box(0.18, 0.12, 0.005, plain(0x2b3440), wx, t + 0.3, -0.162, g); box(0.05, 0.03, 0.08, M.metal, wx, t + 0.18, -0.19, g);   // 정수기
 }
 function standFan(g) {   // 둥근 흰 스탠드 선풍기
   cyl(0.16, 0.18, 0.04, M.white, 0, 0, 0, 24, g); cyl(0.02, 0.02, 0.85, M.white, 0, 0.04, 0, 10, g);
@@ -711,7 +712,27 @@ function place(o, parent = root) {
   const g = grp(o.x, o.z, o.rot || 0, parent); if (o.elev) g.position.y = o.elev; fn(g, o);
   if (parent === root && !NOBLOB.has(o.type) && !g.userData.noBlob) blobs.push(g);
 }
+/* ---------------- 바닥 동선 표시 (layout.js 의 route: 초록 점선 + 화살표) ---------------- */
+for (const rt of (L.routes || (L.route ? [L.route] : []))) {
+  const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(rt.color || '#2fa84f'), transparent: true, opacity: rt.opacity ?? 0.75, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
+  const dash = rt.dash || 0.32, gap = rt.gap || 0.2, wdt = rt.width || 0.07, pts = rt.points;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, z0] = pts[i], [x1, z1] = pts[i + 1], len = Math.hypot(x1 - x0, z1 - z0), ang = Math.atan2(x1 - x0, z1 - z0);
+    for (let d = 0; d < len - 0.05; d += dash + gap) {
+      const l = Math.min(dash, len - d), t = (d + l / 2) / len;
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(wdt, l), mat); m.rotation.x = -Math.PI / 2; m.rotation.z = ang; m.position.set(x0 + (x1 - x0) * t, 0.006, z0 + (z1 - z0) * t); m.userData.keep = true; root.add(m);
+    }
+    const sh = new THREE.Shape(); sh.moveTo(-0.16, 0); sh.lineTo(0, 0.2); sh.lineTo(0.16, 0); sh.lineTo(0.16, -0.06); sh.lineTo(0, 0.12); sh.lineTo(-0.16, -0.06); sh.closePath();
+    for (let d = 0.8; d < len - 0.3; d += rt.arrowEvery || 1.6) {
+      const t = d / len, m = new THREE.Mesh(new THREE.ShapeGeometry(sh), mat); m.rotation.x = -Math.PI / 2; m.rotation.z = Math.PI + ang;
+      m.position.set(x0 + (x1 - x0) * t, 0.007, z0 + (z1 - z0) * t); m.userData.keep = true; root.add(m);
+    }
+  }
+}
 /* ---------------- 바깥 복도 + 입구 포털 (layout.js 의 corridor) ---------------- */
+for (const r of (L.outside || [])) {   // 건물 밖 바닥(입구 앞): 하늘 아래 회색 보도블록
+  const w = r[2] - r[0], d = r[3] - r[1]; box(w, 0.02, d, plain(0xb9b6ae), (r[0] + r[2]) / 2, -0.02, (r[1] + r[3]) / 2).userData.floor = true; box(w, 0.3, d, M.cap, (r[0] + r[2]) / 2, -0.32, (r[1] + r[3]) / 2);
+}
 if (L.corridor) {
   const cr = L.corridor.rect, cw = cr[2] - cr[0], cd = cr[3] - cr[1], ccx = (cr[0] + cr[2]) / 2, ccz = (cr[1] + cr[3]) / 2;
   box(cw, 0.02, cd, plain(0xc9c6bf), ccx, -0.02, ccz).userData.floor = true; box(cw + 0.1, 0.3, cd, M.cap, ccx, -0.32, ccz);
@@ -820,7 +841,8 @@ const DESK_BB = DESK_COLL.map((l) => l.length ? l.reduce((b, [a, c, e, f]) => [M
 const circleHits = (x, z, a, b, c, d) => { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); return (x - cx) ** 2 + (z - cz) ** 2 < PR * PR; };
 const doorClosed = (d, plan) => d.target === 0 || (!plan && d.cur < 0.85);
 function blocked(x, z, plan = false) {
-  if (x < PR || z < PR || x > W - PR || z > D - PR) { const cr = L.corridor?.rect; if (!(cr && x > cr[0] + PR && x < cr[2] - PR && z >= D - PR && z < cr[3] - PR)) return true; }
+  if (x < PR || z < PR || x > W - PR || z > D - PR) { const cr = L.corridor?.rect; if (!(cr && x > cr[0] + PR && x < cr[2] - PR && z >= D - PR && z < cr[3] - PR)
+      && !(L.outside || []).some((r) => x > r[0] + PR && x < r[2] + PR && z > r[1] + PR && z < r[3] - PR && (x < PR || x > W - PR) && z > PR && z < D - PR)) return true; }
   for (const d of DOORS) if (doorClosed(d, plan) && circleHits(x, z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) return true;
   const dc = DESK_COLL[deskIdx], db = DESK_BB[deskIdx]; if (dc && db && x > db[0] && x < db[2] && z > db[1] && z < db[3]) for (const [a, b, c, d] of dc) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
   const gx = Math.floor(x / CELL), gz = Math.floor(z / CELL);
@@ -861,7 +883,7 @@ if (EDIT) {
 
 /* ---------------- rooms / labels ---------------- */
 const ROOMS = {}; for (const r of L.rooms) ROOMS[r.id] = r;
-function zoneAt(x, z) { for (const r of L.rooms) { const [a, b, c, d] = r.rect; if (x >= a && x <= c && z >= b && z <= d) return r; } return null; }
+function zoneAt(x, z) { for (const r of L.rooms) for (const [a, b, c, d] of [r.rect, ...(r.rects || [])]) { if (x >= a && x <= c && z >= b && z <= d) return r; } return null; }   // rects: L자 방 등 추가 영역
 const tagEls = {}, tagObjs = {};
 for (const r of L.rooms) {
   const el = document.createElement('div'); el.className = 'tag' + (r.small ? ' sm' : ''); el.dataset.id = r.id;
@@ -1158,9 +1180,9 @@ const mapBase = document.createElement('canvas'); mapBase.width = mm.width; mapB
 {
   const c = mapBase.getContext('2d'); c.scale(dpr, dpr);
   c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(mx(0), mz(0), W * MS, D * MS);
-  for (const r of L.rooms) { if (r.id === 'lounge') continue; const [a, b, cc, d] = r.rect; c.fillStyle = 'rgba(255,255,255,.07)'; c.fillRect(mx(a), mz(b), (cc - a) * MS, (d - b) * MS); }
+  for (const r of L.rooms) { if (r.id === 'lounge') continue; for (const [a, b, cc, d] of [r.rect, ...(r.rects || [])]) { c.fillStyle = 'rgba(255,255,255,.07)'; c.fillRect(mx(a), mz(b), (cc - a) * MS, (d - b) * MS); } }
   for (const s of WALLSEGS) {
-    if (s.type === 'column') { c.fillStyle = '#fff'; c.fillRect(mx(s.x1), mz(s.z1), (s.x2 - s.x1) * MS, (s.z2 - s.z1) * MS); continue; }
+    if (s.type === 'column') { c.fillStyle = s.block ? 'rgba(255,255,255,.28)' : '#fff'; c.fillRect(mx(s.x1), mz(s.z1), (s.x2 - s.x1) * MS, (s.z2 - s.z1) * MS); continue; }
     c.strokeStyle = s.type === 'solid' ? '#fff' : s.type === 'window' ? '#8fd0ff' : '#b9cde8'; c.lineWidth = s.type === 'solid' ? 2.4 : 1.6;
     c.beginPath(); c.moveTo(mx(s.x1), mz(s.z1)); c.lineTo(mx(s.x2), mz(s.z2)); c.stroke();
   }
