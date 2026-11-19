@@ -15,8 +15,8 @@ window.LAYOUT = {
   /* ---------- 1. 건물 기본값 ---------- */
   building: {
     name: '네오비즈니스',
-    width: 18.0,        // 건물 가로(동서) 길이
-    depth: 18.3,        // 건물 세로(남북) 길이 — 바꾸면 남쪽 벽·입구·부스·커피존 좌표(z)도 같이 옮겨 주세요 (11/19 실측 스케치: 19.6 → 18.3)
+    width: 12.45,        // 건물 가로(동서) 길이
+    depth: 12.1,        // 건물 세로(남북) 길이 — 바꾸면 남쪽 벽·입구·부스·커피존 좌표(z)도 같이 옮겨 주세요 (11/19 실측 스케치 2차: 12.45 × 12.1m)
     ceiling: 2.7,       // 천장 높이
     eye: 1.6,           // 걷기 모드 눈높이
     wall: { exterior: 0.24, interior: 0.14, thick: 0.30 }  // 벽 두께 기본값 (벽마다 t 로 따로 지정 가능)
@@ -34,38 +34,38 @@ window.LAYOUT = {
      card.use / card.services / card.note : 주요 용도 · 제공 서비스 목록 · 참고 문구 (회사 소개서 기준)
      순서가 중요해요: 위에 있는 방이 먼저 판정돼요(라운지는 나머지 전체라 맨 아래).          */
   rooms: [
-    { id:'coaching', name:'소회의실', en:'Small Meeting Room', rect:[0, 0, 3.81, 9.74], floor:'floor',
-      label:[1.9, 6.0], jump:{ x:3.0, z:7.9, look:[1.2, 2.2] },
+    { id:'coaching', name:'소회의실', en:'Small Meeting Room', rect:[0, 0, 2.63, 6.22], floor:'floor',
+      label:[1.3, 4.7], jump:{ x:2.05, z:5.4, look:[1.0, 1.4] },
       card:{ photos:['IMG_0415','IMG_0418','IMG_0419','IMG_0416'],
-             desc:'창가 쪽 코너에 있는 작은 회의실이에요. 블랙 미팅 테이블과 화이트보드가 있고, 기둥 뒤 창가에는 L자 바 테이블과 바 스툴, 회색 수납 벤치와 주황 큐브 스툴이 있어요.' } },
-    { id:'meeting', name:'회의실', en:'Meeting Room', rect:[3.81, 0, 9.79, 9.74], floor:'floor', capacity:12, area:23,
-      label:[6.9, 5.6], jump:{ x:6.7, z:8.8, look:[6.7, 0.3] },
+             desc:'창가 쪽 코너에 있는 작은 회의실이에요. 블랙 미팅 테이블과 화이트보드가 있고, 기둥 뒤 창가에는 L자 바 테이블과 바 스툴이 있어요.' } },
+    { id:'meeting', name:'회의실', en:'Meeting Room', rect:[2.63, 0, 6.75, 6.22], floor:'floor', capacity:12, area:23,
+      label:[4.63, 3.0], jump:{ x:3.35, z:5.6, look:[4.9, 0.6] },
       card:{ photos:['IMG_0393','IMG_0391','IMG_0390'],
              desc:'MEETING ROOM. 긴 화이트 테이블과 블랙 체어, 프로젝터 스크린과 화이트보드를 갖춘 회의실이에요. 라운지 쪽은 통유리벽이에요.',
              use:'교육 · 면접 · 회의 · 간담회 · 세미나',
              services:['와이드 스크린','빔프로젝터','무선마이크(2대)','TV 모니터(55인치)','공기청정기','정수기','냉난방'],
              note:'교육장 대관 시 무료 이용 가능' } },
-    { id:'classroom', name:'교육장', en:'Education Center', rect:[9.79, 0, 18, 14.14], floor:'floor', capacity:30, area:55,
-      label:[15.07, 7.3], jump:{ x:15.07, z:13.3, look:[13.91, 0.5] },
+    { id:'classroom', name:'교육장', en:'Education Center', rect:[6.75, 0, 12.45, 9.18], floor:'floor', capacity:30, area:55,
+      label:[8.2, 4.6], jump:{ x:10.45, z:8.55, look:[9.6, 0.5] },
       card:{ photos:['IMG_0380','IMG_0382','IMG_0384','IMG_0383'],
              desc:'Neoful biz space EDUCATION CENTER. 라운지 쪽 출입구에는 백라이트 패널과 TV, 안내 배너가 있고, 내부는 앞쪽에 단상과 와이드 스크린, 화이트 강의용 책상 5줄이 놓인 교육장이에요.',
              use:'교육 · 면접 · 회의(온라인) · 워크숍 · 시상식 · 세미나',
              services:['와이드 스크린','빔프로젝터','무선마이크(2대)','TV 모니터(55인치)','공기청정기','정수기','냉난방 · 시스템 공기청정기','강사 대기석','행사 전 물품 택배 배송 가능'] } },
-    { id:'focus', name:'NEOBOX', en:'Focus Booth · NEOBOX', small:true, rect:[0.24, 16.3, 7.52, 18.3], floor:'floor',
-      label:[3.9, 16.0], labelY:2.35, jump:{ x:5.1, z:14.7, look:[3.4, 18.0] },
+    { id:'focus', name:'NEOBOX', en:'Focus Booth · NEOBOX', small:true, rect:[0.24, 10.8, 5.1, 12.1], floor:'floor',
+      label:[2.7, 10.55], labelY:2.35, jump:{ x:2.7, z:9.7, look:[2.7, 12.0] },
       card:{ photos:['IMG_0398','IMG_0397','IMG_0401','IMG_0403'],
              desc:'NEOBOX1 · NEOBOX2 · NEOBOX3, 모니터와 책상이 있는 1인용 부스 3개예요. 커피존 바로 옆, 우드 슬랫 파티션 너머에 나란히 있어요.' } },
-    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[7.52, 17.0, 13.75, 18.3], floor:'floor',
-      label:[10.7, 16.7], labelY:1.6, jump:{ x:10.9, z:15.1, look:[10.3, 18.1] },
+    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[5.24, 11.2, 9.52, 12.1], floor:'floor',
+      label:[7.4, 11.3], labelY:1.6, jump:{ x:7.4, z:10.2, look:[7.4, 12.0] },
       card:{ photos:['IMG_0386','IMG_0387','IMG_0398'],
              desc:'공용 사용 공간(LOUNGE & AMENITIES). 커피머신과 수납장, 분리수거함이 있는 탕비 공간이에요. 우드 슬랫 파티션으로 라운지와 나뉘어 있어요.',
              services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방'] } },
-    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[13.75, 17.0, 18, 18.3], floor:'floor',
-      label:[15.9, 17.3], jump:{ x:17.3, z:16.95, look:[6.0, 10.4] },
+    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[9.52, 11.2, 12.45, 12.1], floor:'floor',
+      label:[11.1, 11.6], jump:{ x:11.1, z:11.45, look:[3.5, 7.4] },
       card:{ photos:['IMG_0378','IMG_0380','IMG_0388'],
              desc:'유리문 위에 Neoful business space 사인이 있는 입구예요. 들어오면 교육장 앞 디스플레이 월과 배너가 보여요.' } },
-    { id:'lounge', name:'라운지', en:'Lounge', rect:[0, 9.74, 18, 18.3], floor:'floor',
-      label:[4.4, 14.2], jump:{ x:2.8, z:15.0, look:[8.2, 10.7] },
+    { id:'lounge', name:'라운지', en:'Lounge', rect:[0, 6.22, 12.45, 12.1], floor:'floor',
+      label:[3.2, 8.4], jump:{ x:3.2, z:9.9, look:[5.4, 7.0] },
       card:{ photos:['IMG_0420','IMG_0421','IMG_0422','IMG_0424'],
              desc:'공용 사용 공간(LOUNGE & AMENITIES) — 탁 트인 휴식 공간이에요. 흰 몰딩 벽을 따라 긴 바 테이블과 스툴이 놓여 있고, 회의실 유리벽 앞 코너에는 회색 벤치, 컬러 큐브 스툴, 원형 테이블과 블루·베이지 암체어가 있어요.',
              services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방','휴식 공간'] } }
@@ -90,48 +90,48 @@ window.LAYOUT = {
                   처음부터 열어 두려면 open:true 를 넣으세요. (3D 보기에서는 잘 보이도록 모두 열린 모습으로 보여요)
                   swing = 열렸을 때 각도(도). NEOBOX 부스 문도 booth 가구에 open:true / swing 을 넣을 수 있어요.          */
   walls: [
-    // 바깥벽 — 북쪽(위)
-    // (2026-11-18 사용자 실측 스케치 반영: 초록색 = 창문)
-    { from:[0, 0],     to:[0.4, 0],   type:'solid',  outer:true },
-    { from:[0.4, 0],   to:[2.0, 0],   type:'window', outer:true, style:'tall', blind:0.55 },   // 소회의실 창 (사진 IMG_0413·0415: 통창, 롤스크린 반쯤 내림)
-    { from:[2.0, 0],   to:[4.5, 0],   type:'solid',  outer:true },
-    { from:[4.5, 0],   to:[6.1, 0],   type:'window', outer:true },   // 회의실 창 ①
-    { from:[6.1, 0],   to:[6.6, 0],   type:'solid',  outer:true },
-    { from:[6.6, 0],   to:[8.4, 0],   type:'window', outer:true },   // 회의실 창 ②
-    { from:[8.4, 0],   to:[11.1, 0],  type:'solid',  outer:true },
-    { from:[11.1, 0],  to:[13.2, 0],  type:'window', outer:true },   // 교육장 창 ①
-    { from:[13.2, 0],  to:[14.6, 0],  type:'solid',  outer:true },
-    { from:[14.6, 0],  to:[16.7, 0],  type:'window', outer:true },   // 교육장 창 ②
-    { from:[16.7, 0],  to:[18, 0],    type:'solid',  outer:true },
+    // (11/19 실측 스케치 2차 반영 — 건물 12.45 × 12.1m, 0.028m/px)
+    // 바깥벽 — 북쪽(위), 초록색 = 창문
+    { from:[0, 0],     to:[0.22, 0],  type:'solid',  outer:true },
+    { from:[0.22, 0],  to:[1.62, 0],  type:'window', outer:true, style:'tall', blind:0.55 },   // 소회의실 창 (통창, 롤스크린 반쯤 내림)
+    { from:[1.62, 0],  to:[3.14, 0],  type:'solid',  outer:true },
+    { from:[3.14, 0],  to:[4.26, 0],  type:'window', outer:true },   // 회의실 창 ①
+    { from:[4.26, 0],  to:[4.82, 0],  type:'solid',  outer:true },
+    { from:[4.82, 0],  to:[6.30, 0],  type:'window', outer:true },   // 회의실 창 ②
+    { from:[6.30, 0],  to:[7.62, 0],  type:'solid',  outer:true },
+    { from:[7.62, 0],  to:[9.16, 0],  type:'window', outer:true },   // 교육장 창 ①
+    { from:[9.16, 0],  to:[10.05, 0], type:'solid',  outer:true },
+    { from:[10.05, 0], to:[11.59, 0], type:'window', outer:true },   // 교육장 창 ②
+    { from:[11.59, 0], to:[12.45, 0], type:'solid',  outer:true },
     // 바깥벽 — 서쪽(왼쪽)
-    { from:[0, 0],     to:[0, 0.6],   type:'solid',  outer:true },
-    { from:[0, 0.6],   to:[0, 3.3],   type:'window', outer:true, style:'tall', blind:0.6 },    // 소회의실 창 ① (위) — 사진 IMG_0415: 롤스크린 내림
-    { from:[0, 3.3],   to:[0, 5.1],   type:'solid',  outer:true },
-    { from:[0, 5.1],   to:[0, 8.4],   type:'window', outer:true, style:'tall', blind:0 },      // 소회의실 창 ② (가운데) — 사진 IMG_0414·0415: 롤스크린 올림
-    { from:[0, 8.4],   to:[0, 9.21],  type:'solid',  outer:true },
-    { from:[0, 9.21],  to:[0, 18.3],  type:'solid',  outer:true, molding:'east', moldingFrom:9.9, moldingTo:16.0 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
-    // 바깥벽 — 남쪽(아래), 입구 유리 양문
-    { from:[0, 18.3],  to:[18, 18.3], type:'solid',  outer:true,
-      openings:[ { at:14.56, width:2.7, door:'glass', double:true, entrance:true } ] },
+    { from:[0, 0],     to:[0, 0.24],  type:'solid',  outer:true },
+    { from:[0, 0.24],  to:[0, 2.46],  type:'window', outer:true, style:'tall', blind:0.6 },    // 소회의실 창 ① — 롤스크린 내림
+    { from:[0, 2.46],  to:[0, 3.05],  type:'solid',  outer:true },
+    { from:[0, 3.05],  to:[0, 5.38],  type:'window', outer:true, style:'tall', blind:0 },      // 소회의실 창 ② — 롤스크린 올림
+    { from:[0, 5.38],  to:[0, 5.9],   type:'solid',  outer:true },
+    { from:[0, 5.9],   to:[0, 12.1],  type:'solid',  outer:true, molding:'east', moldingFrom:6.35, moldingTo:10.7 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
+    // 바깥벽 — 남쪽(아래), 입구 유리 양문 (입구 x9.52–12.45 안)
+    { from:[0, 12.1],  to:[12.45, 12.1], type:'solid', outer:true,
+      openings:[ { at:10.2, width:1.8, door:'glass', double:true, entrance:true } ] },
     // 바깥벽 — 동쪽(오른쪽)
-    { from:[18, 0],    to:[18, 18.3], type:'solid',  outer:true },
+    { from:[12.45, 0], to:[12.45, 12.1], type:'solid', outer:true },
 
     // 안쪽 벽
-    { from:[3.81, 0],  to:[3.81, 9.74], type:'solid' },                       // 소회의실 | 회의실
-    { from:[9.79, 0],  to:[9.79, 14.14], type:'solid', t:0.30, molding:'west', moldingFrom:9.86, moldingTo:14.14 },  // 회의실·라운지 | 교육장
-    // 라운지 쪽 유리벽 (사용자 사진): 바닥~천장 유리 + 블랙 프레임, 0.9~2.0m 반투명 시트 띠, 문은 프레임리스 시트 유리문 + 세로 블랙 손잡이
-    { from:[0.24, 9.74], to:[3.74, 9.74], type:'glass', style:'band', band:[0.9, 2.0], bay:2.5, sign:{ text:'COACHING ROOM', at:2.2, y:1.45, size:0.1, icon:true },
-      openings:[ { at:2.74, width:1.0, door:'frameless', hinge:'end', swing:-63 } ] },    // 소회의실 앞 통유리 2장(고정 1 + 문 1, 문은 동쪽 끝)
-    { from:[3.88, 9.74], to:[9.64, 9.74], type:'glass', style:'band', band:[0.9, 2.0], stripes:3, bay:2.5, sign:{ text:'MEETING ROOM', at:5.4, y:1.45, size:0.1 },
-      openings:[ { at:3.88, width:1.0, door:'frameless', hinge:'start', swing:63 } ] },   // 회의실 앞 통유리 3장(문 1 + 고정 2, 문은 서쪽 끝 — 소회의실 문과 블랙 기둥 사이로 나란히)
+    { from:[2.63, 0],  to:[2.63, 6.22], type:'solid' },                       // 소회의실 | 회의실
+    { from:[6.75, 0],  to:[6.75, 9.18], type:'solid', t:0.30, molding:'west', moldingFrom:6.29, moldingTo:9.18 },  // 회의실·라운지 | 교육장
+    // 라운지 쪽 통유리벽: 바닥~천장 유리 + 블랙 프레임, 0.9~2.0m 반투명 시트 띠, 프레임리스 시트 유리문(1.0m) + 세로 블랙 손잡이
+    { from:[0.24, 6.22], to:[2.56, 6.22], type:'glass', style:'band', band:[0.9, 2.0], bay:1.5, sign:{ text:'COACHING ROOM', at:1.0, y:1.45, size:0.09, icon:true },
+      openings:[ { at:1.56, width:1.0, door:'frameless', hinge:'end', swing:-63 } ] },    // 소회의실 앞 통유리 2장(고정 1 + 문 1, 문은 동쪽 끝)
+    { from:[2.70, 6.22], to:[6.60, 6.22], type:'glass', style:'band', band:[0.9, 2.0], stripes:3, bay:1.45, sign:{ text:'MEETING ROOM', at:4.2, y:1.45, size:0.09 },
+      openings:[ { at:2.70, width:1.0, door:'frameless', hinge:'start', swing:63 } ] },   // 회의실 앞 통유리 3장(문 1 + 고정 2, 문은 서쪽 끝)
     // bay = 유리 한 장의 대략 폭(m). 구간 길이 ÷ bay 를 반올림한 수만큼 유리가 나뉘어요.
-    { from:[9.79, 14.14], to:[18, 14.14], type:'solid', t:0.30, sign:{ text:'EDUCATION CENTER', at:16.88, y:2.33, size:0.12 },   // 문 위 사인 (사진 IMG_0380·0381)
-      openings:[ { at:16.41, width:0.95, door:'glass', frame:'white', hinge:'start', swing:66 } ] }  // 교육장 출입문
+    { from:[6.75, 9.18], to:[12.45, 9.18], type:'solid', t:0.30, sign:{ text:'EDUCATION CENTER', at:11.475, y:2.33, size:0.1 },   // 문 위 사인
+      openings:[ { at:11.0, width:0.95, door:'glass', frame:'white', hinge:'start', swing:66 } ] }  // 교육장 출입문(남쪽 벽 동쪽 끝, 오른쪽에 슬랫 자리 남김)
   ],
 
   /* 벽 블록(소회의실 안 흰 정사각형) 같은 기둥: rect = [x1,z1,x2,z2], slats = 우드 슬랫을 붙일 면 */
   columns: [
-    { rect:[1.2, 0.8, 2.6, 2.2], slats:['west','north'] }   // 소회의실 흰 벽 블록 (실측 스케치)
+    { rect:[0.78, 0.7, 1.76, 1.68], slats:['west','north'] }   // 소회의실 흰 벽 블록 x0.78–1.76, z0.7–1.68 (실측 스케치 2차)
   ],
 
   /* ---------- 4. 천장 조명 ----------
@@ -142,22 +142,22 @@ window.LAYOUT = {
      aircon : 천장형 에어컨 위치 [x, z] 또는 [x, z, 크기(m)]                           */
   ceiling: {
     panels: [
-      { rect:[0, 2.4, 3.81, 9.74],   nx:1, nz:3 },
-      { rect:[3.81, 0, 9.79, 9.74],  nx:2, nz:3 },
-      { rect:[0, 9.74, 9.79, 16.4],  nx:3, nz:2 },
-      { rect:[9.79, 14.14, 18, 18.3], nx:2, nz:1 }
+      { rect:[0, 1.8, 2.63, 6.22],    nx:1, nz:2 },
+      { rect:[2.63, 0, 6.75, 6.22],   nx:2, nz:2 },
+      { rect:[2.9, 6.22, 6.75, 10.8], nx:2, nz:2 },
+      { rect:[6.75, 9.18, 12.45, 11.2], nx:3, nz:1 }
     ],
-    // 교육장: 사진 IMG_0382·0384 기준 — 남북 방향 일자 LED 2열 × 3줄, 가운데 줄에 천장 에어컨과 빔 프로젝터
+    // 교육장: 남북 방향 일자 LED 2열 × 3줄 — 가운데 줄의 에어컨·프로젝터를 피해 양옆에
     strips: [
-      { x:11.9, z:3.0, len:1.2 }, { x:15.9, z:3.0, len:1.2 },
-      { x:11.9, z:7.0, len:1.2 }, { x:15.9, z:7.0, len:1.2 },
-      { x:11.9, z:11.0, len:1.2 }, { x:15.9, z:11.0, len:1.2 }
+      { x:8.2, z:2.4, len:1.2 }, { x:11.2, z:2.4, len:1.2 },
+      { x:8.2, z:4.9, len:1.2 }, { x:11.2, z:4.9, len:1.2 },
+      { x:8.2, z:7.4, len:1.2 }, { x:11.2, z:7.4, len:1.2 }
     ],
     projectors: [
-      { x:14.0, z:10.0, aim:[13.91, 0.18], drop:0.3, color:'black', label:'프로젝트 빔' }   // 사용자 스케치(11/19): 에어컨 뒤쪽, 스크린 정면을 향함
+      { x:9.69, z:5.9, aim:[9.555, 0.64], drop:0.3, color:'black', label:'프로젝트 빔' }   // 에어컨 뒤쪽, 내려오는 스크린 정면을 향함
     ],
-    downlights: [[10.5, 0.9], [11.6, 0.9], [16.2, 0.9], [17.3, 0.9]],   // 앞쪽 작은 원형 다운라이트
-    aircon: [[6.9,4.8],[14.0,7.2,1.0],[4.5,13.0]]   // [x, z, 크기] — 교육장은 가운데 1대(사용자 스케치 11/19, 약 1.0m)
+    downlights: [[7.4, 1.0], [8.2, 1.0], [10.9, 1.0], [11.8, 1.0]],   // 앞쪽 작은 원형 다운라이트
+    aircon: [[4.63, 2.96], [9.69, 4.0, 1.0], [1.96, 8.9, 1.0]]   // [x, z, 크기] — 회의실, 교육장 1대, 라운지 1대
   },
 
   /* ---------- 5. 가구 ----------
@@ -168,79 +168,76 @@ window.LAYOUT = {
         oak, marble, darkTop, white, black, metal
      반복 배치: type:'array' 로 묶고 xs:[...], zs:[...] 에 좌표 목록 → 모든 조합에 item 을 배치
      종류 목록은 수정방법.md 참고                                                     */
+  /* ---------- 교육장 벽걸이 스피커 ----------
+     x, z : 위치(벽 안쪽 면에서 약 0.12m), rot : 앞면이 향하는 방향(°, 180 = 남쪽, -90 = 동쪽, 90 = 서쪽)
+     tilt : 아래로 숙인 각도(°), w·h·d : 크기(기본 0.25 × 0.35 × 0.2), top : 위 끝 높이(기본 천장 바로 아래)   */
+  speakers: [
+    { x:7.12,  z:0.36, rot:200 },   // 앞벽(북쪽) 왼쪽 모서리, 방 안쪽으로 살짝
+    { x:12.0,  z:0.36, rot:160 },   // 앞벽(북쪽) 오른쪽 모서리
+    { x:7.02,  z:5.0,  rot:-90 },   // 서쪽 벽 가운데
+    { x:12.09, z:5.0,  rot:90 }     // 동쪽 벽 가운데
+  ],
+
   furniture: [
-    /* --- 소회의실 --- */
-    { type:'tableSet', x:1.9, z:4.0, w:1.4, d:3.2, top:'darkTop', chairsLeft:4, chairsRight:4, chairInset:0.45, legInset:0.1 },   // 블랙 미팅 테이블 x1.2–2.6, z2.4–5.6 (실측 스케치) + 의자 4+4
-    { type:'whiteboard', x:3.71, z:7.09, w:2.0, rot:90 },
-    { type:'barCounter', x:0.33, z:1.06, w:0.42, d:1.88 },          // 창가 L자 바 테이블 — 서쪽 창 쪽 (미팅 테이블과 겹치지 않게 벽 블록 옆까지만)
-    { type:'barCounter', x:1.97, z:0.33, w:2.86, d:0.42 },          // 창가 L자 바 테이블 — 북쪽 창 쪽
-    { type:'stool', x:0.72, z:0.8, color:'fabricGray',  h:0.68 },
-    { type:'stool', x:0.72, z:1.55, color:'fabricOrange', h:0.68 },
-    { type:'stool', x:2.85, z:0.86, color:'fabricGray',  h:0.68 },
-    { type:'stool', x:3.27, z:0.86, color:'fabricGray',  h:0.68 },
-    { type:'bench', x:3.52, z:1.95, w:0.4, d:1.0, h:0.42, color:'fabricGray' },
-    { type:'cube',  x:3.51, z:2.75, size:0.42, color:'fabricOrange' },
-    { type:'plant', x:2.8, z:2.38, scale:0.95 },                        // 슬랫 기둥 앞 화분 (사진 IMG_0414·0415)
-    { type:'cabinet', x:0.32, z:8.94, w:0.35, d:1.2, h:0.6, color:'black' },
-    { type:'block', x:0.32, z:1.4, w:0.08, d:0.06, h:0.14, y:1.02, color:'black' },   // 바 테이블 위 폰 거치대
+    /* --- 소회의실 (x0~2.63, z0~6.22) --- */
+    { type:'tableSet', x:1.285, z:2.91, w:0.95, d:2.24, top:'darkTop', chairsLeft:3, chairsRight:3, chairInset:0.3, legInset:0.1 },   // 블랙 미팅 테이블 x0.81–1.76, z1.79–4.03 + 의자 3+3
+    { type:'whiteboard', x:2.52, z:4.75, w:1.5, rot:90 },
+    { type:'barCounter', x:0.45, z:0.98, w:0.42, d:1.24 },          // 창가 L자 바 테이블 — 서쪽 창 쪽
+    { type:'barCounter', x:1.6, z:0.45, w:1.88, d:0.42 },           // 창가 L자 바 테이블 — 북쪽 창 쪽
+    { type:'stool', x:2.0, z:0.95, color:'fabricGray',  h:0.68 },
+    { type:'stool', x:2.38, z:0.95, color:'fabricOrange', h:0.68 },
+    { type:'cabinet', x:0.42, z:5.6, w:0.35, d:0.9, h:0.6, color:'black' },
+    { type:'block', x:0.45, z:1.3, w:0.08, d:0.06, h:0.14, y:1.02, color:'black' },   // 바 테이블 위 폰 거치대
 
-    /* --- 회의실 --- */
-    { type:'block', x:3.81, z:9.74, w:0.16, d:0.08, h:2.7, color:'black' },   // 두 문 사이 블랙 기둥(벽 끝 마감)
-    { type:'tableSet', x:6.7, z:2.5, w:1.4, d:3.0, top:'white', chairsLeft:3, chairsRight:3 },   // 회의 테이블 ① x6.0–7.4, z1.0–4.0
-    { type:'tableSet', x:6.7, z:5.8, w:1.4, d:3.0, top:'white', chairsLeft:3, chairsRight:3 },   // 회의 테이블 ② x6.0–7.4, z4.3–7.3
-    { type:'screen', x:6.7, z:0.18, w:2.2, rot:180 },
-    { type:'whiteboard', x:3.91, z:4.79, w:2.4, rot:-90 },
-    { type:'cabinet', x:8.4, z:0.47, w:1.6, d:0.4, h:0.6, color:'white' },
+    /* --- 회의실 (x2.63~6.75, z0~6.22) --- */
+    { type:'block', x:2.63, z:6.22, w:0.16, d:0.08, h:2.7, color:'black' },   // 두 문 사이 블랙 기둥(벽 끝 마감)
+    { type:'tableSet', x:4.63, z:1.83, w:0.98, d:2.1, top:'white', chairsLeft:3, chairsRight:3 },    // 회의 테이블 ① x4.14–5.12, z0.78–2.88
+    { type:'tableSet', x:4.63, z:4.115, w:0.98, d:2.13, top:'white', chairsLeft:3, chairsRight:3 },  // 회의 테이블 ② x4.14–5.12, z3.05–5.18 (총 12석)
+    { type:'screen', x:4.63, z:0.18, w:1.8, rot:180 },
+    { type:'whiteboard', x:2.72, z:3.0, w:2.0, rot:-90 },
+    { type:'cabinet', x:6.05, z:0.45, w:0.9, d:0.4, h:0.6, color:'white' },
 
-    /* --- 교육장 --- */
-    { type:'stage', x:13.85, z:1.12, w:7.82, d:1.8, h:0.2, top:'darkTop', stepX:1.0 },   // 단상 x9.94–17.76(벽 안쪽 면 사이), z0.22–2.02(강연대 들어가게 살짝 깊게), 높이 0.2 (실측 스케치 빨간색)
-    { type:'screen', x:13.91, z:0.18, w:3.0, rot:180 },
-    // 스크린 앞에는 책상·의자 없음 (사용자 11/19)
-    { type:'podium', x:11.0, z:1.45, w:0.62, d:0.48, rot:180, elev:0.2 },   // 발표용 강연대 — 단상 왼쪽(x10.4–11.6, z1.0–1.9), 청중을 향함
-    { type:'block', x:10.25, z:0.33, w:0.2, d:0.15, h:0.28, y:2.1, color:'black' },   // 벽 스피커(앞벽 왼쪽 위)
-    { type:'block', x:17.55, z:0.33, w:0.2, d:0.15, h:0.28, y:2.1, color:'black' },    // 벽 스피커(앞벽 오른쪽 위)
-    { type:'whiteboard', x:9.97, z:7.07, w:8.5, rot:-90 },
-    { type:'whiteboard', x:17.74, z:7.5, w:11.6, rot:90, style:'mirror' },   // 동쪽 벽 대형 유리 패널 + 선반 (사진)
-    // 수강 책상 5줄 (실측 스케치): 왼쪽 2개 붙은 책상 | 통로 x14.3–15.85 | 동쪽 벽 쪽 1개. 의자는 책상 뒤에서 단상(북쪽)을 바라봄
-    { type:'array', xs:[11.025], zs:[4.35, 6.35, 8.1, 9.9, 11.8], item:{ type:'deskPair', w:2.15, d:0.75, chairs:3, casters:true, tag:true, chairBase:'silver' } },   // x9.95–12.1
-    { type:'array', xs:[13.25],  zs:[4.35, 6.35, 8.1, 9.9, 11.8], item:{ type:'deskPair', w:2.1,  d:0.75, chairs:3, casters:true, tag:true, chairBase:'silver' } },   // x12.2–14.3
-    { type:'array', xs:[16.8], zs:[4.35, 6.35, 8.1, 9.9, 11.8], item:{ type:'deskPair', w:1.9, d:0.75, chairs:3, casters:true, tag:true, chairBase:'silver' } },   // x15.85–17.75(동쪽 벽 안쪽 면)
-    { type:'tvWall', x:14.82, z:14.34, w:2.5, rot:180 },                     // 교육장 앞 백라이트 TV 패널(라운지 쪽)
-    { type:'signStand', x:15.17, z:14.84 },
-    { type:'signStand', x:15.57, z:14.84 },
-    { type:'slats', from:[17.49, 14.33], to:[17.90, 14.33], h:2.6, count:6 },
-    { type:'plant', x:17.69, z:14.74, scale:1.05 },
+    /* --- 교육장 (x6.75~12.45, z0~9.18) --- */
+    { type:'stage', x:9.555, z:0.87, w:5.31, d:1.26, h:0.2, top:'darkTop', stepX:0.9 },   // 단상: 북쪽 벽 전체(벽 안쪽 면 사이), z0.24–1.5, 높이 0.2, 계단은 통로 앞
+    // 천장 매입형 전동 스크린: 북쪽 벽·창문에서 약 0.4m 앞 천장에서 내려옴 (2.4 × 1.45m, 단상·방 가운데)
+    { type:'ceilingScreen', x:9.555, z:0.64, w:2.4, h:1.45 },
+    { type:'podium', x:7.65, z:0.9, w:0.62, d:0.48, rot:180, elev:0.2 },   // 발표용 강연대 — 단상 왼쪽 (x7.2–8.1, z0.6–1.2)
+    { type:'whiteboard', x:6.92, z:5.2, w:6.6, rot:-90 },                   // 서쪽 벽 유리 화이트보드
+    { type:'whiteboard', x:12.19, z:5.25, w:7.0, rot:90, style:'mirror' },  // 동쪽 벽 유리 패널 + 선반
+    // 수강 책상 5줄: 붙은 책상 2개 | 통로 x9.92–10.98 | 동쪽 벽 쪽 1개. 책상마다 의자 2개(총 30석), 의자는 단상(북쪽)을 바라봄
+    { type:'array', xs:[7.70],   zs:[2.5, 3.9, 5.08, 6.33, 7.65], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x6.97–8.43
+    { type:'array', xs:[9.19],   zs:[2.5, 3.9, 5.08, 6.33, 7.65], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x8.46–9.92
+    { type:'array', xs:[11.595], zs:[2.5, 3.9, 5.08, 6.33, 7.65], item:{ type:'deskPair', w:1.23, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x10.98–12.21(동쪽 벽 안쪽 면)
+    // 교육장 입구(라운지 쪽): 문 왼쪽 백라이트 TV 패널 + 배너, 오른쪽 슬랫 + 화분
+    { type:'tvWall', x:9.85, z:9.38, w:2.0, rot:180 },
+    { type:'signStand', x:10.35, z:9.85 },
+    { type:'signStand', x:10.7, z:9.85 },
+    { type:'slats', from:[12.0, 9.37], to:[12.2, 9.37], h:2.6, count:3 },
+    { type:'plant', x:12.07, z:9.75, scale:0.9 },
 
-    /* --- NEOBOX 부스 --- */
-    { type:'booth', x:1.385, z:17.3, w:1.85, d:1.69, label:'NEOBOX1' },   // x0.46–2.31 (11/19 스케치)
-    { type:'booth', x:3.885, z:17.3, w:1.85, d:1.69, label:'NEOBOX2' },   // x2.96–4.81
-    { type:'booth', x:6.335, z:17.3, w:1.85, d:1.69, label:'NEOBOX3' },   // x5.41–7.26
+    /* --- NEOBOX 부스 (스케치 폭 그대로, 내부 책상·모니터는 폭에 맞게 축소) --- */
+    { type:'booth', x:0.97,  z:11.4, w:1.26, d:1.2, label:'NEOBOX1' },   // x0.34–1.60
+    { type:'booth', x:2.685, z:11.4, w:1.29, d:1.2, label:'NEOBOX2' },   // x2.04–3.33
+    { type:'booth', x:4.395, z:11.4, w:1.29, d:1.2, label:'NEOBOX3' },   // x3.75–5.04
 
-    /* --- 커피존 --- */
-    { type:'slats', from:[7.46, 18.07], to:[7.46, 16.62], h:2.45, count:13, thick:true },
-    { type:'pantry', x:10.64, z:17.87, w:5.74 },
-    { type:'plant', x:13.56, z:17.27, scale:1.15 },
+    /* --- 커피존 (x5.24~9.52, z11.2~12.1) --- */
+    { type:'slats', from:[5.16, 11.85], to:[5.16, 10.85], h:2.45, count:9, thick:true },
+    { type:'pantry', x:7.38, z:11.56, w:4.28 },
 
     /* --- 라운지 --- */
-    { type:'barCounter', x:0.39, z:13.09, w:0.5, d:4.4, h:1.04 },
-    { type:'array', xs:[0.97], zs:[11.29, 11.89, 12.49, 13.09, 13.69, 14.29, 14.89],
-      item:{ type:'stool', h:0.72 }, colors:['fabricRed','fabricRed','fabricGray','fabricRed','fabricRed','fabricGray','fabricRed'] },
-    { type:'cube', x:6.25, z:10.11, color:'fabricGreen' },
-    { type:'cube', x:6.75, z:10.11, color:'fabricBlue' },
-    { type:'cube', x:7.25, z:10.09, color:'fabricGreen' },
-    { type:'cube', x:7.75, z:10.07, color:'fabricRed' },
-    { type:'bench', x:9.34, z:11.26, w:0.5, d:2.6, color:'fabricGray' },
-    { type:'bench', x:8.79, z:10.11, w:0.5, d:0.6, color:'fabricGray' },
-    { type:'cube',  x:9.34, z:12.86, size:0.45, h:0.42, color:'fabricOrange' },
-    { type:'roundTable', x:8.25, z:10.76 },
-    { type:'roundTable', x:7.15, z:11.36 },
-    { type:'armchair', x:8.45, z:11.96, rot:99, color:'fabricBeige' },
-    { type:'armchair', x:7.45, z:12.46, rot:9,  color:'fabricTeal' },
-    { type:'cube', x:8.05, z:12.56, size:0.45, color:'fabricTeal' },
-    { type:'purifier', x:9.34, z:13.41 },
-    { type:'plant', x:0.55, z:10.3, scale:1.0 },            // 바 테이블 북쪽 끝(라운지가 좁아져 부스 앞에서 옮김)
+    { type:'barCounter', x:0.39, z:8.1, w:0.5, d:3.0, h:1.04 },         // 서쪽 몰딩 벽 바 테이블
+    { type:'array', xs:[0.97], zs:[6.9, 7.5, 8.1, 8.7, 9.3],
+      item:{ type:'stool', h:0.72 }, colors:['fabricRed','fabricRed','fabricGray','fabricRed','fabricGray'] },
+    { type:'cube', x:4.6,  z:6.55, color:'fabricGreen' },
+    { type:'cube', x:5.05, z:6.55, color:'fabricBlue' },
+    { type:'cube', x:5.5,  z:6.55, color:'fabricRed' },
+    { type:'bench', x:6.35, z:7.3, w:0.5, d:1.6, color:'fabricGray' },  // 교육장 벽 쪽 회색 벤치
+    { type:'roundTable', x:5.4, z:7.35 },
+    { type:'armchair', x:4.75, z:7.95, rot:9,  color:'fabricTeal' },
+    { type:'armchair', x:5.75, z:8.3, rot:99, color:'fabricBeige' },
+    { type:'purifier', x:6.35, z:8.6 },
 
     /* --- 입구 --- */
-    { type:'mat', x:15.91, z:17.38, w:2.1, d:1.3, color:'orange' }
+    { type:'mat', x:11.1, z:11.4, w:1.6, d:0.9, color:'orange' }
   ]
 };

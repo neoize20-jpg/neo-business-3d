@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11190970';
+import { makeTextures, textTexture } from './textures.js?v=11190990';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -439,6 +439,25 @@ function whiteboard(g, o) {
   }
   box(o.w || 2, 1.05, 0.04, M.mint, 0, 0.95, 0, g);
 }
+// 천장 매입형 전동 스크린: 천장 슬롯(흰 하우징)에서 흰 막이 내려오고 아래에 얇은 검은 바. 벽에서 떨어져(앞으로) 매달림
+function ceilingScreen(g, o) {   // box(.., y) 의 y 는 아래 끝 높이
+  const w = o.w || 2.4, h = o.h || 1.45, top = H - 0.07;
+  box(w + 0.24, 0.07, 0.18, M.white, 0, top, 0, g);                    // 천장 하우징
+  box(w + 0.1, 0.012, 0.03, M.black, 0, top - 0.012, 0, g);            // 슬롯
+  box(w, 0.12, 0.006, M.black, 0, top - 0.12, 0, g);                   // 윗부분 검은 리더
+  box(w, h - 0.12, 0.006, M.screen, 0, top - h, 0, g);                 // 흰 스크린 면
+  box(w + 0.04, 0.035, 0.025, M.black, 0, top - h - 0.035, 0, g);      // 아래 검은 바
+  g.userData.noBlob = true;
+}
+// 벽걸이 박스 스피커: 천장 바로 아래, 살짝 아래·안쪽을 향함 (앞면 = 로컬 -z)
+function speaker(g, o) {
+  const w = o.w || 0.25, h = o.h || 0.35, d = o.d || 0.2, top = o.top || (H - 0.06);
+  const s = new THREE.Group(); s.position.set(0, top - h / 2, 0); s.rotation.x = -(o.tilt == null ? 12 : o.tilt) * DEG; g.add(s);
+  box(w, h, d, M.black, 0, -h / 2, 0, s);
+  box(w - 0.03, h - 0.03, 0.006, plain(0x2a2c30), 0, -h / 2 + 0.015, -d / 2 - 0.003, s);   // 그릴
+  box(0.05, 0.03, 0.12, M.black, 0, h / 2 - 0.03, d / 2 + 0.04, s);                      // 벽 브래킷
+  g.userData.noBlob = true; g.userData.noCollide = true;
+}
 function screen(g, o) { const w = o.w || 2.2; box(w + 0.06, 1.46, 0.015, M.black, 0, 0.92, 0.01, g); box(w, 1.4, 0.02, M.screen, 0, 0.95, -0.01, g); box(w + 0.2, 0.12, 0.14, M.black, 0, 2.38, -0.04, g); }
 function tvStand(g) { box(1.3, 0.75, 0.07, M.tv, 0, 0.55, 0, g); box(0.05, 0.6, 0.05, M.black, -0.45, 0, 0, g); box(0.05, 0.6, 0.05, M.black, 0.45, 0, 0, g); box(1.1, 0.04, 0.5, M.black, 0, 0, 0, g); }
 function tvWall(g, o) {
@@ -479,7 +498,7 @@ function booth(g, o) {   // NEOBOX 1인 부스: 앞(문) = 로컬 -z
   box(0.02, ph - 0.12, d - 0.14, fab, x0 + t + 0.01, 0.06, 0, g); box(0.02, ph - 0.12, d - 0.14, fab, x1 - t - 0.01, 0.06, 0, g);
   box(w - 0.16, ph - 0.12, 0.02, fab, 0, 0.06, z1 - t - 0.01, g);
   // 책상: 문에서 봤을 때 왼쪽 벽(로컬 +x)을 따라 긴 흰 상판, 문 쪽 끝은 둥글게
-  const dw = 0.6, dl = d - 0.5, dcx = x1 - t - dw / 2 - 0.02, dcz = (z1 - t) - dl / 2 - 0.02;
+  const dw = Math.min(0.6, w * 0.4), dl = d - 0.5,   /* 좁은 부스(약 1.27m)는 책상 폭을 줄임 */ dcx = x1 - t - dw / 2 - 0.02, dcz = (z1 - t) - dl / 2 - 0.02;
   box(dw, 0.03, dl - dw / 2, M.white, dcx, 0.72, dcz + dw / 4, g);
   const cap = cyl(dw / 2, dw / 2, 0.03, M.white, dcx, 0.72, dcz - dl / 2 + dw / 2, 24, g);
   box(0.03, 0.72, 0.45, M.white, x1 - t - 0.05, 0, dcz + dl / 2 - 0.3, g);
@@ -487,16 +506,17 @@ function booth(g, o) {   // NEOBOX 1인 부스: 앞(문) = 로컬 -z
   const sw = 0.24, scx = x1 - t - sw / 2 - 0.03;
   box(sw, 0.03, dl - 0.15, M.oak, scx, 0.86, dcz + 0.05, g);
   box(0.03, 0.11, 0.03, M.black, scx, 0.75, dcz - dl / 2 + 0.35, g); box(0.03, 0.11, 0.03, M.black, scx, 0.75, dcz + dl / 2 - 0.15, g);
-  box(0.2, 0.012, 0.22, M.black, scx, 0.89, dcz + 0.25, g); box(0.03, 0.12, 0.03, M.black, scx + 0.03, 0.9, dcz + 0.25, g);
-  box(0.03, 0.34, 0.58, M.tv, scx - 0.02, 1.0, dcz + 0.25, g);
-  box(0.15, 0.02, 0.44, M.black, x1 - t - 0.42, 0.75, dcz + 0.05, g); box(0.07, 0.025, 0.05, M.black, x1 - t - 0.42, 0.75, dcz - 0.28, g);
+  const mon = Math.min(0.58, dl - 0.12), mz = dcz + Math.min(0.25, (dl - mon) / 2 - 0.02);
+  box(0.2, 0.012, 0.22, M.black, scx, 0.89, mz, g); box(0.03, 0.12, 0.03, M.black, scx + 0.03, 0.9, mz, g);
+  box(0.03, mon * 0.59, mon, M.tv, scx - 0.02, 1.0, mz, g);
+  const kx = x1 - t - dw * 0.7; box(0.15, 0.02, Math.min(0.44, dl - 0.2), M.black, kx, 0.75, dcz + 0.05, g); box(0.07, 0.025, 0.05, M.black, kx, 0.75, dcz - Math.min(0.28, dl / 2 - 0.1), g);
   // 링라이트 스탠드 (문 쪽 모서리)
   const rlx = x1 - t - 0.12, rlz = z0 + 0.22;
   cyl(0.012, 0.012, 1.5, M.black, rlx, 0, rlz, 8, g);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.025, 10, 28), M.white); ring.position.set(rlx - 0.04, 1.62, rlz); ring.rotation.y = Math.PI / 2; g.add(ring);
   for (let i = 0; i < 3; i++) { const a = i * Math.PI * 2 / 3; const l = box(0.2, 0.015, 0.02, M.black, rlx + Math.cos(a) * 0.08, 0.06, rlz + Math.sin(a) * 0.08, g); l.rotation.y = -a; }
   // 의자: 흰 프레임 + 베이지 시트 + 연회색 메쉬 등받이, 책상(+x)을 바라봄
-  meshChair(grp(x1 - t - 0.95, dcz - 0.05, -90, g));
+  meshChair(grp(Math.max(x0 + t + 0.28, x1 - t - 0.95), dcz - 0.05, -90, g));
 }
 function pantry(g, o) {   // 탕비 카운터: 뒤(벽) = 로컬 +z
   const w = o.w || 5, x0 = -w / 2;
@@ -516,8 +536,8 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
-const NOBLOB = new Set(['stage', 'whiteboard', 'screen', 'tvWall', 'mat', 'slats', 'booth']);
+const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
+const NOBLOB = new Set(['stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o) {
   if (o.type === 'array') {
@@ -531,6 +551,7 @@ function place(o) {
   if (!NOBLOB.has(o.type) && !g.userData.noBlob) blobs.push(g);
 }
 for (const f of L.furniture) place(f);
+for (const sp of (L.speakers || [])) place(Object.assign({ type: 'speaker' }, sp));
 
 /* ---------------- blob contact shadows ---------------- */
 {
@@ -746,13 +767,14 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; controls.dampingFactor = 0.08; controls.screenSpacePanning = false;
 controls.minDistance = 3; controls.maxDistance = 48; controls.maxPolarAngle = 80 * DEG; controls.enabled = false;
 controls.target.set(W / 2, 0, D / 2);
-const ORBIT_HOME = { pos: new THREE.Vector3(W / 2 - 8.5, 26.5, D / 2 + 21.5), target: new THREE.Vector3(W / 2, 0, D / 2 + 2.4) };
+const SZ = Math.max(W, D) / 19.6;   // 건물 크기에 맞춰 카메라 거리 조절 (19.6m 기준)
+const ORBIT_HOME = { pos: new THREE.Vector3(W / 2 - 8.5 * SZ, 26.5 * SZ, D / 2 + 21.5 * SZ), target: new THREE.Vector3(W / 2, 0, D / 2 + 2.4 * SZ) };
 { // 세로 화면(모바일)에서는 건물 전체가 들어오도록 더 멀리서 시작
   const asp = innerWidth / innerHeight, k = asp < 1.2 ? Math.min(2.4, Math.pow(1.2 / asp, 0.85)) : 1;
   ORBIT_HOME.pos.sub(ORBIT_HOME.target).multiplyScalar(k).add(ORBIT_HOME.target);
 }
 let orbitSaved = { pos: ORBIT_HOME.pos.clone(), target: ORBIT_HOME.target.clone() };
-if (SHOT === 'plan') orbitSaved = { pos: new THREE.Vector3(W / 2, 33, D / 2 + 3.4), target: new THREE.Vector3(W / 2, 0, D / 2 + 0.2) };   // 위에서 내려다본 평면 스크린샷용
+if (SHOT === 'plan') orbitSaved = { pos: new THREE.Vector3(W / 2, 33 * SZ, D / 2 + 3.4 * SZ), target: new THREE.Vector3(W / 2, 0, D / 2 + 0.2 * SZ) };   // 위에서 내려다본 평면 스크린샷용
 const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const clamp01 = (t) => Math.max(0, Math.min(1, t));
 function quatLook(pos, target) { const m = new THREE.Matrix4().lookAt(pos, target, new THREE.Vector3(0, 1, 0)); return new THREE.Quaternion().setFromRotationMatrix(m); }
