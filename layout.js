@@ -55,13 +55,13 @@ window.LAYOUT = {
       label:[2.7, 10.55], labelY:2.35, jump:{ x:2.7, z:9.7, look:[2.7, 12.0] },
       card:{ photos:['IMG_0398','IMG_0397','IMG_0401','IMG_0403'],
              desc:'NEOBOX1 · NEOBOX2 · NEOBOX3, 모니터와 책상이 있는 1인용 부스 3개예요. 커피존 바로 옆, 우드 슬랫 파티션 너머에 나란히 있어요.' } },
-    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[5.24, 11.2, 9.52, 12.1], floor:'floor',
-      label:[7.4, 11.3], labelY:1.6, jump:{ x:7.4, z:10.2, look:[7.4, 12.0] },
+    { id:'coffee', name:'커피존', en:'Pantry', small:true, rect:[7.05, 11.2, 12.45, 12.1], floor:'floor',
+      label:[8.65, 11.3], labelY:1.6, jump:{ x:10.9, z:10.5, look:[7.3, 11.7] },
       card:{ photos:['IMG_0386','IMG_0387','IMG_0398'],
-             desc:'공용 사용 공간(LOUNGE & AMENITIES). 커피머신과 수납장, 분리수거함이 있는 탕비 공간이에요. 우드 슬랫 파티션으로 라운지와 나뉘어 있어요.',
+             desc:'공용 사용 공간(LOUNGE & AMENITIES). 흰 상·하부장 카운터에 전자레인지, 커피머신, 얼음 디스펜서, 싱크가 있고 하부장에 분리수거함(일반쓰레기·플라스틱·캔/병)이 있어요. 입구 옆 우드 슬랫 가벽 바로 뒤예요.',
              services:['정수기','커피머신','제빙기','전자레인지','공기청정기','냉난방'] } },
-    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[9.52, 11.2, 12.45, 12.1], floor:'floor',
-      label:[11.1, 11.6], jump:{ x:11.1, z:11.45, look:[3.5, 7.4] },
+    { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[5.1, 11.0, 7.05, 12.1], floor:'floor',
+      label:[6.05, 11.6], jump:{ x:6.05, z:11.4, look:[8.6, 7.4] },
       card:{ photos:['IMG_0378','IMG_0380','IMG_0388'],
              desc:'유리문 위에 Neoful business space 사인이 있는 입구예요. 들어오면 교육장 앞 디스플레이 월과 배너가 보여요.' } },
     { id:'lounge', name:'라운지', en:'Lounge', rect:[0, 6.22, 12.45, 12.1], floor:'floor',
@@ -110,9 +110,9 @@ window.LAYOUT = {
     { from:[0, 3.05],  to:[0, 5.38],  type:'window', outer:true, style:'tall', blind:0 },      // 소회의실 창 ② — 롤스크린 올림
     { from:[0, 5.38],  to:[0, 5.9],   type:'solid',  outer:true },
     { from:[0, 5.9],   to:[0, 12.1],  type:'solid',  outer:true, molding:'east', moldingFrom:6.35, moldingTo:10.7 },  // 라운지 몰딩 벽 (molding: 몰딩을 붙일 면, From~To 구간)
-    // 바깥벽 — 남쪽(아래), 입구 유리 양문 (입구 x9.52–12.45 안)
+    // 바깥벽 — 남쪽(아래), 입구 유리 양문 (x5.15–6.95, 가벽 바로 옆)
     { from:[0, 12.1],  to:[12.45, 12.1], type:'solid', outer:true,
-      openings:[ { at:10.2, width:1.8, door:'glass', double:true, entrance:true } ] },
+      openings:[ { at:5.15, width:1.8, door:'glass', double:true, entrance:true } ] },   // 입구 유리 양문 x5.15–6.95: NEOBOX3 과 가벽(슬랫, x7.05) 사이, 가벽 바로 옆 (사용자 11/19)
     // 바깥벽 — 동쪽(오른쪽)
     { from:[12.45, 0], to:[12.45, 12.1], type:'solid', outer:true },
 
@@ -154,8 +154,8 @@ window.LAYOUT = {
       { x:8.2, z:7.4, len:1.2 }, { x:11.2, z:7.4, len:1.2 }
     ],
     projectors: [
-      { x:9.69, z:5.9, aim:[9.555, 0.64], drop:0.3, color:'black', label:'프로젝트 빔' },
-      { x:4.63, z:4.2, aim:[4.63, 0.59], drop:0.15, color:'white', label:'프로젝트 빔' }   // 회의실: 천장 흰색 프로젝터(사진 IMG_0391), 스크린을 향함   // 에어컨 뒤쪽, 내려오는 스크린 정면을 향함
+      { x:9.69, z:5.9, aim:[9.555, 0.64], drop:0.3, color:'black', label:'빔프로젝트' },
+      { x:4.63, z:4.2, aim:[4.63, 0.59], drop:0.15, color:'white', label:'빔프로젝트' }   // 회의실: 천장 흰색 프로젝터(사진 IMG_0391), 스크린을 향함   // 에어컨 뒤쪽, 내려오는 스크린 정면을 향함
     ],
     downlights: [[7.4, 1.0], [8.2, 1.0], [10.9, 1.0], [11.8, 1.0]],   // 앞쪽 작은 원형 다운라이트
     aircon: [[4.63, 2.96], [9.69, 4.0, 1.0], [1.96, 8.9, 1.0]]   // [x, z, 크기] — 회의실, 교육장 1대, 라운지 1대
@@ -177,6 +177,76 @@ window.LAYOUT = {
     { x:12.0,  z:0.36, rot:160 },   // 앞벽(북쪽) 오른쪽 모서리
     { x:7.02,  z:7.6,  rot:-90 },   // 서쪽 벽 뒤쪽 (단상에서 본 사진)
     { x:12.09, z:5.0,  rot:90 }     // 동쪽 벽 가운데
+  ],
+
+  /* ---------- 교육장 책상 배치 (화면 오른쪽 위 "책상 배치 바꾸기" 버튼 / B 키로 순서대로 바뀜) ----------
+     list 의 각 항목 = 배치 하나. name 은 버튼·안내에 표시, items 는 furniture 와 같은 형식.
+     island : 책상 2개를 긴 변끼리 붙인 섬 { x, z(중심), len(책상 긴 변, 섬의 남북 길이), dd(책상 폭), perSide(한쪽 의자 수), basket, tents, rot }
+     규칙: 교육장 문(동쪽 경첩 x11.95, 반지름 0.95m → z≈8.2 이남, x11.0~12.2)과 단상 앞(z<2.1)은 비워 두세요.   */
+  deskLayouts: {
+    start: 0,
+    list: [
+      { id:'lecture', name:'강의식', items:[
+        // 단상(북쪽)을 바라보는 5줄: 붙은 책상 2개 | 통로 x9.92–10.98 | 동쪽 벽 쪽 1개, 책상마다 의자 2개 = 30석
+        { type:'array', xs:[7.70],   zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },
+        { type:'array', xs:[9.19],   zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },
+        { type:'array', xs:[11.595], zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.23, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } }
+      ] },
+      { id:'group', name:'조별', items:[
+        // 사용자 사진 1: 책상 2개를 붙인 섬, 긴 축이 스크린 방향, 양쪽에 2명씩 마주 봄 — 2열 × 3줄 = 6섬 × 4명 = 24석
+        { type:'array', xs:[8.0, 11.1], zs:[2.95, 5.05, 7.15], item:{ type:'island', len:1.46, dd:0.5, perSide:2, basket:true, tents:true } }
+      ] },
+      { id:'group_aisle', name:'조별 (가운데 통로)', items:[
+        // 사용자 사진 2: 가운데 통로(x9.02–10.08)를 단상까지 비우고, 양쪽 벽 쪽에 섬 2줄 — 4섬 × 6명(한쪽 3명) = 24석
+        { type:'array', xs:[8.0, 11.1], zs:[3.2, 5.9], item:{ type:'island', len:1.8, dd:0.5, perSide:3, basket:true, tents:true } }
+      ] },
+      { id:'ushape', name:'ㄷ자', items:[
+        // 단상을 향해 열린 ㄷ자: 서쪽·동쪽 팔 책상 3개씩 + 뒤쪽 책상 2개, 의자는 바깥쪽에서 안쪽을 바라봄 = 16석
+        { type:'array', xs:[7.85],  zs:[2.93, 4.39, 5.85], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver', rot:-90 } },
+        { type:'array', xs:[11.25], zs:[2.93, 4.39, 5.85], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver', rot:90 } },
+        { type:'array', xs:[8.83, 10.29], zs:[7.45], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } }
+      ] }
+    ]
+  },
+
+  /* ---------- 장비 안내 (마우스를 올리면 작은 안내 카드, 걷기 중 마우스 잠금 시에는 화면 가운데 조준점 기준) ----------
+     name : 이름, room : 방 이름(작게 표시), lines : 안내 문구 줄 목록(자유롭게 수정)
+     box  : [x1, z1, x2, z2, 아래높이, 위높이] — 이 상자 안의 물체에 마우스가 닿으면 표시. 여러 개면 boxes:[[...],[...]]
+     label: true 면 이름을 항상 작은 글씨로 띄움 (labelAt:[x, y, z] 로 위치 지정 가능)
+     ※ 아래 안내 문구의 '(예: …) — 수정 필요' 는 예시예요. 실제 내용으로 바꿔 주세요.   */
+  equipment: [
+    // 교육장
+    { id:'edu_projector', name:'빔프로젝트', room:'교육장', box:[9.4, 5.6, 10.0, 6.15, 2.15, 2.7],
+      lines:['연결 케이블: (예: HDMI) — 수정 필요', '리모컨 위치: (예: 강사 단상 서랍) — 수정 필요', '사용 방법: (예: 전원 → 입력 HDMI 선택) — 수정 필요'] },
+    { id:'edu_screen', name:'전동 스크린', room:'교육장', box:[8.3, 0.5, 10.8, 0.8, 1.05, 2.7],
+      lines:['내리기/올리기: (예: 벽 스위치) — 수정 필요', '크기: 약 2.4m 폭(3D 모델 기준)'] },
+    { id:'edu_speaker', name:'스피커', room:'교육장', boxes:[[6.9, 0.2, 7.35, 0.6, 2.2, 2.7], [11.8, 0.2, 12.25, 0.6, 2.2, 2.7], [6.88, 7.35, 7.25, 7.85, 2.2, 2.7], [11.9, 4.75, 12.25, 5.25, 2.2, 2.7]],
+      lines:['음량 조절: (예: 앰프·리모컨 위치) — 수정 필요', '마이크: (예: 무선 마이크 2개) — 수정 필요'] },
+    { id:'edu_ac', name:'에어컨', room:'교육장', box:[9.15, 3.45, 10.25, 4.55, 2.5, 2.75],
+      lines:['리모컨/조작: (예: 출입문 옆 벽 컨트롤러) — 수정 필요'] },
+    { id:'edu_podium', name:'강사 단상', room:'교육장', box:[7.28, 0.58, 8.02, 1.22, 0.15, 1.5],
+      lines:['구성: (예: 노트북 거치, HDMI 단자) — 수정 필요'] },
+    { id:'edu_board', name:'유리 화이트보드', room:'교육장', boxes:[[6.88, 1.2, 7.08, 8.8, 0.8, 2.2], [12.08, 1.2, 12.26, 8.8, 0.8, 2.2]],
+      lines:['마커·지우개: (예: 레지 위 비치) — 수정 필요'] },
+    { id:'edu_clock', name:'시계', room:'교육장', box:[9.3, 8.9, 9.8, 9.1, 1.85, 2.35], lines:['뒤쪽 벽 시계'] },
+    { id:'edu_heater', name:'난방기', room:'교육장', box:[8.55, 8.8, 9.85, 9.1, 0, 0.6], lines:['사용 방법: (예: 전원 스위치 위치) — 수정 필요'] },
+    { id:'edu_purifier', name:'공기청정기', room:'교육장', box:[7.45, 8.55, 7.95, 9.05, 0, 1.2], lines:['사용 방법: (예: 전원 버튼) — 수정 필요'] },
+    // 회의실
+    { id:'mtg_screen', name:'스크린', room:'회의실', box:[3.55, 0.45, 5.7, 0.75, 0.85, 2.7],
+      lines:['내리기/올리기: (예: 벽 스위치) — 수정 필요'] },
+    { id:'mtg_projector', name:'빔프로젝트', room:'회의실', box:[4.35, 3.95, 4.9, 4.45, 2.3, 2.7],
+      lines:['연결 케이블: (예: HDMI) — 수정 필요', '리모컨 위치: (예: 테이블 위) — 수정 필요'] },
+    { id:'mtg_table', name:'회의 테이블', room:'회의실', box:[4.14, 0.78, 5.12, 5.18, 0.6, 0.8],
+      lines:['테이블 2개 · 12석', '전원: (예: 테이블 콘센트) — 수정 필요'] },
+    // 커피존 (항상 이름 표시)
+    { id:'microwave', name:'전자레인지', room:'커피존', box:[9.52, 11.3, 10.02, 11.8, 0.9, 1.22], label:true,
+      lines:['사용 후 문을 닫아 주세요 (예시) — 수정 필요'] },
+    { id:'coffee', name:'커피머신', room:'커피존', box:[9.1, 11.3, 9.45, 11.8, 0.9, 1.62], label:true,
+      lines:['사용 방법: (예: 컵 올리고 메뉴 선택) — 수정 필요', '원두 보충: (예: 상부장) — 수정 필요'] },
+    { id:'ice', name:'제빙기', room:'커피존', box:[8.68, 11.3, 9.03, 11.8, 0.9, 1.37], label:true,
+      lines:['사용 방법: (예: 컵을 대고 버튼) — 수정 필요'] },
+    { id:'water', name:'정수기', room:'커피존', box:[8.04, 11.3, 8.26, 11.8, 0.9, 1.34], label:true,
+      lines:['냉수·온수: (예: 온수 잠금 버튼) — 수정 필요'] }
   ],
 
   furniture: [
@@ -206,10 +276,8 @@ window.LAYOUT = {
     { type:'podium', x:7.65, z:0.9, w:0.62, d:0.48, rot:180, elev:0.2 },   // 발표용 강연대 — 단상 왼쪽 (x7.2–8.1, z0.6–1.2)
     { type:'whiteboard', x:6.92, z:5.0, w:7.4, rot:-90, style:'glass' },   // 서쪽 벽 연두 유리 화이트보드 0.9~2.1m + 레지
     { type:'whiteboard', x:12.19, z:5.0, w:7.4, rot:90, style:'glass' },   // 동쪽 벽도 같은 연두 유리 화이트보드 (단상에서 본 사진 11/19)
-    // 수강 책상 5줄(간격 1.15m — 맨 뒷줄 의자 등받이 z≈7.8, 교육장 문 열림 반경(경첩 x11.0, 0.95m → z≈8.2) 밖): 붙은 책상 2개 | 통로 x9.92–10.98 | 동쪽 벽 쪽 1개. 책상마다 의자 2개(총 30석), 의자는 단상(북쪽)을 바라봄
-    { type:'array', xs:[7.70],   zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x6.97–8.43
-    { type:'array', xs:[9.19],   zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.46, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x8.46–9.92
-    { type:'array', xs:[11.595], zs:[2.4, 3.55, 4.7, 5.85, 7.0], item:{ type:'deskPair', w:1.23, d:0.55, chairs:2, casters:true, tag:true, chairBase:'silver' } },   // x10.98–12.21(동쪽 벽 안쪽 면)
+    // 수강 책상은 아래 deskLayouts(책상 배치 바꾸기)에서 정해요.
+    // (강의식) 수강 책상 5줄(간격 1.15m — 맨 뒷줄 의자 등받이 z≈7.8, 교육장 문 열림 반경(경첩 x11.0, 0.95m → z≈8.2) 밖): 붙은 책상 2개 | 통로 x9.92–10.98 | 동쪽 벽 쪽 1개. 책상마다 의자 2개(총 30석), 의자는 단상(북쪽)을 바라봄
     // 교육장 뒤쪽 벽(남쪽, 안쪽 면 z9.03) — 단상에서 문을 본 사진(11/19)
     { type:'clock', x:9.55, z:9.03, y:2.1 },                              // 둥근 벽시계
     { type:'exitSign', x:11.475, z:9.03, y:2.2 },                         // 문 위 비상구 유도등
@@ -229,9 +297,10 @@ window.LAYOUT = {
     { type:'booth', x:2.685, z:11.4, w:1.29, d:1.2, label:'NEOBOX2' },   // x2.04–3.33
     { type:'booth', x:4.395, z:11.4, w:1.29, d:1.2, label:'NEOBOX3' },   // x3.75–5.04
 
-    /* --- 커피존 (x5.24~9.52, z11.2~12.1) --- */
-    { type:'slats', from:[5.16, 11.85], to:[5.16, 10.85], h:2.45, count:9, thick:true },
-    { type:'pantry', x:7.38, z:11.56, w:4.28 },
+    /* --- 입구(x5.15–6.95) + 가벽(슬랫 x7.05) + 커피존 카운터 --- */
+    { type:'slats', from:[7.05, 11.85], to:[7.05, 10.85], h:2.45, count:9, thick:true },   // 가벽: 입구와 커피존 카운터 사이
+    { type:'pantry', x:8.65, z:11.56, w:3.0 },   // 커피존 카운터 x7.15–10.15 (싱크 끝이 가벽에 붙음): 동쪽부터 전자레인지·커피머신·얼음통·싱크
+    { type:'zzPlant', x:10.45, z:11.6, scale:1.25 },   // 카운터 시작 전 흰 화분 ZZ 플랜트
 
     /* --- 라운지 --- */
     { type:'barCounter', x:0.39, z:8.1, w:0.5, d:3.0, h:1.04 },         // 서쪽 몰딩 벽 바 테이블
@@ -247,6 +316,6 @@ window.LAYOUT = {
     { type:'purifier', x:6.35, z:8.6 },
 
     /* --- 입구 --- */
-    { type:'mat', x:11.1, z:11.4, w:1.6, d:0.9, color:'orange' }
+    { type:'mat', x:6.05, z:11.4, w:1.6, d:0.9, color:'orange' }
   ]
 };
