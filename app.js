@@ -664,8 +664,9 @@ function ceilingScreen(g, o) {   // box(.., y) 의 y 는 아래 끝 높이
 function speaker(g, o) {
   const w = o.w || 0.25, h = o.h || 0.35, d = o.d || 0.2, top = o.top || (H - 0.06);
   const s = new THREE.Group(); s.position.set(0, top - h / 2, 0); s.rotation.x = -(o.tilt == null ? 12 : o.tilt) * DEG; g.add(s);
-  box(w, h, d, M.black, 0, -h / 2, 0, s);
-  box(w - 0.03, h - 0.03, 0.006, plain(0x2a2c30), 0, -h / 2 + 0.015, -d / 2 - 0.003, s);   // 그릴
+  const wh = o.color === 'white';
+  box(w, h, d, wh ? M.white : M.black, 0, -h / 2, 0, s);
+  box(w - 0.03, h - 0.03, 0.006, plain(wh ? 0xd9dbdd : 0x2a2c30), 0, -h / 2 + 0.015, -d / 2 - 0.003, s);   // 그릴
   box(0.05, 0.03, 0.12, M.black, 0, h / 2 - 0.03, d / 2 + 0.04, s);                      // 벽 브래킷
   g.userData.noBlob = true; g.userData.noCollide = true;
 }
