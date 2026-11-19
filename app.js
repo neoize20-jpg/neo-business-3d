@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
-import { makeTextures, textTexture } from './textures.js?v=11181990';
+import { makeTextures, textTexture } from './textures.js?v=11190910';
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -304,7 +304,11 @@ for (const p of (L.ceiling?.projectors || [])) {      // 천장형 빔 프로젝
     sp.scale.set(th * 320 / 40, th * 72 / 40, 1);   /* 글자 높이 ≈ th(m) */ sp.position.set(p.x, by - 0.14, p.z); sp.renderOrder = 5; scene.add(sp); projLabels.push(sp);
   }
 }
-for (const [x, z] of (L.ceiling?.aircon || [])) { box(0.84, 0.04, 0.84, M.fixture, x, H - 0.045, z); box(0.5, 0.012, 0.5, M.fixture, x, H - 0.055, z); }
+if (!M.acVent) { M.acVent = std({ color: 0x3a3d42, roughness: 0.6 }); M.acVent.userData.noShadow = true; }
+for (const [x, z, sz = 0.84] of (L.ceiling?.aircon || [])) {   // [x, z, 크기(선택, 기본 0.84m)]
+  box(sz, 0.04, sz, M.fixture, x, H - 0.045, z); box(sz * 0.6, 0.012, sz * 0.6, M.fixture, x, H - 0.055, z);
+  for (const s of [-1, 1]) { box(sz * 0.7, 0.006, 0.06, M.acVent, x, H - 0.05, z + s * sz * 0.39); box(0.06, 0.006, sz * 0.7, M.acVent, x + s * sz * 0.39, H - 0.05, z); }   // 토출구 4면
+}
 
 /* ---------------- furniture builders ---------------- */
 // ※ 가구 모양·치수는 v1 그대로 유지(사용자 요청). 재질만 실제 느낌으로 교체.
@@ -417,6 +421,14 @@ function tableSet(g, o) {   // 테이블(세로 d 방향으로 길게) + 양옆 
   const place = (cnt, side) => { for (let i = 0; i < cnt; i++) { const z = cnt === 1 ? 0 : -d / 2 + inset + i * (d - 2 * inset) / (cnt - 1); chair(grp(side * (w / 2 + 0.275), z, side * 90, g), {}); } };
   place(o.chairsLeft || 0, -1); place(o.chairsRight || 0, 1);
 }
+function podium(g, o) {   // 발표용 스탠딩 강연대 (앞 = 로컬 -z → rot:180 이면 청중(남쪽)을 향함)
+  const w = o.w || 0.62, d = o.d || 0.48, h = o.h || 1.08, m = matOf(o.color || 'white'), acc = matOf(o.accent || 'oak');
+  box(w, h - 0.06, d, m, 0, 0, 0, g);                                           // 몸체
+  box(w + 0.04, 0.03, d + 0.04, m, 0, 0, 0, g);                                 // 받침
+  box(w * 0.86, h * 0.55, 0.012, acc, 0, h * 0.2, -d / 2 - 0.006, g);           // 앞면 포인트 패널
+  const top = box(w + 0.06, 0.035, d + 0.08, acc, 0, h - 0.06, 0.02, g); top.rotation.x = -0.18;   // 기울어진 상판
+  cyl(0.008, 0.008, 0.3, M.black, w * 0.3, h - 0.03, 0.05, 8, g);              // 구즈넥 마이크
+}
 function whiteboard(g, o) {
   if (o.style === 'mirror') {   // 대형 유리/거울 패널 + 하부 선반(교육장 동쪽 벽, 사진 IMG_0382)
     const w = o.w || 2, n = Math.max(1, Math.round(w / 1.2)), y0 = o.y0 ?? 0.9, y1 = o.y1 ?? 2.45;
@@ -504,7 +516,7 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
+const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, mat, booth, pantry };
 const NOBLOB = new Set(['stage', 'whiteboard', 'screen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o) {
