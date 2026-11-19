@@ -25,11 +25,11 @@ window.LAYOUT = {
     { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[1.5, 0, 6.0, 2.0], floor:'floor',
       label:[2.3, 0.6], jump:{ x:3.73, z:0.45, look:[3.73, 4.0] },
       card:{ photos:[], desc:'9층 출입구(북쪽 벽 비상구 표시 아래 유리문)예요. 들어와서 초록 경로를 따라 북쪽 복도를 동쪽으로 가면 끝에 교육장 문이 있어요. 화장실은 서쪽 복도 끝 왼쪽 문이에요.' } },
-    { id:'corridor', name:'복도', en:'Corridor', small:true, rect:[0, 2.0, 10.0, 3.62], rects:[[0, 3.62, 2.64, 7.01]], floor:'floor',
-      label:[6.6, 2.8], jump:{ x:4.2, z:2.8, look:[10.0, 2.8] }, card:{ photos:[], desc:'입구에서 교육장까지 이어지는 복도예요. 서쪽 복도 끝 왼쪽(서쪽 벽)에 화장실 문이 있어요.' } },
-    { id:'instructor', name:'강사대기실', en:'Instructor Room', small:true, noEntry:true, rect:[4.65, 3.62, 10.0, 5.66], floor:'floor', label:[7.3, 4.64],
+    { id:'corridor', name:'복도', en:'Corridor', small:true, rect:[0, 2.0, 10.0, 4.12], rects:[[0, 4.12, 2.64, 7.01]], floor:'floor',
+      label:[6.6, 3.05], jump:{ x:4.2, z:3.05, look:[10.0, 2.8] }, card:{ photos:[], desc:'입구에서 교육장까지 이어지는 복도예요. 서쪽 복도 끝 왼쪽(서쪽 벽)에 화장실 문이 있어요.' } },
+    { id:'instructor', name:'강사대기실', en:'Instructor Room', small:true, noEntry:true, rect:[4.65, 4.12, 10.0, 5.66], floor:'floor', label:[7.3, 4.9],
       jump:{ x:7.3, z:4.6, look:[10.0, 4.6] }, card:{ photos:[], desc:'복도와 교육장 사이의 강사대기실 (출입 불가).' } },
-    { id:'office', name:'직원 사무실', en:'Staff Office', small:true, noEntry:true, rect:[0, 7.01, 10.0, 13.52], rects:[[2.64, 5.66, 10.0, 7.01], [2.64, 3.62, 4.65, 5.66]], floor:'floor', label:[5.0, 9.9],
+    { id:'office', name:'직원 사무실', en:'Staff Office', small:true, noEntry:true, rect:[0, 7.01, 10.0, 13.52], rects:[[2.64, 5.66, 10.0, 7.01], [2.64, 4.12, 4.65, 5.66]], floor:'floor', label:[5.0, 9.9],
       jump:{ x:5.0, z:9.9, look:[10.0, 9.9] }, card:{ photos:[], desc:'건물 남서쪽 직원 사무실 (출입 불가).' } }
   ],
 
@@ -60,16 +60,16 @@ window.LAYOUT = {
       openings:[ { at:2.9, width:1.66, door:'glass', double:true, entrance:true, frame:'white', open:true } ] },
     // 북쪽 복도 남쪽 벽 (강사대기실·사무실과 구분)
     // 북쪽 복도 남쪽 벽(사진: 서→동) 직원 사무실 문 · 금색 사인 · 블라인드 유리 3칸 · 강사대기실 문 (at = 문 시작 x)
-    { from:[2.64, 3.62], to:[5.55, 3.62], type:'solid',
+    { from:[2.64, 4.12], to:[5.55, 4.12], type:'solid',
       openings:[ { at:3.1, width:0.9, door:'wood', frame:'white', hinge:'start', swing:-88, locked:true } ] },   // 직원 사무실 문(출입 불가)
-    { from:[5.55, 3.62], to:[8.25, 3.62], type:'glass', style:'blinds', bay:0.9 },                              // 강사대기실 유리 칸막이 + 흰 블라인드
-    { from:[8.25, 3.62], to:[10.0, 3.62], type:'solid',
+    { from:[5.55, 4.12], to:[8.25, 4.12], type:'glass', style:'blinds', bay:0.9 },                              // 강사대기실 유리 칸막이 + 흰 블라인드
+    { from:[8.25, 4.12], to:[10.0, 4.12], type:'solid',
       openings:[ { at:8.35, width:0.95, door:'wood', vision:'tall', frame:'white', hinge:'end', swing:88, locked:true } ] },   // 강사대기실 문(세로 긴 반투명 유리, 출입 불가)
     // 서쪽 복도 동쪽 벽 + 직원 사무실 문(추정 위치, 출입 불가)
-    { from:[2.64, 3.62], to:[2.64, 7.01], type:'solid' },
+    { from:[2.64, 4.12], to:[2.64, 7.01], type:'solid' },
     { from:[0, 7.01], to:[2.64, 7.01], type:'solid' },   // 서쪽 복도 끝
     // 강사대기실
-    { from:[4.65, 3.62], to:[4.65, 5.66], type:'solid' },
+    { from:[4.65, 4.12], to:[4.65, 5.66], type:'solid' },
     { from:[4.65, 5.66], to:[10.0, 5.66], type:'solid' },
     // 교육장 서쪽(스크린) 벽: 북쪽 끝(z2.25–3.25)에 교육장 문
     { from:[10.0, 2.0], to:[10.0, 13.52], type:'solid',
@@ -92,7 +92,7 @@ window.LAYOUT = {
       { x:11.6, z:10.6, len:1.2, w:0.3, rot:90, twin:true }, { x:14.1, z:10.6, len:1.2, w:0.3, rot:90, twin:true }, { x:16.6, z:10.6, len:1.2, w:0.3, rot:90, twin:true }, { x:19.1, z:10.6, len:1.2, w:0.3, rot:90, twin:true },
       { x:11.6, z:12.95, len:1.2, w:0.3, rot:90, twin:true }, { x:14.1, z:12.95, len:1.2, w:0.3, rot:90, twin:true }, { x:16.6, z:12.95, len:1.2, w:0.3, rot:90, twin:true }, { x:19.1, z:12.95, len:1.2, w:0.3, rot:90, twin:true },
       { x:3.73, z:1.0, len:1.2, w:0.1, rot:90 },
-      { x:2.0, z:2.8, len:1.2, w:0.1, rot:90 }, { x:5.0, z:2.8, len:1.2, w:0.1, rot:90 }, { x:8.0, z:2.8, len:1.2, w:0.1, rot:90 },
+      { x:2.0, z:3.05, len:1.2, w:0.1, rot:90 }, { x:5.0, z:3.05, len:1.2, w:0.1, rot:90 }, { x:8.0, z:3.05, len:1.2, w:0.1, rot:90 },
       { x:1.3, z:5.2, len:1.2, w:0.1, rot:0 },
       { x:7.3, z:4.64, len:1.2, w:0.1, rot:90 },
       { x:3.0, z:9.0, len:1.2, w:0.1, rot:90 }, { x:7.0, z:9.0, len:1.2, w:0.1, rot:90 }, { x:3.0, z:11.8, len:1.2, w:0.1, rot:90 }, { x:7.0, z:11.8, len:1.2, w:0.1, rot:90 }
@@ -146,7 +146,7 @@ window.LAYOUT = {
     { type:'extinguisher', x:4.75, z:2.3 },
     { type:'extinguisher', x:11.2, z:2.25 },
     { type:'extinguisher', x:10.2, z:13.2 },
-    { type:'extinguisher', x:4.95, z:3.95 },
+    { type:'extinguisher', x:4.95, z:4.45 },
 
     /* --- 입구 앞 홀(추정): 엘리베이터 / 서쪽 복도 끝 화장실 --- */
     { type:'elevator', x:3.73, z:0.06, rot:180, floor:9 },        // 출입구 앞 엘리베이터 홀(추정)
@@ -155,7 +155,7 @@ window.LAYOUT = {
     /* --- 북쪽 복도(사진): 북쪽 벽 TV · 테이블, 남쪽 벽 금색 사인 --- */
     { type:'mobileTv', x:7.6, z:2.3, rot:180 },                                   // 이동형 TV(약 55형, 검정 스탠드)
     { type:'cafeTable', x:9.05, z:2.33, w:1.1, d:0.6, sanitizer:true },              // 흰 상판 테이블 + 손소독제
-    { type:'goldSign', x:5.0, z:3.54, w:0.9 },                                     // 금색 사인 패널(로고)
+    { type:'goldSign', x:5.0, z:4.04, w:0.9 },                                     // 금색 사인 패널(로고)
 
     /* --- 교육장 북서쪽(사진): 문 오른쪽 북쪽 벽 따라 휴지통 · 소화기 · 정수기 · 회색 휴지통 · 테이블 --- */
     { type:'bin', x:10.55, z:2.3, square:true, w:0.26, h:0.42 },
