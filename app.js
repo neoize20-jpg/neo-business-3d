@@ -175,6 +175,7 @@ function door(hx, hz, w, baseRad, swingRad, leafMat, frameMat, style) {
   if (style && style.entrance) {   // 입구 프레임리스 유리 양문(사용자 사진): 통유리 + 상·하 금속 패치, 가운데 쪽 세로 스테인리스 바 손잡이, 디지털 도어락
     const lh = 2.08; const p = new THREE.Mesh(new THREE.BoxGeometry(w - 0.02, lh - 0.02, 0.012), M.glass); p.position.set(w / 2, lh / 2 + 0.01, 0); g.add(p);
     box(0.18, 0.06, 0.03, M.metal, 0.1, 0.02, 0, g); box(0.18, 0.06, 0.03, M.metal, 0.1, lh - 0.07, 0, g);
+    if (style.frame) { const fm = M.steel || M.metal; box(w, 0.035, 0.03, fm, w / 2, 0, 0, g); box(w, 0.035, 0.03, fm, w / 2, lh - 0.035, 0, g); box(0.03, lh, 0.03, fm, 0.015, 0, 0, g); box(0.03, lh, 0.03, fm, w - 0.015, 0, 0, g); }   // 얇은 스테인리스 테두리(서울 입구 사진)
     const hx = w - 0.1;
     for (const sd of [-1, 1]) { cyl(0.014, 0.014, 1.3, M.metal, hx, 0.4, sd * 0.06, 12, g); box(0.02, 0.02, 0.06, M.metal, hx, 0.5, sd * 0.03, g); box(0.02, 0.02, 0.06, M.metal, hx, 1.6, sd * 0.03, g); }
     box(0.055, 0.15, 0.03, M.black, hx - 0.09, 0.98, 0.02, g); box(0.055, 0.15, 0.03, M.black, hx - 0.09, 0.98, -0.02, g);   // 도어락(안·밖)
@@ -397,7 +398,7 @@ for (const w of L.walls) {
       registerDoor([door(horiz ? hp : fixed, horiz ? fixed : hp, len, start ? baseStart : baseEnd, sw, M.glass, fm, { frameless: true, band: w.band, stripes: w.stripes })], o.open === true, o.name).locked = !!o.locked;
     } else if (o.double) {
       const hw = len / 2, sw = (o.swing || 80) * DEG;
-      const st = o.entrance ? { entrance: true } : undefined;
+      const st = o.entrance ? { entrance: true, frame: !!o.leafFrame } : undefined;
       registerDoor([door(horiz ? o.at : fixed, horiz ? fixed : o.at, hw, baseStart, -sw, leafMat, fm, st),
                     door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm, st)], o.open === true, o.name).locked = !!o.locked;
     } else {
