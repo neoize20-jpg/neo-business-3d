@@ -27,7 +27,8 @@ window.LAYOUT = {
   /* 조명·색감 보정(look.js) — 실제 사진처럼 밝은 흰 공간, 천장 LED처럼 위에서 내려오는 빛. 지우면 기존 화면으로 돌아가요. */
   look: { toneMapping:'aces', exposure:1.15, environment:0.6,
           hemisphere:{ sky:'#ffffff', ground:'#a7a39d', intensity:0.8 },   // ground: 아래에서 올라오는 빛 색(천장 밝기) — 어둡게 해서 천장이 벽보다 한 톤 어둡게
-          ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' },
+          ceiling:{ intensity:2.2, tilt:0, color:'#fffdf8' },   // tilt 0: 그림자가 물체 바로 아래로(비스듬한 그림자 없음)
+          shadow:{ intensity:0.5, mapSize:4096, radius:6, range:[-0.5, -1.5, 13, 13], noCastAbove:2.3 },   // 그림자: 연하게·촘촘하게, 실내 범위만, 천장 높이 물체는 그림자 없음
           ceilingTile:{ base:'#e2e2df', pits:1.2, pitSize:1.8, glow:0, halo:{ opacity:0.2, spread:0.45 } },   // 천장: 흡음 텍스 타일·T바 격자, 밝은 천장, LED 빛 번짐
           windowImages:[   // 소회의실 창: 창 크기에 꼭 맞춘 바깥 사진(사진 속 창처럼, photos/views)
             { src:'photos/views/seoul_win_north.webp', side:'north', from:0.22, to:1.62 },   // 북쪽 창: 유리 외벽 고층 건물(사용자 사진)

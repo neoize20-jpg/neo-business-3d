@@ -54,6 +54,21 @@ export function applyLook(look, { renderer, scene, walls = [], rooms = [], heigh
       const r = Math.max(size.x, size.z) / 2 + 1, sc = key.shadow.camera;
       sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.near = 2; sc.far = h + 6; sc.updateProjectionMatrix();
       key.shadow.radius = 4;
+      // 그림자 다듬기(look.shadow): 연하게, 촘촘하게(계단·끊김 줄임), 천장 높이 물체(조명 틀·천장판)는 그림자 안 만듦
+      const sh = cfg.shadow;
+      if (sh) {
+        if ('intensity' in key.shadow) key.shadow.intensity = sh.intensity ?? 0.55;
+        const ms = sh.mapSize ?? 4096; if (key.shadow.mapSize.x !== ms) { key.shadow.mapSize.set(ms, ms); key.shadow.map?.dispose(); key.shadow.map = null; }
+        key.shadow.radius = sh.radius ?? 6; key.shadow.bias = sh.bias ?? -0.0006; key.shadow.normalBias = sh.normalBias ?? 0.03;
+        if (sh.range) {   // 그림자 범위를 실내(지정 사각형)로 좁혀 해상도 높임: range [x0, z0, x1, z1]
+          const [x0, z0, x1, z1] = sh.range, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, rr = Math.max(x1 - x0, z1 - z0) / 2 + 0.5;
+          key.target.position.set(cx, 0, cz); key.position.set(cx + Math.sin(tilt) * h * 0.6, h, cz + Math.sin(tilt) * h * 0.8); key.target.updateMatrixWorld();
+          sc.left = -rr; sc.right = rr; sc.top = rr; sc.bottom = -rr; sc.updateProjectionMatrix();
+        }
+        const top = (sh.noCastAbove ?? 2.3), bb = new THREE.Box3(); let n = 0;
+        scene.traverse((m) => { if (m.isMesh && m.castShadow) { bb.setFromObject(m); if (bb.min.y > top) { m.castShadow = false; n++; } } });
+        window.__look = Object.assign(window.__look || {}, { noCast: n });
+      }
     }
   }
 
@@ -426,7 +441,17 @@ function cornerShade(opt, walls, H, scene) {
     const g = new THREE.PlaneGeometry(w, h); if (flip) { const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, 1 - uv.getY(i)); }
     const m = new THREE.Mesh(g, mat); m.position.copy(pos); m.rotation.set(rotX, rotY, 0, 'YXZ'); m.renderOrder = 1; m.userData.noCollide = true; group.add(m);
   };
-  for (const w of walls) {
+  // 문 자리로 나뉜 같은 줄의 벽 조각을 이어(틈 ≤ gap) 천장 쪽 그늘이 문 위에서 끊기지 않게
+  const solids = walls.filter((w) => w.type === 'solid').map((w) => ({ ...w }));
+  const bridged = [], gap = o.bridge ?? 2.2;
+  for (const w of solids) {
+    const horiz = Math.abs(w.z1 - w.z2) < 1e-6, a0 = horiz ? Math.min(w.x1, w.x2) : Math.min(w.z1, w.z2), a1 = horiz ? Math.max(w.x1, w.x2) : Math.max(w.z1, w.z2), fx = horiz ? w.z1 : w.x1;
+    const hit = bridged.find((q) => q.horiz === horiz && Math.abs(q.fx - fx) < 0.01 && Math.abs(q.t - w.t) < 0.01 && a0 <= q.a1 + gap && a1 >= q.a0 - gap);
+    if (hit) { hit.a0 = Math.min(hit.a0, a0); hit.a1 = Math.max(hit.a1, a1); } else bridged.push({ horiz, fx, t: w.t, a0, a1 });
+  }
+  const asWall = (q) => q.horiz ? { type: 'solid', t: q.t, x1: q.a0, x2: q.a1, z1: q.fx, z2: q.fx, ceilingOnly: true } : { type: 'solid', t: q.t, z1: q.a0, z2: q.a1, x1: q.fx, x2: q.fx, ceilingOnly: true };
+  const list = [...bridged.map(asWall), ...solids.map((w) => ({ ...w, floorOnly: true }))];
+  for (const w of list) {
     if (w.type !== 'solid') continue;
     const horiz = Math.abs(w.z1 - w.z2) < 1e-6, len = horiz ? Math.abs(w.x2 - w.x1) : Math.abs(w.z2 - w.z1);
     if (len < 0.1) continue;
@@ -435,12 +460,12 @@ function cornerShade(opt, walls, H, scene) {
     for (const sd of [-1, 1]) {
       const face = fixed + sd * (w.t / 2 + 0.002), rotY = horiz ? (sd > 0 ? 0 : Math.PI) : (sd > 0 ? Math.PI / 2 : -Math.PI / 2);
       const at = (y, off = 0) => horiz ? new THREE.Vector3(c, y, face + sd * off) : new THREE.Vector3(face + sd * off, y, c);
-      if (mc) {
+      if (mc && !w.floorOnly) {
         const s2 = o.ceiling.size;
         add(mc, ln, s2, at(H - s2 / 2), rotY);                                          // 벽 윗부분(천장 쪽이 진함)
         add(mc, ln, s2, at(H - 0.002, s2 / 2), rotY, Math.PI / 2, true);                  // 천장 가장자리(벽 쪽이 진함)
       }
-      if (mf) { const s3 = o.floor.size; add(mf, ln, s3, at(s3 / 2), rotY, 0, true); }   // 벽 아랫부분(바닥 쪽이 진함)
+      if (mf && !w.ceilingOnly) { const s3 = o.floor.size; add(mf, ln, s3, at(s3 / 2), rotY, 0, true); }   // 벽 아랫부분(바닥 쪽이 진함)
     }
   }
   scene.add(group);
