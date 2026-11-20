@@ -25,14 +25,15 @@ window.LAYOUT = {
   backdrop: [ { side:'north', dist:9 }, { side:'west', dist:9 } ],   // 북쪽(소회의실·회의실·교육장 창)·서쪽(소회의실 창) 창밖 하늘 + 도시
 
   /* 조명·색감 보정(look.js) — 실제 사진처럼 밝은 흰 공간, 천장 LED처럼 위에서 내려오는 빛. 지우면 기존 화면으로 돌아가요. */
-  look: { toneMapping:'aces', exposure:1.3, environment:0.6,
-          hemisphere:{ sky:'#ffffff', ground:'#e9e6e0', intensity:0.8 },
+  look: { toneMapping:'aces', exposure:1.15, environment:0.6,
+          hemisphere:{ sky:'#ffffff', ground:'#a7a39d', intensity:0.8 },   // ground: 아래에서 올라오는 빛 색(천장 밝기) — 어둡게 해서 천장이 벽보다 한 톤 어둡게
           ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' },
-          ceilingTile:{ base:'#e2e2df', pits:1.2, pitSize:1.8, glow:0.12, halo:{ opacity:0.18, spread:0.45 } },   // 천장: 흡음 텍스 타일·T바 격자, 밝은 천장, LED 빛 번짐
+          ceilingTile:{ base:'#e2e2df', pits:1.2, pitSize:1.8, glow:0, halo:{ opacity:0.2, spread:0.45 } },   // 천장: 흡음 텍스 타일·T바 격자, 밝은 천장, LED 빛 번짐
           windowImages:[   // 소회의실 창: 창 크기에 꼭 맞춘 바깥 사진(사진 속 창처럼, photos/views)
             { src:'photos/views/seoul_win_north.webp', side:'north', from:0.22, to:1.62 },   // 북쪽 창: 유리 외벽 고층 건물(사용자 사진)
             { src:'photos/views/seoul_win_west1.webp', side:'west',  from:0.24, to:2.46 },   // 서쪽 창 ①: 저층 건물·전봇대(IMG_0418)
             { src:'photos/views/seoul_win_west2.webp', side:'west',  from:3.05, to:5.38 } ],  // 서쪽 창 ②: 숲·고층 건물(IMG_0416)
+          cornerShade:{ ceiling:{ size:0.5, strength:0.3 }, floor:{ size:0.2, strength:0.15 } },   // 벽-천장·벽-바닥 모서리 그늘(면 구분)
           baseboard:{ rooms:['meeting','coaching','classroom'], color:'#1d1e21', h:0.08, depth:0.002 },   // 벽 아래 검은 칠(회의실·소회의실·교육장, 실측: 튀어나오지 않음)
           floor:{ base:'#cfccc6', size:1.0, angle:0 },   // 바닥 무늬: 한 방향 결이 있는 시트 장판(사진), 줄눈 없음
           reflection:{ roughness:0.55, intensity:0.5, tone:0.75, lights:3, planar:{ opacity:0.12, blur:0.011 } } },   // 바닥 은은한 광택(사진 기준). 숫자를 키우면 더 비침, 빼면 반사 없음

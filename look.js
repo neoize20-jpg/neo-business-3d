@@ -20,7 +20,7 @@ const DEFAULTS = {
   ceiling: { intensity: 2.2, tilt: 8, color: '#fffdf8' },
 };
 
-export function applyLook(look, { renderer, scene, walls = [], rooms = [] }) {
+export function applyLook(look, { renderer, scene, walls = [], rooms = [], height = 2.7 }) {
   if (!look) return;
   const cfg = { ...DEFAULTS, ...look,
     hemisphere: { ...DEFAULTS.hemisphere, ...(look.hemisphere || {}) },
@@ -66,6 +66,9 @@ export function applyLook(look, { renderer, scene, walls = [], rooms = [] }) {
 
   // 3-4) 3D 보기(위에서 내려다보기)에서는 창밖 풍경(하늘·도시 판, 창밖 사진)을 숨기고 걷기에서만 보여요
   if (cfg.hideOutsideInOrbit !== false) outsideOnlyWhenWalking(scene);
+
+  // 3-1b) 모서리 그늘: 벽-천장·벽-바닥이 만나는 곳을 살짝 어둡게(실시간으로는 계산되지 않는 구석 그늘을 흉내)
+  if (cfg.cornerShade) cornerShade(cfg.cornerShade, walls, height, scene);
 
   // 3-2) 벽 아래 검은 띠: 회의실·소회의실·교육장 벽 아랫부분 검은 칠(depth 를 키우면 튀어나온 걸레받이)
   if (cfg.baseboard) baseboards(cfg.baseboard, walls, rooms, scene);
@@ -401,4 +404,41 @@ function windowImages(list, scene) {
     m.name = 'windowImage'; m.userData.noCollide = true;
     scene.add(m);
   }
+}
+
+/* 모서리 그늘(look.cornerShade) — 벽 윗부분·천장 가장자리·벽 아랫부분에 부드럽게 사라지는 어두운 띠를 붙여요.
+   cornerShade: { ceiling: { size: 0.45, strength: 0.22 }, floor: { size: 0.18, strength: 0.12 } }
+     size: 띠 폭(m), strength: 모서리에서의 어둡기(0~1). 막힌 벽(solid)에만, 문 자리는 비움 */
+function cornerShade(opt, walls, H, scene) {
+  const o = { ceiling: { size: 0.45, strength: 0.22 }, floor: { size: 0.18, strength: 0.12 }, ...opt };
+  const grad = (strength) => {   // 위(v=1)가 진하고 아래로 사라지는 세로 그라데이션
+    const c = document.createElement('canvas'); c.width = 2; c.height = 64; const k = c.getContext('2d'), g = k.createLinearGradient(0, 0, 0, 64);
+    g.addColorStop(0, `rgba(40,38,36,${strength})`); g.addColorStop(0.35, `rgba(40,38,36,${strength * 0.45})`); g.addColorStop(1, 'rgba(40,38,36,0)');
+    k.fillStyle = g; k.fillRect(0, 0, 2, 64); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  };
+  const mk = (tex) => new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const mc = o.ceiling ? mk(grad(o.ceiling.strength)) : null, mf = o.floor ? mk(grad(o.floor.strength)) : null;
+  const group = new THREE.Group(); group.name = 'cornerShade';
+  const add = (mat, w, h, pos, rotY, rotX = 0, flip = false) => {
+    const g = new THREE.PlaneGeometry(w, h); if (flip) { const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, 1 - uv.getY(i)); }
+    const m = new THREE.Mesh(g, mat); m.position.copy(pos); m.rotation.set(rotX, rotY, 0, 'YXZ'); m.renderOrder = 1; m.userData.noCollide = true; group.add(m);
+  };
+  for (const w of walls) {
+    if (w.type !== 'solid') continue;
+    const horiz = Math.abs(w.z1 - w.z2) < 1e-6, len = horiz ? Math.abs(w.x2 - w.x1) : Math.abs(w.z2 - w.z1);
+    if (len < 0.1) continue;
+    const c = horiz ? (w.x1 + w.x2) / 2 : (w.z1 + w.z2) / 2, fixed = horiz ? w.z1 : w.x1;
+    for (const sd of [-1, 1]) {
+      const face = fixed + sd * (w.t / 2 + 0.002), rotY = horiz ? (sd > 0 ? 0 : Math.PI) : (sd > 0 ? Math.PI / 2 : -Math.PI / 2);
+      const at = (y, off = 0) => horiz ? new THREE.Vector3(c, y, face + sd * off) : new THREE.Vector3(face + sd * off, y, c);
+      if (mc) {
+        const s2 = o.ceiling.size;
+        add(mc, len, s2, at(H - s2 / 2), rotY);                                          // 벽 윗부분(천장 쪽이 진함)
+        add(mc, len, s2, at(H - 0.002, s2 / 2), rotY, Math.PI / 2, true);                  // 천장 가장자리(벽 쪽이 진함)
+      }
+      if (mf) { const s3 = o.floor.size; add(mf, len, s3, at(s3 / 2), rotY, 0, true); }   // 벽 아랫부분(바닥 쪽이 진함)
+    }
+  }
+  scene.add(group);
+  window.__look = Object.assign(window.__look || {}, { cornerShade: group.children.length });
 }
