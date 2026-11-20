@@ -1110,6 +1110,19 @@ function labelPlate(g, txt, sub, bg, fg, x, y, z) {   // 수납장 문 라벨(�
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   const m = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.09), new THREE.MeshBasicMaterial({ map: t })); m.position.set(x, y, z); m.rotation.y = Math.PI; g.add(m);
 }
+const APPLIANCES = new Map();
+function paperCup(parent, x, y, z) {
+  const cup = new THREE.Group(); cup.position.set(x,y,z); parent.add(cup); cup.visible = false; cup.userData.dynamic = true; cup.userData.noCollide = true;
+  const paper = std({color:0xfff9e9,roughness:0.85,side:THREE.DoubleSide});
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.044,0.031,0.12,28,1,true),paper); body.position.y=0.06;cup.add(body);
+  cyl(0.031,0.031,0.004,paper,0,0,0,28,cup);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(0.044,0.0025,8,28),paper);rim.rotation.x=Math.PI/2;rim.position.y=0.12;cup.add(rim);
+  return cup;
+}
+function appliancePart(parent, parts, x, y, z) {
+  const pivot=new THREE.Group();pivot.position.set(x,y,z);pivot.userData.dynamic=true;pivot.userData.noCollide=true;parent.add(pivot);
+  for(const p of parts){parent.remove(p);p.position.sub(pivot.position);pivot.add(p);}return pivot;
+}
 function photoPantry(g, o) {
   // Reference photo: viewed facing south, image-left is local +x.
   const w = o.w || 3.9, top = 0.91, black = plain(0x17191b), charcoal = plain(0x343638), silver = plain(0x9d9f9c), glass = std({color:0x171b20,roughness:0.18,metalness:0.22});
@@ -1120,7 +1133,11 @@ function photoPantry(g, o) {
     const p = new THREE.Mesh(new THREE.PlaneGeometry(ww, hh), new THREE.MeshBasicMaterial({map:t})); p.rotation.y = Math.PI; p.position.set(x, y + hh / 2, z); g.add(p);
   };
   box(w, 0.1, 0.56, M.paint, 0, 0, 0.02, g);
-  box(w, 0.78, 0.6, M.white, 0, 0.1, 0, g); box(w + 0.02, 0.03, 0.63, M.white, 0, 0.88, -0.015, g);
+  // Hollow under the sink: no solid countertop or cabinet crosses the basin.
+  box(w,0.52,0.6,M.white,0,0.1,0,g);
+  box(w,0.26,0.025,M.white,0,0.62,-0.2875,g);box(w,0.26,0.025,M.white,0,0.62,0.2875,g);
+  for(const [a,b] of [[-w/2-0.01,-1.06],[-0.5,w/2+0.01]]) box(b-a,0.03,0.63,M.white,(a+b)/2,0.88,-0.015,g);
+  box(0.56,0.03,0.135,M.white,-0.78,0.88,-0.2625,g);box(0.56,0.03,0.175,M.white,-0.78,0.88,0.2125,g);
   for (let i=1;i<6;i++) front(0.006,0.75,plain(0xb9b9b5),-w/2+i*w/6,0.11,-0.304);
   ['TRASH','PLASTIC','CAN / GLASS'].forEach((text,i)=>decal(0.26,0.14,w/2-(i+0.5)*w/6,0.55,-0.311,(k,W,H)=>{
     k.fillStyle='#eeece7';k.fillRect(0,0,W,H);k.strokeStyle='#aaa8a1';k.lineWidth=6;k.strokeRect(8,8,W-16,H-16);k.fillStyle='#777872';k.textAlign='center';k.font='40px sans-serif';k.fillText(text,W/2,H*0.76);k.strokeRect(W/2-28,45,56,90);for(let j=-1;j<=1;j++)k.fillRect(W/2+j*16-2,56,4,67);
@@ -1129,13 +1146,25 @@ function photoPantry(g, o) {
   box(w,0.8,0.36,M.white,0,1.74,0.12,g);
   for(let i=1;i<6;i++) front(0.006,0.79,plain(0xb9b9b5),-w/2+i*w/6,1.745,-0.063);
   // Microwave: broad black door, silver right-hand keypad (image-right = -x).
-  const mx=1.46; rbox(0.78,0.36,0.43,0.012,black,mx,top,-0.015,g);
-  front(0.76,0.33,M.white,mx,top+0.015,-0.234);
-  front(0.62,0.31,black,mx+0.06,top+0.025,-0.24);
-  front(0.43,0.22,glass,mx+0.055,top+0.07,-0.246);
+  const mx=1.46;
+  box(0.78,0.025,0.43,black,mx,top,-0.015,g);box(0.78,0.025,0.43,black,mx,top+0.335,-0.015,g);
+  for(const x of [mx-0.38,mx+0.38])box(0.02,0.31,0.43,black,x,top+0.025,-0.015,g);
+  box(0.74,0.31,0.015,silver,mx,top+0.025,0.19,g);
+  box(0.6,0.012,0.38,silver,mx+0.055,top+0.025,-0.015,g);
+  cyl(0.145,0.145,0.008,plain(0xd1d5d4),mx+0.055,top+0.039,-0.02,32,g);
+  front(0.13,0.33,M.white,mx-0.315,top+0.015,-0.234);
+  const microwaveDoorParts=[];
+  microwaveDoorParts.push(front(0.62,0.31,black,mx+0.06,top+0.025,-0.24));
+  microwaveDoorParts.push(front(0.43,0.22,glass,mx+0.055,top+0.07,-0.246));
+  microwaveDoorParts.push(box(0.025,0.22,0.035,M.metal,mx-0.20,top+0.07,-0.265,g));
   front(0.065,0.035,black,mx-0.326,top+0.255,-0.246);
   for(let row=0;row<5;row++)for(let col=0;col<2;col++)front(0.018,0.012,silver,mx-0.343+col*0.035,top+0.06+row*0.035,-0.246);
   decal(0.1,0.07,mx+0.29,top+0.24,-0.247,(k,W,H)=>{k.fillStyle='#282b2b';k.fillRect(0,0,W,H);k.fillStyle='#c6aa60';k.beginPath();k.arc(W/2,H/2,H*.4,0,7);k.fill();});
+  // Move the badge with the microwave door too.
+  microwaveDoorParts.push(g.children[g.children.length-1]);
+  const microwavePivot=appliancePart(g,microwaveDoorParts,mx+0.37,top,-0.24);
+  microwavePivot.userData.equipmentId='microwave';
+  APPLIANCES.set('microwave',{kind:'door',pivot:microwavePivot,axis:'y',angle:-1.65,cur:0,target:0,state:'closed'});
   // Coffee machine: drawer base, recessed dispensing bay, twin spouts and bean hopper.
   const cx=0.75; rbox(0.48,0.16,0.48,0.015,black,cx,top,-0.01,g);
   front(0.4,0.11,charcoal,cx,top+0.025,-0.254);front(0.19,0.017,silver,cx,top+0.05,-0.261);
@@ -1150,11 +1179,23 @@ function photoPantry(g, o) {
   decal(0.13,0.075,cx,top+0.455,-0.183,(k,W,H)=>{k.fillStyle='#192c4d';k.fillRect(0,0,W,H);k.fillStyle='#609bd4';k.fillRect(12,12,W-24,H-24);k.fillStyle='#eee';k.font='52px sans-serif';k.fillText('COFFEE',35,150);});
   box(0.25,0.09,0.2,std({color:0x574b3e,transparent:true,opacity:0.8,roughness:0.25}),cx,top+0.59,0.05,g);box(0.28,0.012,0.22,black,cx,top+0.68,0.05,g);
   decal(0.37,0.07,cx,top+0.57,-0.21,(k,W,H)=>{k.fillStyle='#17265d';k.fillRect(0,0,W,H);k.fillStyle='#fff';k.font='120px sans-serif';k.fillText('bliss',35,175);});
-  // Ice maker: rounded black lid, recessed viewing panel, silver lower bin.
-  const ix=0.24; rbox(0.43,0.48,0.44,0.045,charcoal,ix,top,0,g);
-  rbox(0.38,0.26,0.02,0.008,silver,ix,top+0.025,-0.225,g);
+  const coffeeCup=paperCup(g,cx,top+0.201,-0.255);
+  APPLIANCES.set('coffee',{kind:'cup',cup:coffeeCup,state:'empty'});
+  // Ice maker: hollow ice bin behind a front hatch that folds down.
+  const ix=0.24;
+  box(0.43,0.025,0.44,charcoal,ix,top,0,g);box(0.43,0.19,0.44,charcoal,ix,top+0.29,0,g);
+  for(const x of [ix-0.205,ix+0.205])box(0.02,0.28,0.44,charcoal,x,top+0.025,0,g);
+  box(0.39,0.27,0.02,charcoal,ix,top+0.025,0.21,g);
+  box(0.38,0.015,0.38,M.white,ix,top+0.027,0,g);
+  const iceHatch=rbox(0.38,0.26,0.02,0.008,silver,ix,top+0.025,-0.225,g);
+  const iceMaterial=std({color:0xc4e6ee,roughness:0.2,metalness:0.05,transparent:true,opacity:0.8});
+  for(let i=0;i<24;i++){const ice=box(0.055,0.045,0.05,iceMaterial,ix-0.14+(i%6)*0.055,top+0.05+Math.floor(i/12)*0.045,-0.15+Math.floor(i%12/6)*0.10,g);ice.rotation.set((i%3)*0.18,(i%5)*0.4,(i%4)*0.12);}
+  const icePivot=appliancePart(g,[iceHatch],ix,top+0.025,-0.225);
+  icePivot.userData.equipmentId='ice';
+  APPLIANCES.set('ice',{kind:'door',pivot:icePivot,axis:'x',angle:-1.1,cur:0,target:0,state:'closed'});
   const lid=box(0.35,0.16,0.025,black,ix,top+0.3,-0.175,g);lid.rotation.x=-0.28;
-  front(0.28,0.095,glass,ix,top+0.33,-0.205);front(0.09,0.012,M.metal,ix,top+0.255,-0.242);
+  front(0.28,0.095,glass,ix,top+0.33,-0.205);
+  box(0.09,0.012,0.015,M.metal,0,0.23,-0.017,icePivot);
   for(let j=-2;j<=2;j++)front(0.02,0.012,j===0?plain(0x80aab0):silver,ix+j*0.045,top+0.445,-0.163);
   // Cup stacks and slim dispensers between ice maker and sink.
   for(const xx of [-0.09,-0.23]){
@@ -1166,8 +1207,15 @@ function photoPantry(g, o) {
   cyl(0.055,0.045,0.1,M.metal,-0.16,top,-0.2,20,g);box(0.14,0.025,0.09,plain(0xf4efd0),-0.37,top,-0.21,g);
   // Sink, short mixer tap, and separate tall square purifier spout to its image-left.
   const sx=-0.78;
-  rbox(0.64,0.014,0.4,0.006,M.metal,sx,top,-0.035,g);
-  rbox(0.56,0.006,0.32,0.002,plain(0x333737),sx,top+0.014,-0.035,g);
+  // Actual recessed bowl: thin rim, four inside walls, bottom and drain 19 cm below the counter.
+  const basin=std({color:0x7b8588,roughness:0.35,metalness:0.7});
+  for(const x of [sx-0.30,sx+0.30])box(0.04,0.012,0.4,M.metal,x,top,-0.035,g);
+  for(const z of [-0.215,0.145])box(0.56,0.012,0.04,M.metal,sx,top,z,g);
+  for(const x of [sx-0.277,sx+0.277])box(0.006,0.19,0.32,basin,x,top-0.19,-0.035,g);
+  for(const z of [-0.192,0.122])box(0.56,0.19,0.006,basin,sx,top-0.19,z,g);
+  box(0.56,0.008,0.32,basin,sx,top-0.198,-0.035,g);
+  cyl(0.037,0.037,0.004,M.metal,sx,top-0.189,-0.035,24,g);
+  for(let i=0;i<6;i++)cyl(0.003,0.003,0.004,black,sx+Math.cos(i)*0.023,top-0.185,-0.035+Math.sin(i)*0.023,8,g);
   const fx=sx-0.07;cyl(0.03,0.034,0.13,M.metal,fx,top,0.18,18,g);
   box(0.065,0.035,0.15,M.metal,fx,top+0.09,0.115,g);box(0.02,0.015,0.1,M.metal,fx,top+0.16,0.15,g);
   const px=sx+0.34;
@@ -1175,6 +1223,11 @@ function photoPantry(g, o) {
   box(0.21,0.04,0.055,M.metal,px-0.087,top+0.29,0.13,g);
   box(0.032,0.04,0.035,M.metal,px-0.175,top+0.255,0.12,g);
   front(0.04,0.016,black,px-0.11,top+0.3,0.099);
+  const waterCup=paperCup(g,px-0.175,top+0.014,0.12);
+  const waterMat=std({color:0x80cee9,transparent:true,opacity:0.65,roughness:0.12});
+  const fill=cyl(0.039,0.03,0.1,waterMat,0,0.005,0,28,waterCup);fill.scale.y=0.01;
+  const stream=cyl(0.004,0.004,0.135,waterMat,px-0.175,top+0.12,0.12,10,g);stream.visible=false;stream.userData.dynamic=true;stream.userData.noCollide=true;
+  APPLIANCES.set('water',{kind:'water',cup:waterCup,fill,stream,elapsed:0,state:'empty'});
   decal(0.34,0.19,-0.59,1.38,0.273,(k,W,H)=>{k.fillStyle='#dddcd7';k.fillRect(0,0,W,H);k.strokeStyle='#8c8b84';k.lineWidth=4;k.strokeRect(5,5,W-10,H-10);k.fillStyle='#77776f';for(let y=35;y<220;y+=26)k.fillRect(80,y,350-(y%3)*45,5);k.fillRect(20,25,30,190);});
 }
 function pantry(g, o) {   // 탕비 카운터(사진 IMG_0386): 뒤(벽) = 로컬 +z. 동쪽(+x) 끝부터 전자레인지 → 커피머신 → 얼음통 → 싱크(서쪽, 가벽 쪽)
@@ -1644,7 +1697,7 @@ qb.onclick = () => { const nq = HIGH ? 'low' : 'high'; localStorage.setItem('neo
 
 /* ---------------- input ---------------- */
 const keys = {};
-addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'KeyE' && !e.repeat && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
+addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'KeyE' && !e.repeat && !useAppliance() && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
 addEventListener('keyup', (e) => { keys[e.code] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const cv = renderer.domElement; let drag = null;
@@ -1730,7 +1783,7 @@ const EQUIP = (L.equipment || []).map((e) => ({ ...e, bx: (e.boxes || [e.box]).f
 const tipEl = document.createElement('div'); tipEl.id = 'equipTip'; document.body.appendChild(tipEl);
 const tipRay = new THREE.Raycaster(), tipNdc = new THREE.Vector2(), tipV = new THREE.Vector3(); let tipBox = null; let tipMouse = null, tipLast = 0, tipCur = null;
 renderer.domElement.addEventListener('mousemove', (e) => { tipMouse = [e.clientX, e.clientY]; });
-renderer.domElement.addEventListener('mouseleave', () => { tipMouse = null; });
+renderer.domElement.addEventListener('mouseleave', (e) => { if(e.relatedTarget?.id !== 'applianceUse') tipMouse = null; });
 const visibleUp = (o) => { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; };
 function findEquip(p) {
   for (const e of EQUIP) for (const b of e.bx) { const t = 0.06;
@@ -1743,7 +1796,11 @@ function updateTip(now) {
   if (locked) { sx = innerWidth / 2; sy = innerHeight / 2; } else if (tipMouse) { [sx, sy] = tipMouse; } else { tipEl.classList.remove('on'); tipCur = null; return; }
   tipNdc.set(sx / innerWidth * 2 - 1, -(sy / innerHeight) * 2 + 1); tipRay.setFromCamera(tipNdc, camera); tipRay.far = 9;
   const hits = tipRay.intersectObject(root, true); let e = null;
-  for (const h of hits) { if (h.object.isSprite || h.object.userData.noPick || !visibleUp(h.object)) continue; e = findEquip(h.point); break; }
+  for (const h of hits) {
+    if (h.object.isSprite || h.object.userData.noPick || !visibleUp(h.object)) continue;
+    let id;for(let p=h.object;p;p=p.parent)if(p.userData.equipmentId){id=p.userData.equipmentId;break;}
+    e=id?EQUIP.find(v=>v.id===id):findEquip(h.point);if(id&&e)tipBox=e.bx[0];break;
+  }
   if (!e) { tipEl.classList.remove('on'); tipCur = null; return; }
   if (tipCur !== e) { tipEl.innerHTML = `<b>${e.name}</b>${e.room ? `<small>${e.room}</small>` : ''}` + (e.lines || []).map((l) => `<div>${l}</div>`).join(''); tipCur = e; }
   // 카드 위치: 장비 상자 윗면 가운데를 화면에 투영해 그 바로 위, 가로 가운데 (화면 밖으로 안 나가게)
@@ -1755,6 +1812,38 @@ function updateTip(now) {
   tipEl.classList.add('on');
 }
 window.__tip = (x, y) => { tipMouse = [x, y]; tipLast = 0; updateTip(performance.now() + 1000); return tipCur && tipCur.name; };
+
+/* ---------------- pantry appliance interactions ---------------- */
+const useBtn=document.createElement('button');useBtn.id='applianceUse';useBtn.hidden=true;
+Object.assign(useBtn.style,{position:'fixed',left:'50%',top:'72%',transform:'translateX(-50%)',zIndex:10,border:'2px solid white',borderRadius:'12px',padding:'11px 18px',background:'#0B2E67',color:'white',font:'700 15px Pretendard,sans-serif',cursor:'pointer'});
+if(APPLIANCES.size)document.body.appendChild(useBtn);
+const actionLabel=(id,a)=>a.kind==='door'?(a.target?'닫기':'열기'):a.kind==='cup'?(a.cup.visible?'종이컵 치우기':'종이컵 올리기'):a.state==='empty'?'종이컵 대고 물받기':a.state==='filling'?'물 받는 중…':'종이컵 치우기';
+function activeAppliance(){
+  if(flight||!tipCur)return null;
+  const a=APPLIANCES.get(tipCur.id);if(!a)return null;
+  const b=tipCur.bx[0];if(camera.position.distanceTo(new THREE.Vector3((b[0]+b[2])/2,(b[4]+b[5])/2,(b[1]+b[3])/2))>3.2)return null;
+  return {id:tipCur.id,a};
+}
+function useAppliance(){
+  const current=activeAppliance();if(!current)return false;
+  const {a}=current;
+  if(a.kind==='door'){a.target=1-a.target;a.state=a.target?'open':'closed';}
+  else if(a.kind==='cup'){a.cup.visible=!a.cup.visible;a.state=a.cup.visible?'placed':'empty';}
+  else if(a.state==='empty'){a.cup.visible=true;a.stream.visible=true;a.elapsed=0;a.state='filling';}
+  else if(a.state==='full'){a.cup.visible=false;a.state='empty';a.fill.scale.y=0.01;}
+  return true;
+}
+useBtn.addEventListener('pointerdown',e=>e.stopPropagation());useBtn.addEventListener('click',e=>{e.stopPropagation();useAppliance();});
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){tipMouse=[e.clientX,e.clientY];tipLast=0;updateTip(performance.now()+1000);}});
+function updateAppliances(dt){
+  for(const a of APPLIANCES.values()){
+    if(a.kind==='door'){a.cur=THREE.MathUtils.damp(a.cur,a.target,9,dt);a.pivot.rotation[a.axis]=a.cur*a.angle;}
+    if(a.kind==='water'&&a.state==='filling'){a.elapsed+=dt;const f=Math.min(1,a.elapsed/3);a.fill.scale.y=0.02+0.98*f;a.fill.position.y=0.005+0.05*a.fill.scale.y;if(f===1){a.stream.visible=false;a.state='full';}}
+  }
+  const current=activeAppliance();useBtn.hidden=!current;
+  if(current){useBtn.textContent=(TOUCH?'':'E · ')+'사용하기 — '+actionLabel(current.id,current.a);useBtn.disabled=current.a.state==='filling';}
+}
+window.__applianceState=()=>Object.fromEntries([...APPLIANCES].map(([id,a])=>[id,{state:a.state,open:a.cur??null,cup:a.cup?.visible??false,water:a.fill?.scale.y??0}]));
 
 /* ---------------- minimap ---------------- */
 const mm = document.getElementById('minimap'), mctx = mm.getContext('2d'), dpr = Math.min(devicePixelRatio, 2);
@@ -1830,6 +1919,7 @@ function tick() {
   if (flight) stepFlight(dt); else if (mode === 'walk') step(dt); else if (mode === 'orbit') controls.update();
   updateDoors(dt);
   updateScreens(dt);
+  updateAppliances(dt);
   setCut(mode === 'orbit' || (mode === 'fly' && camera.position.y > H - 0.1));
   if (frame++ % 6 === 0) {
     updateLabels();
