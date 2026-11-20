@@ -63,6 +63,9 @@ export function applyLook(look, { renderer, scene, walls = [], rooms = [] }) {
   // 3-3) 창밖 사진: 지정한 창 밖에 실제 사진 풍경(가장자리는 기존 하늘·도시 배경으로 녹아듦)
   if (cfg.windowViews) windowViews(cfg.windowViews, scene);
 
+  // 3-4) 3D 보기(위에서 내려다보기)에서는 창밖 풍경(하늘·도시 판, 창밖 사진)을 숨기고 걷기에서만 보여요
+  if (cfg.hideOutsideInOrbit !== false) outsideOnlyWhenWalking(scene);
+
   // 3-2) 벽 아래 검은 띠: 회의실·소회의실·교육장 벽 아랫부분 검은 칠(depth 를 키우면 튀어나온 걸레받이)
   if (cfg.baseboard) baseboards(cfg.baseboard, walls, rooms, scene);
 
@@ -361,4 +364,19 @@ function windowViews(list, scene) {
     m.name = 'windowView'; m.userData.noCollide = true; m.renderOrder = -1;
     scene.add(m);
   }
+}
+
+// 창밖 풍경 판(backdrop 의 하늘·도시, windowViews 사진 — 둘 다 fog:false 인 MeshBasicMaterial)을 3D 보기에서 숨겨요.
+function outsideOnlyWhenWalking(scene) {
+  const planes = [];
+  scene.traverse((m) => { if (m.isMesh && m.material?.isMeshBasicMaterial && m.material.fog === false && m.geometry?.type === 'PlaneGeometry') planes.push(m); });
+  if (!planes.length) return;
+  let last = null;
+  const loop = () => {
+    requestAnimationFrame(loop);
+    const show = !document.body.classList.contains('orbit');
+    if (show !== last) { for (const m of planes) m.visible = show; last = show; }
+  };
+  requestAnimationFrame(loop);
+  window.__look = Object.assign(window.__look || {}, { outsidePlanes: planes.length });
 }
