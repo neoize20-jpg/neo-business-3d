@@ -27,10 +27,10 @@ window.LAYOUT = {
       card:{ photos:[], desc:'9층 출입구(북쪽 벽 비상구 표시 아래 유리문)예요. 들어와서 초록 경로를 따라 북쪽 복도를 동쪽으로 가면 끝에 교육장 문이 있어요. 화장실은 서쪽 복도 끝 왼쪽 문이에요.' } },
     { id:'corridor', name:'복도', en:'Corridor', small:true, rect:[0, 2.0, 10.0, 4.8], rects:[[0, 4.8, 2.64, 7.01]], floor:'floor',
       label:[6.6, 3.4], jump:{ x:4.2, z:3.4, look:[10.0, 3.3] }, card:{ photos:[], desc:'입구에서 교육장까지 이어지는 복도예요. 서쪽 복도 끝 왼쪽(서쪽 벽)에 화장실 문이 있어요.' } },
-    { id:'instructor', name:'회의실', en:'Instructor Room', small:true, noEntry:true, rect:[4.65, 4.8, 10.0, 6.34], floor:'floor', label:[7.3, 5.57],
-      jump:{ x:7.3, z:5.28, look:[10.0, 5.28] }, card:{ photos:[], desc:'복도와 교육장 사이의 회의실 (출입 불가).' } },
-    { id:'office', name:'직원 사무실', en:'Staff Office', small:true, noEntry:true, rect:[0, 7.01, 10.0, 13.52], rects:[[2.64, 6.34, 10.0, 7.01], [2.64, 4.8, 4.65, 6.34]], floor:'floor', label:[5.0, 9.9],
-      jump:{ x:5.0, z:9.9, look:[10.0, 9.9] }, card:{ photos:[], desc:'건물 남서쪽 직원 사무실 (출입 불가).' } }
+    { id:'instructor', name:'회의실', en:'Meeting Room', small:true, noEntry:true, rect:[4.65, 4.8, 10.0, 8.4], floor:'floor', label:[7.3, 6.6],
+      jump:{ x:5.5, z:6.6, look:[9.8, 6.6] }, card:{ photos:[], desc:'복도와 교육장 사이의 회의실 (출입 불가).' } },
+    { id:'office', name:'직원 사무실', en:'Staff Office', small:true, noEntry:true, rect:[0, 8.4, 10.0, 13.52], rects:[[0, 7.01, 4.65, 8.4], [2.64, 4.8, 4.65, 7.01]], floor:'floor', label:[5.0, 10.9],
+      jump:{ x:5.0, z:10.9, look:[10.0, 10.9] }, card:{ photos:[], desc:'건물 남서쪽 직원 사무실 (출입 불가).' } }
   ],
 
   start: { mode:'orbit', room:'entrance' },
@@ -69,8 +69,8 @@ window.LAYOUT = {
     { from:[2.64, 4.8], to:[2.64, 7.01], type:'solid' },
     { from:[0, 7.01], to:[2.64, 7.01], type:'solid' },   // 서쪽 복도 끝
     // 회의실
-    { from:[4.65, 4.8], to:[4.65, 6.34], type:'solid' },
-    { from:[4.65, 6.34], to:[10.0, 6.34], type:'solid' },
+    { from:[4.65, 4.8], to:[4.65, 8.4], type:'solid' },
+    { from:[4.65, 8.4], to:[10.0, 8.4], type:'solid' },
     // 교육장 서쪽(스크린) 벽: 북쪽 끝(z2.25–3.25)에 교육장 문
     { from:[10.0, 2.0], to:[10.0, 13.52], type:'solid',
       openings:[ { at:2.86, width:0.92, door:'wood', vision:'panel', frame:'white', casing:0.06, hinge:'end', swing:-88 } ] }   // 북쪽 복도 끝 = 교육장 문(사진 busan_corr_photo_wide: 벽 가운데쯤, 레버 왼쪽=북쪽 → 경첩 오른쪽=남쪽, 복도에서 교육장 쪽으로 밀어서 열림)
@@ -166,6 +166,11 @@ window.LAYOUT = {
     { type:'cafeTable', x:13.9, z:2.5, w:1.4, d:0.7 },
     { type:'speaker', x:10.75, z:2.12, rot:180, color:'white', w:0.22, h:0.3, d:0.16, top:2.55 },   // 흰 벽 스피커(사진)
     { type:'wallPlate', x:10.08, z:4.12, rot:-90, w:0.21, h:0.3, y:1.3 },                          // 문 옆 안내문(사진, 교육장 안쪽)
-    { type:'wallPlate', x:9.92, z:4.12, rot:90, w:0.21, h:0.3, y:1.3 }                             // 문 옆 안내문(복도 쪽)
-  ]
+    { type:'wallPlate', x:9.92, z:4.12, rot:90, w:0.21, h:0.3, y:1.3 ,}                             // 문 옆 안내문(복도 쪽)
+  /* --- 회의실 가구 --- */
+   { type:'cafeTable', x:6.25, z:6.65, w:1.7, d:1.2 },
+{ type:'cafeTable', x:7.95, z:6.65, w:1.7, d:1.2 },
+{ type:'chair', x:5.9, z:5.9, rot:180 },
+{ type:'chair', x:6.7, z:5.9, rot:180 }, { type:'chair', x:7.5, z:5.9, rot:180 }, { type:'chair', x:8.3, z:5.9, rot:180 },
+{ type:'chair', x:5.9, z:7.4, rot:0 }, { type:'chair', x:6.7, z:7.4, rot:0 }, { type:'chair', x:7.5, z:7.4, rot:0 }, { type:'chair', x:8.3, z:7.4, rot:0 } ]
 };
