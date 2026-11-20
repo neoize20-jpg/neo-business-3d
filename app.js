@@ -974,7 +974,40 @@ function speaker(g, o) {
 }
 function screen(g, o) { const w = o.w || 2.2; box(w + 0.06, 1.46, 0.015, M.black, 0, 0.92, 0.01, g); box(w, 1.4, 0.02, M.screen, 0, 0.95, -0.01, g); box(w + 0.2, 0.12, 0.14, M.black, 0, 2.38, -0.04, g); }
 function tvStand(g) { box(1.3, 0.75, 0.07, M.tv, 0, 0.55, 0, g); box(0.05, 0.6, 0.05, M.black, -0.45, 0, 0, g); box(0.05, 0.6, 0.05, M.black, 0.45, 0, 0, g); box(1.1, 0.04, 0.5, M.black, 0, 0, 0, g); }
+// 백라이트 디스플레이 월: 앞면 = 로컬 -z, 뒤(+z)가 벽. 판 네 변 뒤에 숨은 LED가 벽을 따뜻하게 비춤
+function tvWallBacklit(g, o) {
+  const w = o.w || 2.5, y0 = 0.35, h = 1.95, d = 0.1, back = o.wallGap ?? 0.05, off = o.standoff ?? 0.04;   // back: 배치 중심에서 벽면까지(m), off: 판을 벽에서 띄우는 거리(m)
+  box(w, h, d, std({ color: 0xe6e6e3, roughness: 0.55 }), 0, y0, -off, g);            // 판: 벽보다 살짝 회색, 반광
+  // 판 테두리 뒤쪽 LED 띠(옆에서 보면 판 가장자리 뒤가 밝게 빛남)
+  const led = new THREE.MeshBasicMaterial({ color: 0xfff1d6, toneMapped: false });
+  for (const [bw, bh, x, y] of [[w - 0.04, 0.012, 0, y0 + 0.01], [w - 0.04, 0.012, 0, y0 + h - 0.022], [0.012, h - 0.04, -w / 2 + 0.01, y0 + 0.02], [0.012, h - 0.04, w / 2 - 0.022, y0 + 0.02]]) box(bw, bh, 0.02, led, x, y, d / 2 - off + 0.012, g);
+  // 벽에 번진 빛: 판보다 큰 둥근 사각형 빛무리(가장자리로 갈수록 사라짐), 판 뒤 벽면에 붙임
+  const S = 256, c = document.createElement('canvas'); c.width = c.height = S; const k = c.getContext('2d'), img = k.createImageData(S, S);
+  const pad = o.glowSize ?? 0.42, gw = w + pad * 2, gh = h + pad * 2, ix = w / gw, iy = h / gh;
+  for (let yy = 0; yy < S; yy++) for (let xx = 0; xx < S; xx++) {
+    const u = Math.abs((xx + 0.5) / S - 0.5) * 2, v = Math.abs((yy + 0.5) / S - 0.5) * 2;
+    const du = Math.max(0, (u - ix) / (1 - ix)), dv = Math.max(0, (v - iy) / (1 - iy)), dd = Math.min(1, Math.hypot(du, dv));
+    const top = yy < S / 2 ? 1.15 : 0.9, a = Math.pow(1 - dd, 2.4) * top, i = (yy * S + xx) * 4;
+    img.data[i] = 255; img.data[i + 1] = 196; img.data[i + 2] = 128; img.data[i + 3] = Math.min(255, Math.round(a * 255));
+  }
+  k.putImageData(img, 0, 0);
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(gw, gh), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, opacity: o.glow ?? 0.85, toneMapped: false }));   // 흰 벽 위라 더하기 대신 따뜻한 색을 덮어 노란 빛 번짐
+  halo.position.set(0, y0 + h / 2, back - 0.004); halo.rotation.y = Math.PI; halo.userData.keep = true; halo.userData.noCollide = true; halo.renderOrder = 3; g.add(halo);
+  // TV: 검은 베젤 + 화면(행사 슬라이드)
+  const tw = o.tvW || 1.25, th = tw * 9 / 16, ty = o.tvY ?? 1.0;
+  box(tw + 0.03, th + 0.03, 0.045, std({ color: 0x111316, roughness: 0.35, metalness: 0.2 }), 0, ty - 0.015, -0.07 - off, g);
+  const sc = document.createElement('canvas'); sc.width = 640; sc.height = 360; const q = sc.getContext('2d');
+  const gr = q.createLinearGradient(0, 0, 640, 360); gr.addColorStop(0, '#163a4a'); gr.addColorStop(1, '#0d2533'); q.fillStyle = gr; q.fillRect(0, 0, 640, 360);
+  q.fillStyle = '#ff6a1a'; q.beginPath(); q.moveTo(560, 360); q.lineTo(640, 280); q.lineTo(640, 360); q.fill();
+  q.fillStyle = '#ffffff'; q.font = '700 34px Pretendard, sans-serif'; q.textBaseline = 'top';
+  (o.screenText || ['2024년도', '네오아이즈', '하반기 전략회의']).forEach((t, i) => q.fillText(t, 48, 52 + i * 42));
+  q.font = '500 15px Pretendard, sans-serif'; q.fillStyle = 'rgba(255,255,255,0.8)'; q.fillText('•  일시 : 2024년 7월 22일 09:00', 52, 238); q.fillText('•  장소 : NEOFUL BUSINESS SPACE', 52, 262);
+  const st = new THREE.CanvasTexture(sc); st.colorSpace = THREE.SRGBColorSpace;
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(tw, th), new THREE.MeshBasicMaterial({ map: st, toneMapped: false, color: new THREE.Color().setScalar(0.9) }));
+  scr.position.set(0, ty + th / 2, -0.094 - off); scr.rotation.y = Math.PI; scr.userData.keep = true; g.add(scr);
+}
 function tvWall(g, o) {
+  if (o.backlit) return tvWallBacklit(g, o);   // backlit:true = 벽에서 띄운 판 + 네 변 뒤 LED 간접조명(서울 입구 사진). 생략하면 기존 그대로
   const w = o.w || 2.5; box(w, 1.95, 0.1, M.white, 0, 0.35, 0, g);
   box(1.25, 0.72, 0.04, M.tv, 0, 1.0, -0.07, g);
   box(w - 0.1, 0.025, 0.03, M.glow, 0, 0.37, -0.07, g); box(w - 0.1, 0.025, 0.03, M.glow, 0, 2.26, -0.07, g);

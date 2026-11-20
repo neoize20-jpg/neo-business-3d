@@ -369,7 +369,7 @@ window.LAYOUT = {
     { type:'purifier', x:7.4, z:8.8 },                                    // 공기청정기(라운지와 같은 모델)
     { type:'block', x:10.45, z:5.3, w:0.12, d:0.12, h:0.006, color:'metal' },   // 바닥 콘센트 커버
     // 교육장 입구(라운지 쪽): 문 왼쪽 백라이트 TV 패널 + 배너, 오른쪽 슬랫 + 화분
-    { type:'tvWall', x:9.85, z:9.38, w:2.0, rot:180 },
+    { type:'tvWall', x:9.85, z:9.38, w:2.0, rot:180, backlit:true },   // 벽에서 띄운 판 + 네 변 LED 간접조명 + 행사 슬라이드 TV(입구 사진)
     { type:'signStand', x:10.35, z:9.85 },
     { type:'signStand', x:10.7, z:9.85 },
     { type:'slats', from:[12.0, 9.37], to:[12.2, 9.37], h:2.6, count:3 },
