@@ -6,7 +6,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
 import { makeTextures, textTexture } from './textures.js?v=11191830';
-import { applyLook } from './look.js?v=11202700';   // layout 에 look 이 있는 교육장만 조명·색감 보정
+import { applyLook } from './look.js?v=11202800';   // layout 에 look 이 있는 교육장만 조명·색감 보정
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -1048,8 +1048,12 @@ function tvWallBacklit(g, o) {
   const gr = q.createLinearGradient(0, 0, 640, 360); gr.addColorStop(0, '#163a4a'); gr.addColorStop(1, '#0d2533'); q.fillStyle = gr; q.fillRect(0, 0, 640, 360);
   q.fillStyle = '#ff6a1a'; q.beginPath(); q.moveTo(560, 360); q.lineTo(640, 280); q.lineTo(640, 360); q.fill();
   q.fillStyle = '#ffffff'; q.font = '700 34px Pretendard, sans-serif'; q.textBaseline = 'top';
-  (o.screenText || ['2024년도', '네오아이즈', '하반기 전략회의']).forEach((t, i) => q.fillText(t, 48, 52 + i * 42));
-  q.font = '500 15px Pretendard, sans-serif'; q.fillStyle = 'rgba(255,255,255,0.8)'; q.fillText('•  일시 : 2024년 7월 22일 09:00', 52, 238); q.fillText('•  장소 : NEOFUL BUSINESS SPACE', 52, 262);
+  if (o.screenText && o.screenText.length === 1) {   // 문구 한 줄: 화면 가운데 크게(예: ['네오아이즈'])
+    q.font = '800 72px Pretendard, sans-serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText(o.screenText[0], 320, 176);
+  } else {
+    (o.screenText || ['2024년도', '네오아이즈', '하반기 전략회의']).forEach((t, i) => q.fillText(t, 48, 52 + i * 42));
+    if (!o.screenText) { q.font = '500 15px Pretendard, sans-serif'; q.fillStyle = 'rgba(255,255,255,0.8)'; q.fillText('•  일시 : 2024년 7월 22일 09:00', 52, 238); q.fillText('•  장소 : NEOFUL BUSINESS SPACE', 52, 262); }
+  }
   const st = new THREE.CanvasTexture(sc); st.colorSpace = THREE.SRGBColorSpace;
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(tw, th), new THREE.MeshBasicMaterial({ map: st, toneMapped: false, color: new THREE.Color().setScalar(0.9) }));
   scr.position.set(0, ty + th / 2, -0.094 - off); scr.rotation.y = Math.PI; scr.userData.keep = true; g.add(scr);
