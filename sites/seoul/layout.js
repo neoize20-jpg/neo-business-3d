@@ -25,7 +25,8 @@ window.LAYOUT = {
   /* 조명·색감 보정(look.js) — 실제 사진처럼 밝은 흰 공간, 천장 LED처럼 위에서 내려오는 빛. 지우면 기존 화면으로 돌아가요. */
   look: { toneMapping:'aces', exposure:1.3, environment:0.6,
           hemisphere:{ sky:'#ffffff', ground:'#e9e6e0', intensity:0.8 },
-          ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' } },
+          ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' },
+          reflection:{ roughness:0.3, intensity:0.9, tone:0.75, lights:6, planar:{ opacity:0.45, blur:0.005 } } },   // 바닥에 천장 조명·가구가 비침(빼면 반사 없음)
 
   /* ---------- 2. 방(구역) ----------
      id      : 내부 이름(영문, 바꾸지 마세요)
