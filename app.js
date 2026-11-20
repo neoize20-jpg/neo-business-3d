@@ -697,7 +697,20 @@ function deskPair(g, o) {   // 책상 + 뒤쪽 의자 n개(기본 2), 의자는 
 }
 function extinguisher(g) { cyl(0.075, 0.075, 0.5, plain(0xd8261c), 0, 0, 0, 16, g); cyl(0.03, 0.04, 0.06, M.black, 0, 0.5, 0, 10, g); box(0.12, 0.02, 0.03, M.black, 0.03, 0.56, 0, g); box(0.08, 0.1, 0.005, M.white, 0, 0.25, -0.076, g); }
 function elevator(g, o) {   // 엘리베이터: 벽판 + 스테인리스 문 2짝 + 프레임 + 호출 버튼 + 층 표시 (정면 = 로컬 -z)
-  if (!o || !o.noPanel) box(2.4, H, 0.12, plain(0xe4e1da), 0, 0, 0.06, g);
+  if (o && o.recessed) {
+  const st = new THREE.MeshStandardMaterial({ color: 0xc5cad0, metalness: 0.8, roughness: 0.25 });
+const dm = new THREE.MeshStandardMaterial({ color: 0x8a9096, metalness: 0.7, roughness: 0.28 });
+box(0.10, 2.24, 0.14, st, -0.60, 0, -0.05, g);
+box(0.10, 2.24, 0.14, st,  0.60, 0, -0.05, g);
+box(1.30, 0.12, 0.14, st,  0, 2.12, -0.05, g);
+box(0.53, 2.12, 0.02, dm, -0.27, 0, -0.01, g);
+box(0.53, 2.12, 0.02, dm,  0.27, 0, -0.01, g);
+box(0.06, 0.12, 0.02, M.black, 0.8, 1.1, -0.01, g);
+cyl(0.015, 0.015, 0.01, plain(0xffffff), 0.8, 1.15, -0.02, 10, g);
+g.userData.noBlob = true;
+return;
+  }
+   if (!o || !o.noPanel) box(2.4, H, 0.12, plain(0xe4e1da), 0, 0, 0.06, g);
   const st = M.chrome || (M.chrome = std({ color: 0xd9dde2, metalness: 0.9, roughness: 0.18 }));
   const dm = o && o.dark ? (M.evDark || (M.evDark = std({ color: 0x34373c, metalness: 0.6, roughness: 0.35 }))) : st;
   box(1.2, 2.2, 0.06, o && o.dark ? (M.steel || st) : plain(0xb9bcc0), 0, 0, -0.02, g); box(0.53, 2.1, 0.02, dm, -0.27, 0, -0.06, g); box(0.53, 2.1, 0.02, dm, 0.27, 0, -0.06, g);
@@ -710,7 +723,44 @@ function elevator(g, o) {   // 엘리베이터: 벽판 + 스테인리스 문 2�
   g.userData.noBlob = true;
 }
 function restroom(g, o = {}) {   // 화장실 표시: 문 + 남/녀 픽토그램 판 (정면 = 로컬 -z), kind:'f'|'m' = 여자/남자 하나만
-  box(o.w || 1.0, 2.1, 0.04, plain(o.doorColor ? new THREE.Color(o.doorColor).getHex() : 0xd5d0c6), 0, 0, -0.02, g); box(0.02, 0.2, 0.03, M.metal, 0.38, 0.95, -0.05, g);
+  if (o && o.frosted) {
+  const w = o.w || 0.95;
+const st = new THREE.MeshStandardMaterial({ color: 0xc8cdd2, metalness: 0.85, roughness: 0.22 });
+box(0.06, 2.38, 0.08, st, -w / 2 - 0.03, 0, -0.02, g);
+box(0.06, 2.38, 0.08, st,  w / 2 + 0.03, 0, -0.02, g);
+box(w + 0.12, 0.06, 0.08, st, 0, 2.32, -0.02, g);
+box(w + 0.06, 0.06, 0.06, st, 0, 2.04, -0.02, g);
+box(w + 0.06, 0.05, 0.06, st, 0, 0, -0.02, g);
+for (let i = 0; i < 4; i++) box(w, 0.018, 0.03, st, 0, 2.12 + i * 0.05, -0.02, g);
+const c = document.createElement('canvas'); c.width = 256; c.height = 512; const k = c.getContext('2d');
+k.fillStyle = '#d4d9dc'; k.fillRect(0, 0, 256, 512);
+k.fillStyle = '#22262a'; k.font = '600 22px Pretendard, sans-serif'; k.textAlign = 'center';
+k.fillText(o.kind === 'f' ? 'Women' : 'Men', 128, 92);
+k.strokeStyle = '#22262a'; k.lineWidth = 7; k.lineCap = 'round'; k.lineJoin = 'round';
+k.beginPath(); k.arc(128, 168, 20, 0, Math.PI * 2); k.stroke();
+if (o.kind === 'f') {
+k.beginPath();
+k.moveTo(114, 208); k.quadraticCurveTo(128, 202, 142, 208);
+k.lineTo(166, 305); k.lineTo(138, 305); k.lineTo(138, 385);
+k.moveTo(118, 385); k.lineTo(118, 305); k.lineTo(90, 305); k.closePath();
+k.stroke();
+} else {
+k.beginPath();
+k.moveTo(100, 212); k.quadraticCurveTo(128, 204, 156, 212);
+k.lineTo(156, 290); k.quadraticCurveTo(156, 304, 142, 308); k.lineTo(142, 385);
+k.moveTo(114, 385); k.lineTo(114, 308); k.quadraticCurveTo(100, 304, 100, 290); k.closePath();
+k.stroke();
+}
+const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(w, 2.0), new THREE.MeshStandardMaterial({ map: t, roughness: 0.35, metalness: 0.08 }));
+panel.position.set(0, 1.05, -0.032); panel.rotation.y = Math.PI; panel.userData.keep = true; g.add(panel);
+box(w, 2.0, 0.02, plain(0xd4d9dc), 0, 0.05, -0.02, g);
+const hx = o.kind === 'f' ? -(w / 2 - 0.12) : (w / 2 - 0.12);
+box(0.025, 0.72, 0.03, st, hx, 0.72, -0.06, g);
+g.userData.noBlob = true; g.userData.noCollide = true;
+return;
+  }
+   box(o.w || 1.0, 2.1, 0.04, plain(o.doorColor ? new THREE.Color(o.doorColor).getHex() : 0xd5d0c6), 0, 0, -0.02, g); box(0.02, 0.2, 0.03, M.metal, 0.38, 0.95, -0.05, g);
   const c = document.createElement('canvas'); c.width = 256; c.height = 128; const k = c.getContext('2d'); k.fillStyle = '#ffffff'; k.fillRect(0, 0, 256, 128);
   const person = (x, col, skirt) => { k.fillStyle = col; k.beginPath(); k.arc(x, 30, 12, 0, 7); k.fill(); if (skirt) { k.beginPath(); k.moveTo(x - 20, 92); k.lineTo(x, 46); k.lineTo(x + 20, 92); k.fill(); } else k.fillRect(x - 13, 46, 26, 46); k.fillRect(x - 9, 90, 7, 28); k.fillRect(x + 2, 90, 7, 28); };
   if (o.kind === 'f') person(128, '#e2463c', true); else if (o.kind === 'm') person(128, '#2f6fd6', false); else { person(80, '#2f6fd6', false); person(176, '#e2463c', true); k.fillStyle = '#999'; k.fillRect(127, 14, 2, 100); }
