@@ -1039,21 +1039,38 @@ function purifier(g) {   // LG 공기청정기: 흰 원통 모듈 2단 + 사이 
   cyl(0.03, 0.04, 0.03, M.white, 0, 0.955, 0, 12, g);
 }
 function mat(g, o) { const m = box(o.w || 2, 0.006, o.d || 1.2, matOf(o.color || 'orange'), 0, 0, 0, g); g.userData.noCollide = true; g.userData.noBlob = true; return m; }
+let boothFrostM = null;
+function boothFrost() {   // 아래는 뿌옇고 위로 갈수록 맑아지는 문 유리(서울 NEOBOX 사진)
+  if (boothFrostM) return boothFrostM;
+  const c = document.createElement('canvas'); c.width = 4; c.height = 256; const k = c.getContext('2d'), gr = k.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, '#5a5a5a'); gr.addColorStop(0.45, '#9a9a9a'); gr.addColorStop(1, '#ffffff'); k.fillStyle = gr; k.fillRect(0, 0, 4, 256);
+  boothFrostM = M.frost.clone(); boothFrostM.alphaMap = new THREE.CanvasTexture(c); boothFrostM.opacity = 0.85; return boothFrostM;
+}
+function glassLabel(txt) {   // 유리에 붙인 이름표: 짙은 회색 글자 + 위아래 가는 줄
+  const c = document.createElement('canvas'); c.width = 256; c.height = 76; const k = c.getContext('2d');
+  k.fillStyle = 'rgba(70,72,76,0.85)'; k.fillRect(28, 8, 200, 2); k.fillRect(28, 66, 200, 2);
+  k.font = '600 30px Pretendard, sans-serif'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(txt, 128, 39);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
 function booth(g, o) {   // NEOBOX 1인 부스: 앞(문) = 로컬 -z
   const w = o.w || 1.85, d = o.d || 1.7, ph = 2.2, t = 0.07, x0 = -w / 2, x1 = w / 2, z0 = -d / 2, z1 = d / 2;
-  box(w, 0.06, d, M.black, 0, 0, 0, g);
+  const bodyM = o.body === 'white' ? M.white : M.black;   // body:'white' = 흰 몸체(앞 문틀만 검정, 서울 사진). 생략하면 기존 그대로
+  box(w, 0.06, d, bodyM, 0, 0, 0, g);
   box(t, ph, d, M.white, x0 + t / 2, 0, 0, g); box(t, ph, d, M.white, x1 - t / 2, 0, 0, g); box(w, ph, t, M.white, 0, 0, z1 - t / 2, g);
-  for (const xx of [x0 + 0.03, x1 - 0.03]) for (const zz of [z0 + 0.03, z1 - 0.03]) box(0.07, ph + 0.02, 0.07, M.black, xx, 0, zz, g);
-  box(w, 0.04, 0.08, M.black, 0, ph, z0 + 0.03, g); box(w, 0.04, 0.08, M.black, 0, ph, z1 - 0.03, g);
-  box(0.08, 0.04, d, M.black, x0 + 0.03, ph, 0, g); box(0.08, 0.04, d, M.black, x1 - 0.03, ph, 0, g);
+  for (const xx of [x0 + 0.03, x1 - 0.03]) for (const zz of [z0 + 0.03, z1 - 0.03]) box(0.07, ph + 0.02, 0.07, zz < 0 ? M.black : bodyM, xx, 0, zz, g);
+  box(w, 0.04, 0.08, M.black, 0, ph, z0 + 0.03, g); box(w, 0.04, 0.08, bodyM, 0, ph, z1 - 0.03, g);
+  box(0.08, 0.04, d, bodyM, x0 + 0.03, ph, 0, g); box(0.08, 0.04, d, bodyM, x1 - 0.03, ph, 0, g);
   box(w, 0.05, d, M.white, 0, ph - 0.05, 0, g);
   const dg = new THREE.Group(); dg.position.set(x0 + 0.14, 0, z0 + 0.02); dg.rotation.y = 0; g.add(dg); dg.userData.noCollide = true; dg.userData.dynamic = true;
   registerDoor([{ g: dg, base: 0, swing: (o.swing || 72) * DEG }], o.open === true, o.label);
-  const lw = w - 0.38, leaf = new THREE.Mesh(new THREE.BoxGeometry(lw, 2.08, 0.045), M.frost); leaf.position.set(lw / 2, 1.04, 0); dg.add(leaf);
+  const lw = w - 0.38, leaf = new THREE.Mesh(new THREE.BoxGeometry(lw, 2.08, 0.045), o.body === 'white' ? boothFrost() : M.frost); leaf.position.set(lw / 2, 1.04, 0); dg.add(leaf);
   box(lw, 0.04, 0.055, M.black, lw / 2, 2.06, 0, dg); box(lw, 0.04, 0.055, M.black, lw / 2, 0, 0, dg);
   box(0.04, 2.1, 0.055, M.black, 0.02, 0, 0, dg); box(0.04, 2.1, 0.055, M.black, lw - 0.02, 0, 0, dg);
   box(0.22, ph, 0.05, M.black, x1 - 0.13, 0, z0 + 0.02, g); box(0.04, ph - 0.1, 0.05, M.black, x0 + 0.12, 0.04, z0 + 0.02, g); box(w, ph - 2.1, 0.05, M.black, 0, 2.1, z0 + 0.02, g);
-  if (o.label) { const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.17), new THREE.MeshBasicMaterial({ map: textTexture(o.label) })); lab.position.set(0, 2.15, z0 - 0.01); lab.rotation.y = Math.PI; lab.userData.keep = true; g.add(lab); }
+  if (o.label && o.body === 'white') {   // 서울 사진: 이름은 문 유리 위쪽에 작게(위아래 가는 줄)
+    const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.1), new THREE.MeshBasicMaterial({ map: glassLabel(o.label), transparent: true, depthWrite: false }));
+    lab.position.set(lw / 2, 1.62, -0.024); lab.rotation.y = Math.PI; lab.userData.keep = true; dg.add(lab);
+  } else if (o.label) { const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.17), new THREE.MeshBasicMaterial({ map: textTexture(o.label) })); lab.position.set(0, 2.15, z0 - 0.01); lab.rotation.y = Math.PI; lab.userData.keep = true; g.add(lab); }
   // 내부: 회색 패브릭 흡음 벽 + 어두운 카펫
   const fab = matOf('fabricGray'), carpet = plain(0x3b3e44);
   box(w - 0.16, 0.012, d - 0.12, carpet, 0, 0.06, 0, g);
