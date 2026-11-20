@@ -1479,7 +1479,7 @@ for (const id of jumpOrder.filter((id) => !ROOMS[id].noEntry)) {
   jumps.appendChild(b);
 }
 const qb = document.getElementById('quality'); qb.textContent = HIGH ? '화질 높음' : '화질 낮음'; qb.classList.toggle('hi', HIGH);
-qb.onclick = () => { const nq = HIGH ? 'low' : 'high'; localStorage.setItem('neo_q', nq); const p = new URLSearchParams(location.search); p.set('q', nq); location.search = p.toString(); };
+qb.onclick = () => { const nq = HIGH ? 'low' : 'high'; localStorage.setItem('neo_q', nq); const p = new URLSearchParams(location.search); p.set('q', nq); if (!p.has('site') && window.__site) { p.set('site', window.__site); try { sessionStorage.setItem('neo_enter_site', window.__site); } catch (e) {} } location.search = p.toString(); };   // 화질 바꿔 다시 불러올 때만 같은 교육장 유지(새로고침은 선택 화면)
 
 /* ---------------- input ---------------- */
 const keys = {};
