@@ -62,6 +62,7 @@ export function applyLook(look, { renderer, scene, walls = [], rooms = [] }) {
 
   // 3-3) 창밖 사진: 지정한 창 밖에 실제 사진 풍경(가장자리는 기존 하늘·도시 배경으로 녹아듦)
   if (cfg.windowViews) windowViews(cfg.windowViews, scene);
+  if (cfg.windowImages) windowImages(cfg.windowImages, scene);   // 창 유리 자리에 사진(사진 속 창처럼)
 
   // 3-4) 3D 보기(위에서 내려다보기)에서는 창밖 풍경(하늘·도시 판, 창밖 사진)을 숨기고 걷기에서만 보여요
   if (cfg.hideOutsideInOrbit !== false) outsideOnlyWhenWalking(scene);
@@ -379,4 +380,25 @@ function outsideOnlyWhenWalking(scene) {
   };
   requestAnimationFrame(loop);
   window.__look = Object.assign(window.__look || {}, { outsidePlanes: planes.length });
+}
+
+/* 창 사진(look.windowImages) — 창 유리 바로 바깥에 창 크기에 꼭 맞춘 사진을 붙여, 사진 속 창처럼 바깥이 보여요.
+   windowImages: [ { src: 'photos/views/seoul_win_north.webp', side: 'north', from: 0.22, to: 1.62, wall: 0, sill: 0.1, head: 2.55, inset: 0.05 } ]
+     side : 창이 있는 벽(north = z 가 wall 인 가로벽, west = x 가 wall 인 세로벽) · from/to: 창 범위(north 는 x, west 는 z)
+     sill/head : 창 아래·위 높이 · inset: 벽 바깥면에서 안쪽으로 들어온 거리(유리 바로 바깥) · bright: 밝기 */
+function windowImages(list, scene) {
+  const loader = new THREE.TextureLoader();
+  for (const v of list) {
+    const o = { wall: 0, sill: 0.1, head: 2.55, inset: 0.05, bright: 1, ...v };
+    const mat = new THREE.MeshBasicMaterial({ fog: false, toneMapped: false, color: new THREE.Color().setScalar(o.bright) });
+    loader.load(o.src, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; mat.map = t; mat.needsUpdate = true; });
+    const len = Math.abs(o.to - o.from), c = (o.from + o.to) / 2, h = o.head - o.sill;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(len, h), mat), y = o.sill + h / 2;
+    if (o.side === 'west') { m.position.set(o.wall + o.inset, y, c); m.rotation.y = Math.PI / 2; }
+    else if (o.side === 'east') { m.position.set(o.wall - o.inset, y, c); m.rotation.y = -Math.PI / 2; }
+    else if (o.side === 'south') { m.position.set(c, y, o.wall - o.inset); m.rotation.y = Math.PI; }
+    else { m.position.set(c, y, o.wall + o.inset); }
+    m.name = 'windowImage'; m.userData.noCollide = true;
+    scene.add(m);
+  }
 }
