@@ -57,6 +57,9 @@ export function applyLook(look, { renderer, scene }) {
     }
   }
 
+  // 3-1) 천장: 흡음 텍스 타일 무늬·T바 격자, 사진처럼 밝은 천장, LED 주변 은은한 빛 번짐
+  if (cfg.ceilingTile) ceilingLook(cfg.ceilingTile, renderer, scene);
+
   // 4) 바닥 무늬: 서울 사진처럼 한 방향으로 짧은 결이 흐르는 시트 장판(줄눈 없음)
   if (cfg.floor) floorTexture(cfg.floor, renderer, scene);
 
@@ -78,7 +81,7 @@ function floorReflection(opt, renderer, scene) {
   const o = { roughness: 0.4, intensity: 0.9, tone: 1, lights: 4, size: 256, follow: true, ...(opt === true ? {} : opt) };
   const mats = new Set();
   scene.traverse((m) => { if (m.isMesh && m.userData.floor && m.material?.isMeshStandardMaterial) mats.add(m.material); });
-  window.__look = { floorMaterials: mats.size };   // 확인용(바닥 재질 수, 반사 촬영 횟수)
+  window.__look = Object.assign(window.__look || {}, { floorMaterials: mats.size });   // 확인용(바닥 재질 수, 반사 촬영 횟수)
   if (!mats.size) return;
   for (const m of mats) { m.roughness *= o.roughness; m.envMapIntensity = o.intensity; m.color.multiplyScalar(o.tone); m.needsUpdate = true; }
 
@@ -209,4 +212,91 @@ function floorTexture(opt, renderer, scene) {
     m.normalMap = null;   // 기존 타일 텍스처의 줄눈 요철 제거(시트 장판은 이음새가 거의 안 보여요)
     m.needsUpdate = true;
   }
+}
+
+/* 천장(look.ceilingTile) — 60cm 흡음 텍스 타일(잔 구멍·짧은 홈), 흰 T바 격자, 밝은 천장, LED 빛 번짐
+   ceilingTile: { base: '#f3f3f1', pits: 1, grid: '#fbfbfa', edge: '#c8c8c4', tile: 0.6, glow: 0.35, halo: { opacity: 0.22, spread: 0.45 } }
+     pits   : 잔 구멍·홈의 양(1 = 기본), pitSize: 구멍 크기 배율
+     grid   : T바(격자) 색, edge: T바 양옆 그늘선 색
+     glow   : 천장 자체 밝기(위에서 내려오는 조명은 천장을 비추지 못해서, 바닥에서 튕긴 빛을 대신함)
+     halo   : LED 주변 빛 번짐 { opacity: 세기, spread: 퍼지는 폭(m) }. 빼면 없음 */
+function ceilingLook(opt, renderer, scene) {
+  const o = { base: '#f3f3f1', pits: 1, pitSize: 1, grid: '#fbfbfa', edge: '#c8c8c4', tile: 0.6, glow: 0.35, halo: { opacity: 0.22, spread: 0.45 }, ...opt };
+  const mats = new Set();
+  scene.traverse((m) => { const mt = m.material; if (m.isMesh && mt?.isMeshStandardMaterial && mt.userData.world && mt.emissiveMap && mt.emissiveMap === mt.map) mats.add(mt); });
+  window.__look = Object.assign(window.__look || {}, { ceilingMaterials: mats.size });
+  if (mats.size) {
+    let seed = 7713; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    const span = o.tile * 2, N = renderer.shadowMap.enabled ? 1024 : 512, px = N / (span * 1000);   // 한 장 = 타일 2×2, px per mm
+    const c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d');
+    g.fillStyle = o.base; g.fillRect(0, 0, N, N);
+    // 잔 구멍(작고 불규칙한 점)과 짧은 홈(벌레 먹은 듯한 선)
+    const pits = Math.round(9000 * o.pits * (N / 1024) ** 2);
+    for (let i = 0; i < pits; i++) {
+      const x = rnd() * N, y = rnd() * N, r = Math.max(0.9, (0.8 + rnd() * rnd() * 2.6) * px * o.pitSize), v = 105 + rnd() * 70;
+      g.fillStyle = `rgba(${v},${v},${v - 3},${0.35 + rnd() * 0.45})`;
+      g.beginPath(); g.ellipse(x, y, r, r * (0.5 + rnd() * 0.5), rnd() * 3.14, 0, 6.283); g.fill();
+    }
+    g.lineCap = 'round';
+    for (let i = 0; i < pits / 9; i++) {
+      let x = rnd() * N, y = rnd() * N, a = rnd() * 6.283; const v = 140 + rnd() * 50;
+      g.strokeStyle = `rgba(${v},${v},${v - 3},${0.3 + rnd() * 0.35})`; g.lineWidth = Math.max(0.6, (0.5 + rnd() * 0.7) * px);
+      g.beginPath(); g.moveTo(x, y); for (let k = 0; k < 3; k++) { a += (rnd() - 0.5) * 1.6; x += Math.cos(a) * 2.5 * px; y += Math.sin(a) * 2.5 * px; g.lineTo(x, y); } g.stroke();
+    }
+    // T바 격자(폭 24mm) + 양옆 얇은 그늘선. 타일 경계(0, 절반)에 그리고 가장자리는 반대편에도 이어 그림
+    const bar = 24 * px, edge = Math.max(1, 1.6 * px);
+    for (const p0 of [0, N / 2, N]) {
+      g.fillStyle = o.edge; g.fillRect(p0 - bar / 2 - edge, 0, bar + edge * 2, N); g.fillRect(0, p0 - bar / 2 - edge, N, bar + edge * 2);
+    }
+    for (const p0 of [0, N / 2, N]) { g.fillStyle = o.grid; g.fillRect(p0 - bar / 2, 0, bar, N); g.fillRect(0, p0 - bar / 2, N, bar); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(1 / span, 1 / span); t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    for (const m of mats) { m.map = t; m.emissiveMap = t; m.emissiveIntensity = o.glow; m.normalMap = null; m.needsUpdate = true; }
+  }
+  if (o.halo) ledHalos(o.halo, scene);
+}
+
+// 천장 LED(흰색만 칠한 판·원형 조명) 위치를 찾아, 그 둘레에 은은한 빛 번짐 판을 붙여요.
+function ledHalos(h, scene) {
+  const leds = [];
+  scene.traverse((m) => { if (m.isMesh && m.material?.isMeshBasicMaterial && !m.material.map && m.material.color.getHexString() === 'fdfdf8') leds.push(m); });
+  // 아래를 향한 면(LED 앞면)을 위치별로 묶어 조명 한 개씩 찾기
+  const rects = [];
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), cc = new THREE.Vector3(), n = new THREE.Vector3();
+  for (const m of leds) {
+    m.updateMatrixWorld(); const pos = m.geometry.attributes.position, idx = m.geometry.index;
+    const tri = idx ? idx.count / 3 : pos.count / 3;
+    for (let i = 0; i < tri; i++) {
+      const i0 = idx ? idx.getX(i * 3) : i * 3, i1 = idx ? idx.getX(i * 3 + 1) : i * 3 + 1, i2 = idx ? idx.getX(i * 3 + 2) : i * 3 + 2;
+      a.fromBufferAttribute(pos, i0).applyMatrix4(m.matrixWorld); b.fromBufferAttribute(pos, i1).applyMatrix4(m.matrixWorld); cc.fromBufferAttribute(pos, i2).applyMatrix4(m.matrixWorld);
+      n.subVectors(cc, b).cross(new THREE.Vector3().subVectors(a, b)).normalize();
+      if (n.y > -0.9 && n.y < 0.9) continue;   // 옆면은 건너뜀(아래·위 면만)
+      if (Math.abs(n.y) > 0.9 && a.y > 0.5) rects.push({ x0: Math.min(a.x, b.x, cc.x), x1: Math.max(a.x, b.x, cc.x), z0: Math.min(a.z, b.z, cc.z), z1: Math.max(a.z, b.z, cc.z), y: Math.min(a.y, b.y, cc.y) });
+    }
+  }
+  const groups = [];
+  for (const r of rects) {
+    const gg = groups.find((q) => r.x0 <= q.x1 + 0.01 && r.x1 >= q.x0 - 0.01 && r.z0 <= q.z1 + 0.01 && r.z1 >= q.z0 - 0.01 && Math.abs(r.y - q.y) < 0.05);
+    if (gg) { gg.x0 = Math.min(gg.x0, r.x0); gg.x1 = Math.max(gg.x1, r.x1); gg.z0 = Math.min(gg.z0, r.z0); gg.z1 = Math.max(gg.z1, r.z1); gg.y = Math.min(gg.y, r.y); } else groups.push({ ...r });
+  }
+  if (!groups.length) return;
+  // 둥근 사각형 모양으로 가장자리가 부드럽게 사라지는 빛 번짐 텍스처
+  const S = 128, cv = document.createElement('canvas'); cv.width = cv.height = S; const g = cv.getContext('2d'), img = g.createImageData(S, S);
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+    const dx = Math.max(0, Math.abs(x - S / 2 + 0.5) / (S / 2) - 0.0), dy = Math.max(0, Math.abs(y - S / 2 + 0.5) / (S / 2) - 0.0);
+    const d = Math.min(1, Math.hypot(Math.max(0, dx * 1.0), Math.max(0, dy * 1.0)));
+    const v = Math.pow(1 - d, 2.2), i = (y * S + x) * 4; img.data[i] = img.data[i + 1] = img.data[i + 2] = 255; img.data[i + 3] = Math.round(v * 255);
+  }
+  g.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(cv);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: h.opacity ?? 0.22, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
+  const geo = new THREE.PlaneGeometry(1, 1); geo.rotateX(Math.PI / 2);   // 아래를 향하는 판
+  const sp = h.spread ?? 0.45, group = new THREE.Group(); group.name = 'ledHalos';
+  for (const q of groups) {
+    const w = q.x1 - q.x0, d = q.z1 - q.z0; if (w < 0.03 && d < 0.03) continue;
+    const halo = new THREE.Mesh(geo, mat); halo.scale.set(w + sp * 2, 1, d + sp * 2);
+    halo.position.set((q.x0 + q.x1) / 2, q.y + 0.004, (q.z0 + q.z1) / 2); halo.renderOrder = 2; group.add(halo);
+  }
+  scene.add(group);
+  window.__look = Object.assign(window.__look || {}, { ledHalos: group.children.length });
 }
