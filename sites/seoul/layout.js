@@ -22,6 +22,11 @@ window.LAYOUT = {
     wall: { exterior: 0.24, interior: 0.14, thick: 0.30 }  // 벽 두께 기본값 (벽마다 t 로 따로 지정 가능)
   },
 
+  /* 조명·색감 보정(look.js) — 실제 사진처럼 밝은 흰 공간, 천장 LED처럼 위에서 내려오는 빛. 지우면 기존 화면으로 돌아가요. */
+  look: { toneMapping:'aces', exposure:1.3, environment:0.6,
+          hemisphere:{ sky:'#ffffff', ground:'#e9e6e0', intensity:0.8 },
+          ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' } },
+
   /* ---------- 2. 방(구역) ----------
      id      : 내부 이름(영문, 바꾸지 마세요)
      name    : 화면에 보이는 이름
