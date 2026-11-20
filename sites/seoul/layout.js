@@ -27,6 +27,7 @@ window.LAYOUT = {
           hemisphere:{ sky:'#ffffff', ground:'#e9e6e0', intensity:0.8 },
           ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' },
           ceilingTile:{ base:'#e2e2df', pits:1.2, pitSize:1.8, glow:0.12, halo:{ opacity:0.18, spread:0.45 } },   // 천장: 흡음 텍스 타일·T바 격자, 밝은 천장, LED 빛 번짐
+          baseboard:{ rooms:['meeting','coaching','classroom'], color:'#1d1e21', h:0.08 },   // 검은 걸레받이(회의실·소회의실·교육장 사진)
           floor:{ base:'#cfccc6', size:1.0, angle:0 },   // 바닥 무늬: 한 방향 결이 있는 시트 장판(사진), 줄눈 없음
           reflection:{ roughness:0.55, intensity:0.5, tone:0.75, lights:3, planar:{ opacity:0.12, blur:0.011 } } },   // 바닥 은은한 광택(사진 기준). 숫자를 키우면 더 비침, 빼면 반사 없음
 
