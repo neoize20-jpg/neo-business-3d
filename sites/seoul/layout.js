@@ -415,11 +415,11 @@ window.LAYOUT = {
     { type:'elevator', x:19.00, z:23.47, rot:180, floor:2, noPanel:true, recessed:true }, { type:'tactile', x:19.00, z:23.81, w:0.6, d:0.3 },
     { type:'elevator', x:21.39, z:23.47, rot:180, floor:2, noPanel:true, recessed:true }, { type:'tactile', x:21.39, z:23.81, w:0.6, d:0.3 },
     { type:'elevator', x:23.78, z:23.47, rot:180, floor:2, noPanel:true, recessed:true }, { type:'tactile', x:23.78, z:23.81, w:0.6, d:0.3 },
-    { type:'elevator', x:19.00, z:27.94, rot:0,   floor:2, noPanel:true, recessed:true }, { type:'tactile', x:19.00, z:27.60, w:0.6, d:0.3 },
+    { type:'elevator', x:19.00, z:27.94, rot:0,   floor:2, noPanel:true, recessed:true, wallFloor:'2F', sideLed:true }, { type:'tactile', x:19.00, z:27.60, w:0.6, d:0.3 },
     { type:'elevator', x:21.39, z:27.94, rot:0,   floor:2, noPanel:true, recessed:true }, { type:'tactile', x:21.39, z:27.60, w:0.6, d:0.3 },
     { type:'elevator', x:23.78, z:27.94, rot:0,   floor:2, noPanel:true, recessed:true }, { type:'tactile', x:23.78, z:27.60, w:0.6, d:0.3 },
     { type:'plainDoor', x:15.00, z:27.94, rot:0, w:0.70, ps:true },
-    { type:'plainDoor', x:16.70, z:27.94, rot:0, w:0.95 },
+    { type:'plainDoor', x:16.70, z:27.94, rot:0, w:0.95, evWhite:true },
     { type:'plainDoor', x:29.90, z:27.94, rot:0 },
     { type:'extinguisher', x:9.55, z:23.6 }
   ]
