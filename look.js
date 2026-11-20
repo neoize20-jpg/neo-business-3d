@@ -60,6 +60,9 @@ export function applyLook(look, { renderer, scene, walls = [], rooms = [] }) {
   // 3-1) 천장: 흡음 텍스 타일 무늬·T바 격자, 사진처럼 밝은 천장, LED 주변 은은한 빛 번짐
   if (cfg.ceilingTile) ceilingLook(cfg.ceilingTile, renderer, scene);
 
+  // 3-3) 창밖 사진: 지정한 창 밖에 실제 사진 풍경(가장자리는 기존 하늘·도시 배경으로 녹아듦)
+  if (cfg.windowViews) windowViews(cfg.windowViews, scene);
+
   // 3-2) 벽 아래 검은 띠: 회의실·소회의실·교육장 벽 아랫부분 검은 칠(depth 를 키우면 튀어나온 걸레받이)
   if (cfg.baseboard) baseboards(cfg.baseboard, walls, rooms, scene);
 
@@ -336,4 +339,26 @@ function baseboards(opt, walls, rooms, scene) {
   if (!geos.length) return;
   for (const g of geos) { const m = new THREE.Mesh(g, mat); m.receiveShadow = true; m.name = 'baseboard'; scene.add(m); }
   window.__look = Object.assign(window.__look || {}, { baseboards: geos.length });
+}
+
+/* 창밖 사진(look.windowViews) — 창 밖 일정 거리에 실제 사진 판을 세워요. 사진은 창 안쪽에서 보이는 배경만 잘라 만든 것
+   (photos/views/*.webp, 좌우·아래 가장자리가 투명). 판 밖은 layout 의 backdrop(하늘 + 도시)이 그대로 보여요.
+   windowViews: [ { src: 'photos/views/seoul_north.webp', side: 'north', at: 0.92, dist: 3, w: 5.2, h: 7.5, y: -3, bright: 1.1 } ]
+     side : 창이 있는 벽 방향(north 는 z=0 바깥, west 는 x=0 바깥) · at: 판 가운데(north 는 x, west 는 z)
+     dist : 벽에서 떨어진 거리(m) · w,h: 판 크기(m) · y: 판 아래끝 높이(바닥 0, 밖의 땅은 더 아래) · bright: 밝기 */
+function windowViews(list, scene) {
+  const loader = new THREE.TextureLoader();
+  for (const v of list) {
+    const o = { dist: 3, w: 5, h: 7.5, y: -3, bright: 1.1, ...v };
+    const mat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, fog: false, color: new THREE.Color().setScalar(o.bright) });
+    loader.load(o.src, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; mat.map = t; mat.needsUpdate = true; });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(o.w, o.h), mat);
+    const cy = o.y + o.h / 2;
+    if (o.side === 'west') { m.position.set(-o.dist, cy, o.at); m.rotation.y = Math.PI / 2; }
+    else if (o.side === 'east') { m.position.set(o.dist, cy, o.at); m.rotation.y = -Math.PI / 2; }   // east/south 는 dist 대신 벽 좌표 + 거리로 at·dist 지정
+    else if (o.side === 'south') { m.position.set(o.at, cy, o.dist); m.rotation.y = Math.PI; }
+    else { m.position.set(o.at, cy, -o.dist); }
+    m.name = 'windowView'; m.userData.noCollide = true; m.renderOrder = -1;
+    scene.add(m);
+  }
 }

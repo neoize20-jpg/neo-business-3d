@@ -22,11 +22,16 @@ window.LAYOUT = {
     wall: { exterior: 0.24, interior: 0.14, thick: 0.30 }  // 벽 두께 기본값 (벽마다 t 로 따로 지정 가능)
   },
 
+  backdrop: [ { side:'north', dist:9 }, { side:'west', dist:9 } ],   // 북쪽(소회의실·회의실·교육장 창)·서쪽(소회의실 창) 창밖 하늘 + 도시
+
   /* 조명·색감 보정(look.js) — 실제 사진처럼 밝은 흰 공간, 천장 LED처럼 위에서 내려오는 빛. 지우면 기존 화면으로 돌아가요. */
   look: { toneMapping:'aces', exposure:1.3, environment:0.6,
           hemisphere:{ sky:'#ffffff', ground:'#e9e6e0', intensity:0.8 },
           ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' },
           ceilingTile:{ base:'#e2e2df', pits:1.2, pitSize:1.8, glow:0.12, halo:{ opacity:0.18, spread:0.45 } },   // 천장: 흡음 텍스 타일·T바 격자, 밝은 천장, LED 빛 번짐
+          windowViews:[   // 소회의실 창밖: 실제 사진에서 창 안쪽 배경만 잘라 만든 풍경(photos/views)
+            { src:'photos/views/seoul_north.webp', side:'north', at:0.92, dist:3, w:5.2, h:7.5, y:-3, bright:0.85 },   // 북쪽 창: 숲·고층 건물(IMG_0416)
+            { src:'photos/views/seoul_west.webp',  side:'west',  at:3.6,  dist:3, w:5.5, h:7.5, y:-3, bright:0.85 } ],  // 서쪽 창: 저층 건물·전봇대(IMG_0418)
           baseboard:{ rooms:['meeting','coaching','classroom'], color:'#1d1e21', h:0.08, depth:0.002 },   // 벽 아래 검은 칠(회의실·소회의실·교육장, 실측: 튀어나오지 않음)
           floor:{ base:'#cfccc6', size:1.0, angle:0 },   // 바닥 무늬: 한 방향 결이 있는 시트 장판(사진), 줄눈 없음
           reflection:{ roughness:0.55, intensity:0.5, tone:0.75, lights:3, planar:{ opacity:0.12, blur:0.011 } } },   // 바닥 은은한 광택(사진 기준). 숫자를 키우면 더 비침, 빼면 반사 없음
@@ -372,9 +377,9 @@ window.LAYOUT = {
     { type:'plant', x:12.07, z:9.75, scale:0.9 },
 
     /* --- NEOBOX 부스 (스케치 폭 그대로, 내부 책상·모니터는 폭에 맞게 축소) --- */
-    { type:'booth', x:0.97,  z:11.4, w:1.26, d:1.2, label:'NEOBOX1' },   // x0.34–1.60
-    { type:'booth', x:2.545, z:11.4, w:1.29, d:1.2, label:'NEOBOX2' },   // x1.90–3.19
-    { type:'booth', x:4.135, z:11.4, w:1.29, d:1.2, label:'NEOBOX3' },   // x3.49–4.78 (가벽 x4.95 앞)
+    { type:'booth', x:0.97,  z:11.4, w:1.26, d:1.2, label:'NEOBOX1', body:'white' },   // x0.34–1.60
+    { type:'booth', x:2.545, z:11.4, w:1.29, d:1.2, label:'NEOBOX2', body:'white' },   // x1.90–3.19
+    { type:'booth', x:4.135, z:11.4, w:1.29, d:1.2, label:'NEOBOX3', body:'white' },   // x3.49–4.78 (가벽 x4.95 앞)
 
     /* --- 남쪽 벽, 서쪽부터: NEOBOX(x0.34–4.78) → 가벽(슬랫 x4.95) → 커피존 카운터(x5.1–9.0) → 입구 유리 양문(x9.6–12.25) --- */
     { type:'slats', from:[4.95, 11.85], to:[4.95, 10.85], h:2.45, count:9, thick:true },   // 가벽: NEOBOX3 과 커피존 카운터 사이
