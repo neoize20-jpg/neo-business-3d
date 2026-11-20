@@ -409,18 +409,18 @@ window.LAYOUT = {
     { type:'okSlats', x:12.9, z:12.22, w:0.9, text:'OK 세무회계' },                          // 옆 호실 L211 OK 세무회계 우드 슬랫 + 사인(사진)
     { type:'fireCabinet', x:11.91, z:19.8, rot:90 },                                     // 베이지 소화전·경보 함(사진)
     { type:'stairsDoor', x:11.9, z:21.6, rot:90 },                                       // 서쪽 계단실 STAIRS 방화문(도면 계단 아이콘 · 사진)
-    { type:'restroom', x:16.09, z:20.38, rot:180, kind:'f', text:'여자 화장실', w:0.95 },   // 여자 화장실 문(닫힘)
-    { type:'restroom', x:26.74, z:20.38, rot:180, kind:'m', text:'남자 화장실', w:0.95 },   // 남자 화장실 문(닫힘)
+    { type:'restroom', x:16.09, z:20.38, rot:180, kind:'f', text:'Women', w:0.95, frosted:true }, { type:'tactile', x:16.25, z:20.72, w:0.35, d:0.30 },
+    { type:'restroom', x:26.74, z:20.38, rot:180, kind:'m', text:'Men', w:0.95, frosted:true }, { type:'tactile', x:26.58, z:20.72, w:0.35, d:0.30 },
     { type:'pictoPlate', x:15.10, z:23.47, rot:180, kind:'f' }, { type:'pictoPlate', x:27.78, z:23.47, rot:180, kind:'m' },   // 통로 입구 옆 파란 픽토그램 사인(사진)
-    { type:'elevator', x:19.00, z:23.47, rot:180, floor:2, noPanel:true, dark:true }, { type:'tactile', x:19.00, z:23.81, w:0.6, d:0.3 },
-    { type:'elevator', x:21.39, z:23.47, rot:180, floor:2, noPanel:true, dark:true }, { type:'tactile', x:21.39, z:23.81, w:0.6, d:0.3 },
-    { type:'elevator', x:23.78, z:23.47, rot:180, floor:2, noPanel:true, dark:true }, { type:'tactile', x:23.78, z:23.81, w:0.6, d:0.3 },   // 북쪽 엘리베이터 3대(코어 윗블록, 홀을 봄)
-    { type:'elevator', x:15.44, z:27.94, rot:0, floor:2, noPanel:true, dark:true }, { type:'tactile', x:15.44, z:27.60, w:0.6, d:0.3 },
-    { type:'elevator', x:20.60, z:27.94, rot:0, floor:2, noPanel:true, dark:true }, { type:'tactile', x:20.60, z:27.60, w:0.6, d:0.3 },
-    { type:'elevator', x:23.60, z:27.94, rot:0, floor:2, noPanel:true, dark:true }, { type:'tactile', x:23.60, z:27.60, w:0.6, d:0.3 },   // 남쪽 엘리베이터 3대(코어 아랫블록, 홀을 봄 — 사용자: 화장실·엘리베이터 뒤 3대 더)
-    { type:'plainDoor', x:13.00, z:27.94, rot:0 },
-    { type:'plainDoor', x:17.95, z:27.94, rot:0 },
-    { type:'plainDoor', x:29.90, z:27.94, rot:0 },   // 홀 남쪽 흰 문(도면 밝은 회색 칸, 사진)
+    { type:'elevator', x:19.00, z:23.47, rot:180, floor:2, noPanel:true, recessed:true }, { type:'tactile', x:19.00, z:23.81, w:0.6, d:0.3 },
+    { type:'elevator', x:21.39, z:23.47, rot:180, floor:2, noPanel:true, recessed:true }, { type:'tactile', x:21.39, z:23.81, w:0.6, d:0.3 },
+    { type:'elevator', x:23.78, z:23.47, rot:180, floor:2, noPanel:true, recessed:true }, { type:'tactile', x:23.78, z:23.81, w:0.6, d:0.3 },
+    { type:'elevator', x:19.00, z:27.94, rot:0,   floor:2, noPanel:true, recessed:true }, { type:'tactile', x:19.00, z:27.60, w:0.6, d:0.3 },
+    { type:'elevator', x:21.39, z:27.94, rot:0,   floor:2, noPanel:true, recessed:true }, { type:'tactile', x:21.39, z:27.60, w:0.6, d:0.3 },
+    { type:'elevator', x:23.78, z:27.94, rot:0,   floor:2, noPanel:true, recessed:true }, { type:'tactile', x:23.78, z:27.60, w:0.6, d:0.3 },
+    { type:'plainDoor', x:15.00, z:27.94, rot:0, w:0.75 },
+    { type:'plainDoor', x:16.70, z:27.94, rot:0, w:0.95 },
+    { type:'plainDoor', x:29.90, z:27.94, rot:0 },
     { type:'extinguisher', x:9.55, z:23.6 }
   ]
 };
