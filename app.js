@@ -688,7 +688,8 @@ function extinguisher(g) { cyl(0.075, 0.075, 0.5, plain(0xd8261c), 0, 0, 0, 16, 
 function elevator(g, o) {   // 엘리베이터: 벽판 + 스테인리스 문 2짝 + 프레임 + 호출 버튼 + 층 표시 (정면 = 로컬 -z)
   if (!o || !o.noPanel) box(2.4, H, 0.12, plain(0xe4e1da), 0, 0, 0.06, g);
   const st = M.chrome || (M.chrome = std({ color: 0xd9dde2, metalness: 0.9, roughness: 0.18 }));
-  box(1.2, 2.2, 0.06, plain(0xb9bcc0), 0, 0, -0.02, g); box(0.53, 2.1, 0.02, st, -0.27, 0, -0.06, g); box(0.53, 2.1, 0.02, st, 0.27, 0, -0.06, g);
+  const dm = o && o.dark ? (M.evDark || (M.evDark = std({ color: 0x34373c, metalness: 0.6, roughness: 0.35 }))) : st;
+  box(1.2, 2.2, 0.06, o && o.dark ? (M.steel || st) : plain(0xb9bcc0), 0, 0, -0.02, g); box(0.53, 2.1, 0.02, dm, -0.27, 0, -0.06, g); box(0.53, 2.1, 0.02, dm, 0.27, 0, -0.06, g);
   box(0.06, 0.12, 0.02, M.black, 0.8, 1.1, -0.01, g); cyl(0.015, 0.015, 0.01, plain(0xffffff), 0.8, 1.15, -0.02, 10, g);
   box(0.36, 0.12, 0.02, M.black, 0, 2.3, -0.01, g);
   const c = document.createElement('canvas'); c.width = 256; c.height = 64; const k = c.getContext('2d'); k.fillStyle = '#ff6a2a'; k.font = '700 44px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('▲ ' + (o && o.floor || 10), 128, 34);
@@ -736,6 +737,22 @@ function hangSign(g, o) {   // 천장 매달린 안내 사인(양면): 픽토그
   for (const sd of [-1, 1]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); m.position.set(0, 2.2 + (h + 0.02) / 2, sd * 0.017); m.rotation.y = sd < 0 ? Math.PI : 0; m.userData.keep = true; g.add(m); }
   for (const sx of [-w / 2 + 0.08, w / 2 - 0.08]) box(0.01, H - 2.48, 0.01, M.metal, sx, 2.48, 0, g);
   g.userData.noCollide = true; g.userData.noBlob = true;
+}
+function pictoPlate(g, o) {   // 벽 파란 픽토그램 사인(사진: 화장실 통로 입구 옆) 정면 = 로컬 -z
+  const c = document.createElement('canvas'); c.width = 96; c.height = 160; const k = c.getContext('2d'); k.fillStyle = '#2d5fb8'; k.fillRect(0, 0, 96, 160); k.fillStyle = '#fff';
+  k.beginPath(); k.arc(48, 42, 12, 0, 7); k.fill(); if (o.kind === 'f') { k.beginPath(); k.moveTo(26, 110); k.lineTo(48, 60); k.lineTo(70, 110); k.fill(); } else k.fillRect(34, 60, 28, 50); k.fillRect(37, 108, 9, 32); k.fillRect(50, 108, 9, 32);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.25), new THREE.MeshBasicMaterial({ map: t })); m.position.set(0, 1.55, -0.012); m.rotation.y = Math.PI; m.userData.keep = true; g.add(m);
+  g.userData.noCollide = true; g.userData.noBlob = true;
+}
+function okSlats(g, o) {   // 옆 호실(L211 OK 세무회계) 입구 옆 우드 슬랫 기둥 + 위 우드 띠 + 흰 사인판(사진 seoul_entrance_out) 정면 = 로컬 -z
+  const wd = M.slatWood || (M.slatWood = std({ color: 0xc89a66, roughness: 0.6 })), w = o.w || 0.9, n = Math.round(w / 0.06);
+  box(w, H, 0.02, plain(0x8a6a48), 0, 0, -0.01, g);
+  for (let i = 0; i < n; i++) box(0.035, 2.45, 0.05, wd, -w / 2 + 0.03 + i * (w - 0.06) / (n - 1), 0, -0.045, g);
+  box(w, H - 2.45, 0.06, wd, 0, 2.45, -0.04, g);
+  const c = document.createElement('canvas'); c.width = 512; c.height = 160; const k = c.getContext('2d'); k.fillStyle = '#f5f4f1'; k.fillRect(0, 0, 512, 160); k.fillStyle = '#222'; k.font = '700 66px Pretendard, sans-serif'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(o.text || '', 256, 84, 480);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; box(w * 0.92, 0.3, 0.03, plain(0xf5f4f1), 0, 1.45, -0.085, g);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.9, w * 0.9 * 160 / 512), new THREE.MeshBasicMaterial({ map: t })); m.position.set(0, 1.6, -0.101); m.rotation.y = Math.PI; m.userData.keep = true; g.add(m);
+  g.userData.noBlob = true;
 }
 function tactile(g, o) {   // 노란 점자블록(엘리베이터 앞)
   box(o.w || 0.6, 0.008, o.d || 0.3, plain(0xf2c230), 0, 0, 0, g); g.userData.noCollide = true; g.userData.noBlob = true;
@@ -1074,7 +1091,7 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, nestChair, trainingTable, cafeTable, mobileTv, waterDispenser, goldSign, plainDoor, stairsDoor, fireCabinet, tactile, hangSign, wallPlate, extinguisher, elevator, restroom };
+const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, nestChair, trainingTable, cafeTable, mobileTv, waterDispenser, goldSign, plainDoor, stairsDoor, fireCabinet, tactile, hangSign, pictoPlate, okSlats, wallPlate, extinguisher, elevator, restroom };
 const NOBLOB = new Set(['clock', 'exitSign', 'stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o, parent = root) {
@@ -1123,8 +1140,11 @@ for (const r of ((L.public && L.public.floors) || [])) {   // 공용 복도 바�
 for (const r of ((L.public && L.public.units) || [])) {   // 유리 너머 다른 호실(출입 불가): 바닥 + 천장 + 안쪽 벽
   const w = r[2] - r[0], d = r[3] - r[1], cx = (r[0] + r[2]) / 2, cz = (r[1] + r[3]) / 2;
   box(w, 0.02, d, plain(0xcfcdc8), cx, -0.02, cz); box(w, 0.04, d, plain(0xf4f4f2), cx, H, cz);
-  box(0.12, H, d, M.pubWall || M.paint, r[0] - 0.06, 0, cz); box(w, H, 0.12, M.pubWall || M.paint, cx, 0, r[1] - 0.06); box(w, H, 0.12, M.pubWall || M.paint, cx, 0, r[3] + 0.06);
-  for (let z = r[1] + 1.5; z < r[3] - 0.5; z += 3) box(0.04, 0.9, 2.6, plain(0xffffff), r[0] + 0.03, 0.8, z);   // 안쪽 벽 흰 판(빈 사무실 느낌)
+  const open = r[4] || 'e', uw = M.pubWall || M.paint;   // r[4] = 유리(복도) 쪽 면: 'e'|'w'|'n'|'s' — 그 면은 막지 않음
+  if (open !== 'w') box(0.12, H, d, uw, r[0] - 0.06, 0, cz); if (open !== 'e') box(0.12, H, d, uw, r[2] + 0.06, 0, cz);
+  if (open !== 'n') box(w, H, 0.12, uw, cx, 0, r[1] - 0.06); if (open !== 's') box(w, H, 0.12, uw, cx, 0, r[3] + 0.06);
+  if (open === 'e') for (let z = r[1] + 1.5; z < r[3] - 0.5; z += 3) box(0.04, 0.9, 2.6, plain(0xffffff), r[0] + 0.03, 0.8, z);   // 안쪽 벽 흰 판(빈 사무실 느낌)
+  if (open === 's') for (let x = r[0] + 1.5; x < r[2] - 0.5; x += 3) box(2.6, 0.9, 0.04, plain(0xffffff), x, 0.8, r[1] + 0.03);
 }
 if (L.corridor) {
   const cr = L.corridor.rect, cw = cr[2] - cr[0], cd = cr[3] - cr[1], ccx = (cr[0] + cr[2]) / 2, ccz = (cr[1] + cr[3]) / 2;
