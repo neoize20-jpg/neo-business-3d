@@ -178,19 +178,27 @@ a.pk-card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(11,46,103
   </div>
 </aside>
 <!-- 교육장 목록: sites/sites.js / 교육장별 공간 설정: sites/<id>/layout.js (치수·가구 배치는 거기서 수정) -->
-<script src="sites/sites.js?v=11200940"></script>
+<script src="sites/sites.js?v=11200950"></script>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
 <script type="module">
-const V = "11200940", SITES = window.SITES || [], q = new URLSearchParams(location.search);
-let id = q.get('site');
-if (!id && [...q.keys()].length) id = 'seoul';            // 예전 링크(?room=… 등)는 서울 구로로
-const S = SITES.find((s) => s.id === id);
+const V = "11200950", SITES = window.SITES || [], q = new URLSearchParams(location.search);
+// 링크로 들어오면 무조건 교육장 선택 화면부터(사용자 요청 11/20). 투어는 카드(또는 투어 안 교육장 메뉴)를 눌렀을 때만 열림.
+// 카드를 누르면 sessionStorage 에 한 번 쓰는 표시를 남기고 ?site= 로 이동 → 그 한 번만 투어로 들어감(새로고침·공유 링크는 다시 선택 화면).
+// 개발용 예외: ?site=…&shot=… 또는 &direct=1 이 함께 있으면 바로 투어(스크린샷 도구용).
+const KEY = 'neo_enter_site';
+let id = q.get('site'), pass = false;
+try { pass = !!id && sessionStorage.getItem(KEY) === id; sessionStorage.removeItem(KEY); } catch (e) {}
+if (id && (q.has('shot') || q.get('direct') === '1')) pass = true;
+const S = pass ? SITES.find((s) => s.id === id) : null;
 const url = (s) => '?site=' + s.id;
+const enter = (e) => { const a = e.target.closest('a[data-site]'); if (!a) return; try { sessionStorage.setItem(KEY, a.dataset.site); } catch (er) {} };
+document.addEventListener('click', enter, true);
 if (!S) {   // 첫 화면: 교육장 선택
+  if (location.search) history.replaceState(null, '', location.pathname);   // ?site= 등은 지우고 선택 화면 주소로
   document.body.classList.add('picker'); document.title = '교육장 선택 · NEOIZE 3D 투어';
   const box = document.getElementById('pkCards');
   for (const s of SITES) {
-    const el = document.createElement(s.ready ? 'a' : 'div'); el.className = 'pk-card' + (s.ready ? '' : ' soon'); if (s.ready) el.href = url(s);
+    const el = document.createElement(s.ready ? 'a' : 'div'); el.className = 'pk-card' + (s.ready ? '' : ' soon'); if (s.ready) { el.href = url(s); el.dataset.site = s.id; }
     el.innerHTML = `<div class="th${s.thumb ? '' : ' ph'}"${s.thumb ? ` style="background-image:url('${s.thumb}')"` : ''}>${s.thumb ? '' : s.sub}</div>
       <span class="badge">${s.ready ? '3D 투어' : '준비 중'}</span>
       <div class="bd"><div class="nm">${s.name}</div><div class="sb">${s.sub}</div><div class="ad">${s.addr}</div><div class="ds">${s.desc || ''}</div>
@@ -202,7 +210,7 @@ if (!S) {   // 첫 화면: 교육장 선택
   document.getElementById('hBrand').textContent = S.brand; document.getElementById('hTitle').textContent = S.title; document.getElementById('hAddr').textContent = S.addr;
   const ld = document.getElementById('loading'); if (ld) ld.firstChild.textContent = `${S.title} 불러오는 중`;
   const menu = document.getElementById('siteMenu');
-  menu.innerHTML = SITES.map((s) => `<a href="${url(s)}" class="${s.id === S.id ? 'cur' : ''}">${s.name}<small>${s.id === S.id ? '보는 중' : (s.ready ? '' : '준비 중')}</small></a>`).join('') + `<a href="./">전체 교육장 선택 화면<small>↩</small></a>`;
+  menu.innerHTML = SITES.map((s) => `<a href="${url(s)}"${s.ready ? ` data-site="${s.id}"` : ''} class="${s.id === S.id ? 'cur' : ''}">${s.name}<small>${s.id === S.id ? '보는 중' : (s.ready ? '' : '준비 중')}</small></a>`).join('') + `<a href="./">전체 교육장 선택 화면<small>↩</small></a>`;
   document.getElementById('siteBtn').addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('on'); });
   document.addEventListener('click', (e) => { if (!menu.contains(e.target)) menu.classList.remove('on'); });
   window.__site = S.id;
