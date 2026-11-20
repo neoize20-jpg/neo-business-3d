@@ -6,7 +6,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/BufferGeometryUtils.js';
 import { makeTextures, textTexture } from './textures.js?v=11191830';
-import { applyLook } from './look.js?v=11202000';   // layout 에 look 이 있는 교육장만 조명·색감 보정
+import { applyLook } from './look.js?v=11202130';   // layout 에 look 이 있는 교육장만 조명·색감 보정
 
 const L = window.LAYOUT, B = L.building, H = B.ceiling, EYE = B.eye || 1.6, W = B.width, D = B.depth;
 const TW = Object.assign({ exterior: 0.24, interior: 0.14, thick: 0.3 }, B.wall || {});
@@ -1752,7 +1752,7 @@ function tick() {
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); labelR.setSize(innerWidth, innerHeight); });
 
 /* ---------------- start ---------------- */
-applyLook(L.look, { renderer, scene });   // 조명·색감 보정(look.js) — layout 에 look 이 없으면 아무 변화 없음
+applyLook(L.look, { renderer, scene, walls: WALLSEGS, rooms: L.rooms });   // 조명·색감 보정(look.js) — layout 에 look 이 없으면 아무 변화 없음
 const SHOTS = { entrance: 'entrance', lounge: 'lounge', edu: 'classroom', focus: 'focus' };
 const startMode = SHOT ? (SHOT === 'orbit' || SHOT === 'dollhouse' || SHOT === 'plan' || SHOT === 'planwide' ? 'orbit' : 'walk') : (params.get('mode') || L.start?.mode || 'orbit');
 if (startMode === 'walk') goRoom(SHOTS[SHOT] || params.get('room') || L.start?.room || 'entrance', true);

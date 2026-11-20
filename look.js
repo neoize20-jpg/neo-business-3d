@@ -20,7 +20,7 @@ const DEFAULTS = {
   ceiling: { intensity: 2.2, tilt: 8, color: '#fffdf8' },
 };
 
-export function applyLook(look, { renderer, scene }) {
+export function applyLook(look, { renderer, scene, walls = [], rooms = [] }) {
   if (!look) return;
   const cfg = { ...DEFAULTS, ...look,
     hemisphere: { ...DEFAULTS.hemisphere, ...(look.hemisphere || {}) },
@@ -59,6 +59,9 @@ export function applyLook(look, { renderer, scene }) {
 
   // 3-1) 천장: 흡음 텍스 타일 무늬·T바 격자, 사진처럼 밝은 천장, LED 주변 은은한 빛 번짐
   if (cfg.ceilingTile) ceilingLook(cfg.ceilingTile, renderer, scene);
+
+  // 3-2) 벽 아래 검은 띠: 회의실·소회의실·교육장 벽 아랫부분 검은 칠(depth 를 키우면 튀어나온 걸레받이)
+  if (cfg.baseboard) baseboards(cfg.baseboard, walls, rooms, scene);
 
   // 4) 바닥 무늬: 서울 사진처럼 한 방향으로 짧은 결이 흐르는 시트 장판(줄눈 없음)
   if (cfg.floor) floorTexture(cfg.floor, renderer, scene);
@@ -299,4 +302,38 @@ function ledHalos(h, scene) {
   }
   scene.add(group);
   window.__look = Object.assign(window.__look || {}, { ledHalos: group.children.length });
+}
+
+/* 벽 아래 띠(look.baseboard) — 지정한 방 안쪽 벽면 아래에만 띠를 둘러요(문 자리는 자동으로 비움).
+   서울은 칠한 띠라 depth:0.002(벽면과 거의 같은 높이). 튀어나온 걸레받이는 depth 0.01 정도.
+   baseboard: { rooms: ['meeting', 'coaching', 'classroom'], color: '#1d1e21', h: 0.08, depth: 0.012 }
+     rooms : 띠를 둘 방 id(layout 의 rooms), color: 색, h: 높이(m), depth: 벽에서 튀어나온 두께(m) */
+function baseboards(opt, walls, rooms, scene) {
+  const o = { rooms: ['meeting', 'coaching', 'classroom'], color: '#1d1e21', h: 0.08, depth: 0.012, ...opt };
+  const rects = rooms.filter((r) => o.rooms.includes(r.id)).flatMap((r) => [r.rect, ...(r.rects || [])]);
+  if (!rects.length) return;
+  const flat = o.depth < 0.005;   // 칠한 띠: 무광 페인트, 그림자 받지만 턱 그림자 없음
+  const mat = new THREE.MeshStandardMaterial({ color: o.color, roughness: flat ? 0.75 : 0.45, metalness: flat ? 0 : 0.1, polygonOffset: flat, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+  const geos = [];
+  for (const w of walls) {
+    if (w.type !== 'solid' && w.type !== 'window') continue;
+    const horiz = Math.abs(w.z1 - w.z2) < 1e-6;
+    const a0 = horiz ? Math.min(w.x1, w.x2) : Math.min(w.z1, w.z2), a1 = horiz ? Math.max(w.x1, w.x2) : Math.max(w.z1, w.z2), fixed = horiz ? w.z1 : w.x1;
+    for (const sd of [-1, 1]) {
+      const face = fixed + sd * (w.t / 2), probe = face + sd * 0.05;
+      for (const [x0, z0, x1, z1] of rects) {
+        const inBand = horiz ? probe > z0 && probe < z1 : probe > x0 && probe < x1;
+        if (!inBand) continue;
+        const lo = Math.max(a0, horiz ? x0 : z0), hi = Math.min(a1, horiz ? x1 : z1);
+        if (hi - lo < 0.05) continue;
+        const g = new THREE.BoxGeometry(horiz ? hi - lo : o.depth, o.h, horiz ? o.depth : hi - lo);
+        const c = face + sd * o.depth / 2;
+        g.translate(horiz ? (lo + hi) / 2 : c, o.h / 2, horiz ? c : (lo + hi) / 2);
+        geos.push(g);
+      }
+    }
+  }
+  if (!geos.length) return;
+  for (const g of geos) { const m = new THREE.Mesh(g, mat); m.receiveShadow = true; m.name = 'baseboard'; scene.add(m); }
+  window.__look = Object.assign(window.__look || {}, { baseboards: geos.length });
 }
