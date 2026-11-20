@@ -27,7 +27,7 @@ window.LAYOUT = {
           hemisphere:{ sky:'#ffffff', ground:'#e9e6e0', intensity:0.8 },
           ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' },
           floor:{ base:'#cfccc6', size:1.0, angle:0 },   // 바닥 무늬: 한 방향 결이 있는 시트 장판(사진), 줄눈 없음
-          reflection:{ roughness:0.3, intensity:0.9, tone:0.75, lights:6, planar:{ opacity:0.45, blur:0.005 } } },   // 바닥에 천장 조명·가구가 비침(빼면 반사 없음)
+          reflection:{ roughness:0.55, intensity:0.5, tone:0.75, lights:3, planar:{ opacity:0.12, blur:0.011 } } },   // 바닥 은은한 광택(사진 기준). 숫자를 키우면 더 비침, 빼면 반사 없음
 
   /* ---------- 2. 방(구역) ----------
      id      : 내부 이름(영문, 바꾸지 마세요)
