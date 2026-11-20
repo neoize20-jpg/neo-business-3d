@@ -33,7 +33,7 @@ window.LAYOUT = {
             { src:'photos/views/seoul_win_north.webp', side:'north', from:0.22, to:1.62 },   // 북쪽 창: 유리 외벽 고층 건물(사용자 사진)
             { src:'photos/views/seoul_win_west1.webp', side:'west',  from:0.24, to:2.46 },   // 서쪽 창 ①: 저층 건물·전봇대(IMG_0418)
             { src:'photos/views/seoul_win_west2.webp', side:'west',  from:3.05, to:5.38 } ],  // 서쪽 창 ②: 숲·고층 건물(IMG_0416)
-          cornerShade:{ ceiling:{ size:0.5, strength:0.3 }, floor:{ size:0.2, strength:0.15 } },   // 벽-천장·벽-바닥 모서리 그늘(면 구분)
+          wallTone:'#e9e8e4', cornerShade:{ ceiling:{ size:0.6, strength:0.16 }, floor:{ size:0.25, strength:0.08 } },   // 벽-천장·벽-바닥 모서리 그늘(면 구분)
           baseboard:{ rooms:['meeting','coaching','classroom'], color:'#1d1e21', h:0.08, depth:0.002 },   // 벽 아래 검은 칠(회의실·소회의실·교육장, 실측: 튀어나오지 않음)
           floor:{ base:'#cfccc6', size:1.0, angle:0 },   // 바닥 무늬: 한 방향 결이 있는 시트 장판(사진), 줄눈 없음
           reflection:{ roughness:0.55, intensity:0.5, tone:0.75, lights:3, planar:{ opacity:0.12, blur:0.011 } } },   // 바닥 은은한 광택(사진 기준). 숫자를 키우면 더 비침, 빼면 반사 없음
@@ -370,7 +370,7 @@ window.LAYOUT = {
     { type:'purifier', x:7.4, z:8.8 },                                    // 공기청정기(라운지와 같은 모델)
     { type:'block', x:10.45, z:5.3, w:0.12, d:0.12, h:0.006, color:'metal' },   // 바닥 콘센트 커버
     // 교육장 입구(라운지 쪽): 문 왼쪽 백라이트 TV 패널 + 배너, 오른쪽 슬랫 + 화분
-    { type:'tvWall', x:9.85, z:9.38, w:2.0, rot:180, backlit:true },   // 벽에서 띄운 판 + 네 변 LED 간접조명 + 행사 슬라이드 TV(입구 사진)
+    { type:'tvWall', x:9.85, z:9.38, w:2.0, rot:180, backlit:true, tvY:1.25, screenText:['네오아이즈'] },   // 벽에서 띄운 판 + 네 변 LED 간접조명 + 행사 슬라이드 TV(입구 사진)
     { type:'signStand', x:10.35, z:9.85 },
     { type:'signStand', x:10.7, z:9.85 },
     { type:'slats', from:[12.0, 9.37], to:[12.2, 9.37], h:2.6, count:3 },

@@ -67,6 +67,9 @@ export function applyLook(look, { renderer, scene, walls = [], rooms = [], heigh
   // 3-4) 3D 보기(위에서 내려다보기)에서는 창밖 풍경(하늘·도시 판, 창밖 사진)을 숨기고 걷기에서만 보여요
   if (cfg.hideOutsideInOrbit !== false) outsideOnlyWhenWalking(scene);
 
+  // 3-1a) 벽 색 톤: 흰 페인트 벽을 아주 살짝 따뜻한 회색으로(멀리서 하얗게 날아가지 않게)
+  if (cfg.wallTone) wallTone(cfg.wallTone, scene);
+
   // 3-1b) 모서리 그늘: 벽-천장·벽-바닥이 만나는 곳을 살짝 어둡게(실시간으로는 계산되지 않는 구석 그늘을 흉내)
   if (cfg.cornerShade) cornerShade(cfg.cornerShade, walls, height, scene);
 
@@ -413,7 +416,7 @@ function cornerShade(opt, walls, H, scene) {
   const o = { ceiling: { size: 0.45, strength: 0.22 }, floor: { size: 0.18, strength: 0.12 }, ...opt };
   const grad = (strength) => {   // 위(v=1)가 진하고 아래로 사라지는 세로 그라데이션
     const c = document.createElement('canvas'); c.width = 2; c.height = 64; const k = c.getContext('2d'), g = k.createLinearGradient(0, 0, 0, 64);
-    g.addColorStop(0, `rgba(40,38,36,${strength})`); g.addColorStop(0.35, `rgba(40,38,36,${strength * 0.45})`); g.addColorStop(1, 'rgba(40,38,36,0)');
+    for (let i = 0; i <= 16; i++) { const t = i / 16; g.addColorStop(t, `rgba(40,38,36,${(strength * Math.pow(1 - t, 2.2)).toFixed(4)})`); }   // 끝선 없이 부드럽게 사라짐
     k.fillStyle = g; k.fillRect(0, 0, 2, 64); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
   };
   const mk = (tex) => new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
@@ -428,17 +431,30 @@ function cornerShade(opt, walls, H, scene) {
     const horiz = Math.abs(w.z1 - w.z2) < 1e-6, len = horiz ? Math.abs(w.x2 - w.x1) : Math.abs(w.z2 - w.z1);
     if (len < 0.1) continue;
     const c = horiz ? (w.x1 + w.x2) / 2 : (w.z1 + w.z2) / 2, fixed = horiz ? w.z1 : w.x1;
+    const ln = len - Math.min(len * 0.5, (w.t || 0.14) + 0.02);   // 양 끝을 조금 줄여 모서리에서 두 벽의 그늘이 겹쳐 진해지지 않게
     for (const sd of [-1, 1]) {
       const face = fixed + sd * (w.t / 2 + 0.002), rotY = horiz ? (sd > 0 ? 0 : Math.PI) : (sd > 0 ? Math.PI / 2 : -Math.PI / 2);
       const at = (y, off = 0) => horiz ? new THREE.Vector3(c, y, face + sd * off) : new THREE.Vector3(face + sd * off, y, c);
       if (mc) {
         const s2 = o.ceiling.size;
-        add(mc, len, s2, at(H - s2 / 2), rotY);                                          // 벽 윗부분(천장 쪽이 진함)
-        add(mc, len, s2, at(H - 0.002, s2 / 2), rotY, Math.PI / 2, true);                  // 천장 가장자리(벽 쪽이 진함)
+        add(mc, ln, s2, at(H - s2 / 2), rotY);                                          // 벽 윗부분(천장 쪽이 진함)
+        add(mc, ln, s2, at(H - 0.002, s2 / 2), rotY, Math.PI / 2, true);                  // 천장 가장자리(벽 쪽이 진함)
       }
-      if (mf) { const s3 = o.floor.size; add(mf, len, s3, at(s3 / 2), rotY, 0, true); }   // 벽 아랫부분(바닥 쪽이 진함)
+      if (mf) { const s3 = o.floor.size; add(mf, ln, s3, at(s3 / 2), rotY, 0, true); }   // 벽 아랫부분(바닥 쪽이 진함)
     }
   }
   scene.add(group);
   window.__look = Object.assign(window.__look || {}, { cornerShade: group.children.length });
+}
+
+// 벽 페인트(흰 벽) 색 톤 — wallTone: '#ecebe7' 처럼 색을 주면 흰 페인트 벽 재질 색을 그 색으로 바꿔요
+function wallTone(color, scene) {
+  const done = new Set();
+  scene.traverse((m) => {
+    const mt = m.material; if (!m.isMesh || !mt?.isMeshStandardMaterial || done.has(mt)) return;
+    const paint = mt.userData.world && mt.normalMap && mt.roughness === 0.9 && !mt.roughnessMap;   // app.js M.paint
+    const pub = !mt.map && mt.roughness === 0.85 && mt.color.getHexString() === 'f2f1ee';          // 공용 복도 흰 벽(M.pubWall)
+    if (paint || pub) { mt.color.set(color); done.add(mt); }
+  });
+  window.__look = Object.assign(window.__look || {}, { wallTone: done.size });
 }
