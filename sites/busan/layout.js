@@ -7,7 +7,7 @@
    - 건물(안내도 외곽): 20.7 × 11.52m (+ 북쪽 홀 2m), 천장 2.7m
    - 출입구: 북쪽 벽 비상구 표시 아래 → 북쪽 복도 → 교육장 문(교육장 서쪽 벽 북쪽 끝) / 서쪽 복도 → 화장실 문(서쪽 벽)
    - 교육장: x10.0–20.7, z2.0–13.52. 스크린 = 서쪽 벽, 책상 = 북쪽·남쪽 2구역 × 4줄(4인, 줄 사이 통로), 가운데쯤 흰 사각 기둥 2개(x15.4–16.4)
-   - 강사대기실 · 직원 사무실 = 출입 불가
+   - 회의실 · 직원 사무실 = 출입 불가
    ※ 안내도 비율로 잡은 추정값이에요. 실측값을 받으면 숫자만 바꾸면 됩니다.
    ===================================================================== */
 window.LAYOUT = {
@@ -27,8 +27,8 @@ window.LAYOUT = {
       card:{ photos:[], desc:'9층 출입구(북쪽 벽 비상구 표시 아래 유리문)예요. 들어와서 초록 경로를 따라 북쪽 복도를 동쪽으로 가면 끝에 교육장 문이 있어요. 화장실은 서쪽 복도 끝 왼쪽 문이에요.' } },
     { id:'corridor', name:'복도', en:'Corridor', small:true, rect:[0, 2.0, 10.0, 4.8], rects:[[0, 4.8, 2.64, 7.01]], floor:'floor',
       label:[6.6, 3.4], jump:{ x:4.2, z:3.4, look:[10.0, 3.3] }, card:{ photos:[], desc:'입구에서 교육장까지 이어지는 복도예요. 서쪽 복도 끝 왼쪽(서쪽 벽)에 화장실 문이 있어요.' } },
-    { id:'instructor', name:'강사대기실', en:'Instructor Room', small:true, noEntry:true, rect:[4.65, 4.8, 10.0, 6.34], floor:'floor', label:[7.3, 5.57],
-      jump:{ x:7.3, z:5.28, look:[10.0, 5.28] }, card:{ photos:[], desc:'복도와 교육장 사이의 강사대기실 (출입 불가).' } },
+    { id:'instructor', name:'회의실', en:'Instructor Room', small:true, noEntry:true, rect:[4.65, 4.8, 10.0, 6.34], floor:'floor', label:[7.3, 5.57],
+      jump:{ x:7.3, z:5.28, look:[10.0, 5.28] }, card:{ photos:[], desc:'복도와 교육장 사이의 회의실 (출입 불가).' } },
     { id:'office', name:'직원 사무실', en:'Staff Office', small:true, noEntry:true, rect:[0, 7.01, 10.0, 13.52], rects:[[2.64, 6.34, 10.0, 7.01], [2.64, 4.8, 4.65, 6.34]], floor:'floor', label:[5.0, 9.9],
       jump:{ x:5.0, z:9.9, look:[10.0, 9.9] }, card:{ photos:[], desc:'건물 남서쪽 직원 사무실 (출입 불가).' } }
   ],
@@ -58,17 +58,17 @@ window.LAYOUT = {
     // 북쪽 벽: 비상구 표시 아래 출입구(사용자 표시 '출입구') — 유리 양문, 처음부터 열림 (at = 문 시작 x)
     { from:[0, 2.0], to:[20.7, 2.0], type:'solid', outer:true,
       openings:[ { at:2.9, width:1.66, door:'glass', double:true, entrance:true, frame:'white', open:true } ] },
-    // 북쪽 복도 남쪽 벽 (강사대기실·사무실과 구분)
-    // 북쪽 복도 남쪽 벽(사진: 서→동) 직원 사무실 문 · 금색 사인 · 블라인드 유리 3칸 · 강사대기실 문 (at = 문 시작 x)
+    // 북쪽 복도 남쪽 벽 (회의실·사무실과 구분)
+    // 북쪽 복도 남쪽 벽(사진: 서→동) 직원 사무실 문 · 금색 사인 · 블라인드 유리 3칸 · 회의실 문 (at = 문 시작 x)
     { from:[2.64, 4.8], to:[5.55, 4.8], type:'solid',
       openings:[ { at:3.1, width:0.9, door:'wood', frame:'white', hinge:'start', swing:-88, locked:true } ] },   // 직원 사무실 문(출입 불가)
-    { from:[5.55, 4.8], to:[8.25, 4.8], type:'glass', style:'blinds', bay:0.9 },                              // 강사대기실 유리 칸막이 + 흰 블라인드
+    { from:[5.55, 4.8], to:[8.25, 4.8], type:'glass', style:'blinds', bay:0.9 },                              // 회의실 유리 칸막이 + 흰 블라인드
     { from:[8.25, 4.8], to:[10.0, 4.8], type:'solid',
-      openings:[ { at:8.35, width:0.95, door:'wood', vision:'tall', frame:'white', hinge:'end', swing:88, locked:true } ] },   // 강사대기실 문(세로 긴 반투명 유리, 출입 불가)
+      openings:[ { at:8.35, width:0.95, door:'wood', vision:'tall', frame:'white', hinge:'end', swing:88, locked:true } ] },   // 회의실 문(세로 긴 반투명 유리, 출입 불가)
     // 서쪽 복도 동쪽 벽 + 직원 사무실 문(추정 위치, 출입 불가)
     { from:[2.64, 4.8], to:[2.64, 7.01], type:'solid' },
     { from:[0, 7.01], to:[2.64, 7.01], type:'solid' },   // 서쪽 복도 끝
-    // 강사대기실
+    // 회의실
     { from:[4.65, 4.8], to:[4.65, 6.34], type:'solid' },
     { from:[4.65, 6.34], to:[10.0, 6.34], type:'solid' },
     // 교육장 서쪽(스크린) 벽: 북쪽 끝(z2.25–3.25)에 교육장 문
@@ -133,7 +133,7 @@ window.LAYOUT = {
   ],
 
   furniture: [
-    /* --- 서쪽 벽(사진1): 남쪽 넓은 유리 화이트보드 · 스크린 · 북쪽 유리 화이트보드 · 흰 문(강사대기실) --- */
+    /* --- 서쪽 벽(사진1): 남쪽 넓은 유리 화이트보드 · 스크린 · 북쪽 유리 화이트보드 · 흰 문(회의실) --- */
     { type:'ceilingScreen', x:10.25, z:8.0, w:2.4, h:1.6, rot:-90 },
     { type:'whiteboard', x:10.09, z:10.55, w:2.5, rot:-90, style:'glass' },
     { type:'whiteboard', x:10.09, z:6.1, w:1.4, rot:-90, style:'glass' },
