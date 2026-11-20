@@ -57,7 +57,10 @@ export function applyLook(look, { renderer, scene }) {
     }
   }
 
-  // 4) 바닥 반사: 실제 공간(천장 LED·벽·가구)을 서 있는 자리에서 한 번 찍어 바닥에 비춰요.
+  // 4) 바닥 무늬: 서울 사진처럼 한 방향으로 짧은 결이 흐르는 시트 장판(줄눈 없음)
+  if (cfg.floor) floorTexture(cfg.floor, renderer, scene);
+
+  // 5) 바닥 반사: 실제 공간(천장 LED·벽·가구)을 서 있는 자리에서 한 번 찍어 바닥에 비춰요.
   if (cfg.reflection) floorReflection(cfg.reflection, renderer, scene);
 }
 
@@ -150,4 +153,60 @@ function planarMirror(opt, floorBox, renderer) {
   mirror.rotation.x = -Math.PI / 2; mirror.position.set(c.x, floorBox.max.y + 0.003, c.z);
   mirror.renderOrder = 1; mirror.visible = false; mirror.name = 'floorMirror';
   return mirror;
+}
+
+/* 바닥 무늬(look.floor) — 줄눈 없는 시트 장판. 짧은 결(밝은 회색·짙은 회색·베이지)이 한 방향으로 촘촘하게 흘러요.
+   floor: { base: '#cfccc6', light: '#efece6', dark: '#9c9994', warm: '#c2b6a5', size: 1.0, angle: 0, density: 1, gloss: 0.6 }
+     base/light/dark/warm : 바탕색·밝은 결·짙은 결·따뜻한 결 색
+     size    : 무늬 한 장이 덮는 크기(m)
+     angle   : 결 방향(°). 0 = 동서(x) 방향, 90 = 남북(z) 방향
+     density : 결의 양(1 = 기본)
+     streak  : 결의 길이·굵기 배율(1 = 기본, 길이 약 6~40mm)
+     gloss   : 바닥 거칠기(작을수록 매끈). 반사(look.reflection)의 roughness 배율과 곱해져요 */
+function floorTexture(opt, renderer, scene) {
+  const o = { base: '#cfccc6', light: '#f1eee8', dark: '#97938d', warm: '#bfb29f', size: 1.0, angle: 0, density: 1, streak: 1, gloss: 0.6, ...opt };
+  const mats = new Set();
+  scene.traverse((m) => { if (m.isMesh && m.userData.floor && m.material?.isMeshStandardMaterial && m.material.map) mats.add(m.material); });
+  if (!mats.size) return;
+
+  let seed = 20261120; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const N = renderer.capabilities.maxTextureSize >= 2048 && renderer.shadowMap.enabled ? 1024 : 512, px = N / (o.size * 1000);  // px per mm
+  const c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d');
+  g.fillStyle = o.base; g.fillRect(0, 0, N, N);
+  // 넓은 얼룩(아주 옅은 명암 변화)
+  for (let i = 0; i < 70; i++) {
+    const x = rnd() * N, y = rnd() * N, r = (40 + rnd() * 120) * px * 2, lighter = rnd() < 0.5;
+    for (const [dx, dy] of [[0, 0], [N, 0], [-N, 0], [0, N], [0, -N]]) {
+      const gr = g.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, r);
+      gr.addColorStop(0, lighter ? 'rgba(255,255,255,0.10)' : 'rgba(90,85,78,0.07)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.fillRect(x + dx - r, y + dy - r, r * 2, r * 2);
+    }
+  }
+  // 짧은 결: 한 방향(± 약간 흔들림)으로 길쭉한 획을 촘촘하게. 가장자리는 반대편에도 그려 이음새 없이 반복
+  const base = THREE.MathUtils.degToRad(o.angle), count = Math.round(26000 * o.density * (N / 1024) ** 2);
+  const palette = [[o.light, 0.42], [o.dark, 0.28], [o.warm, 0.18], ['#ffffff', 0.12]];
+  g.lineCap = 'round';
+  for (let i = 0; i < count; i++) {
+    let t = rnd(), col = palette[0][0]; for (const [cc, w] of palette) { if (t < w) { col = cc; break; } t -= w; }
+    const len = (6 + rnd() * rnd() * 34) * o.streak * px, a = base + (rnd() - 0.5) * 0.3, x = rnd() * N, y = rnd() * N;
+    const dx = Math.cos(a) * len / 2, dy = Math.sin(a) * len / 2;
+    g.strokeStyle = col; g.globalAlpha = 0.45 + rnd() * 0.5; g.lineWidth = Math.max(0.8, (1.0 + rnd() * 2.0) * o.streak * px);
+    const draw = (ox, oy) => { g.beginPath(); g.moveTo(x - dx + ox, y - dy + oy); g.lineTo(x + dx + ox, y + dy + oy); g.stroke(); };
+    draw(0, 0);
+    if (x < len) draw(N, 0); if (x > N - len) draw(-N, 0); if (y < len) draw(0, N); if (y > N - len) draw(0, -N);
+  }
+  g.globalAlpha = 1;
+  const map = new THREE.CanvasTexture(c); map.colorSpace = THREE.SRGBColorSpace;
+  // 거칠기: 결 무늬를 따라 아주 조금씩 다르게(밝은 결이 살짝 더 매끈)
+  const r = document.createElement('canvas'); r.width = r.height = N; const rg = r.getContext('2d');
+  rg.drawImage(c, 0, 0); const img = rg.getImageData(0, 0, N, N), d = img.data;
+  for (let i = 0; i < d.length; i += 4) { const v = Math.round((o.gloss + (0.5 - d[i] / 255) * 0.25) * 255); d[i] = d[i + 1] = d[i + 2] = Math.max(0, Math.min(255, v)); }
+  rg.putImageData(img, 0, 0);
+  const rough = new THREE.CanvasTexture(r); rough.colorSpace = THREE.NoColorSpace;
+  for (const t of [map, rough]) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1 / o.size, 1 / o.size); t.anisotropy = renderer.capabilities.getMaxAnisotropy(); t.needsUpdate = true; }
+  for (const m of mats) {
+    m.map = map; m.roughnessMap = rough; m.roughness = 1;
+    m.normalMap = null;   // 기존 타일 텍스처의 줄눈 요철 제거(시트 장판은 이음새가 거의 안 보여요)
+    m.needsUpdate = true;
+  }
 }

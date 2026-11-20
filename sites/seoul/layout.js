@@ -26,6 +26,7 @@ window.LAYOUT = {
   look: { toneMapping:'aces', exposure:1.3, environment:0.6,
           hemisphere:{ sky:'#ffffff', ground:'#e9e6e0', intensity:0.8 },
           ceiling:{ intensity:2.2, tilt:8, color:'#fffdf8' },
+          floor:{ base:'#cfccc6', size:1.0, angle:0 },   // 바닥 무늬: 한 방향 결이 있는 시트 장판(사진), 줄눈 없음
           reflection:{ roughness:0.3, intensity:0.9, tone:0.75, lights:6, planar:{ opacity:0.45, blur:0.005 } } },   // 바닥에 천장 조명·가구가 비침(빼면 반사 없음)
 
   /* ---------- 2. 방(구역) ----------
