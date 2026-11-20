@@ -45,7 +45,7 @@ window.LAYOUT = {
              use:'교육 · 면접 · 회의 · 간담회 · 세미나',
              services:['와이드 스크린','빔프로젝터','무선마이크(2대)','TV 모니터(55인치)','공기청정기','정수기','냉난방'],
              note:'교육장 대관 시 무료 이용 가능' } },
-    { id:'classroom', name:'교육장', en:'Education Center', rect:[6.45, 0, 12.45, 9.18], floor:'floor', capacity:30, area:55,
+    { id:'classroom', name:'교육장', en:'Education Center', rect:[6.45, -0.9, 12.45, 9.18], floor:'floor', capacity:30, area:55,
       label:[8.2, 4.6], jump:{ x:10.45, z:8.55, look:[9.6, 0.5] },
       card:{ photos:['IMG_0380','IMG_0382','IMG_0384','IMG_0383'],
              desc:'Neoful biz space EDUCATION CENTER. 라운지 쪽 출입구에는 백라이트 패널과 TV, 안내 배너가 있고, 내부는 앞쪽에 단상과 와이드 스크린, 화이트 강의용 책상 5줄이 놓인 교육장이에요.',
@@ -96,7 +96,9 @@ window.LAYOUT = {
                 ★ 문은 모두 닫힌 상태로 시작하고, 걷기 모드에서 문 앞에서 E키(모바일은 '열기' 버튼)로 여닫아요.
                   처음부터 열어 두려면 open:true 를 넣으세요. (3D 보기에서는 잘 보이도록 모두 열린 모습으로 보여요)
                   swing = 열렸을 때 각도(도). NEOBOX 부스 문도 booth 가구에 open:true / swing 을 넣을 수 있어요.          */
+  extensions: [[6.45, -0.9, 12.45, 0]], // 사진 비율 기준: 교육장 앞쪽만 0.9m 확장
   walls: [
+    { from:[6.45, -0.9], to:[6.45, 0], type:'solid', t:0.30 },
     // (11/19 실측 스케치 2차 반영 — 건물 12.45 × 12.1m, 0.028m/px)
     // 바깥벽 — 북쪽(위), 초록색 = 창문
     { from:[0, 0],     to:[0.22, 0],  type:'solid',  outer:true },
@@ -105,11 +107,12 @@ window.LAYOUT = {
     { from:[3.14, 0],  to:[4.26, 0],  type:'window', outer:true },   // 회의실 창 ①
     { from:[4.26, 0],  to:[4.82, 0],  type:'solid',  outer:true },
     { from:[4.82, 0],  to:[6.30, 0],  type:'window', outer:true },   // 회의실 창 ②
-    { from:[6.30, 0],  to:[7.62, 0],  type:'solid',  outer:true },
-    { from:[7.62, 0],  to:[9.16, 0],  type:'window', outer:true },   // 교육장 창 ①
-    { from:[9.16, 0],  to:[10.05, 0], type:'solid',  outer:true },
-    { from:[10.05, 0], to:[11.59, 0], type:'window', outer:true },   // 교육장 창 ②
-    { from:[11.59, 0], to:[12.45, 0], type:'solid',  outer:true },
+    { from:[6.30, 0], to:[6.45, 0], type:'solid', outer:true },
+    { from:[6.45, -0.9], to:[7.62, -0.9], type:'solid', outer:true },
+    { from:[7.62, -0.9],  to:[9.16, -0.9],  type:'window', outer:true },   // 교육장 창 ①
+    { from:[9.16, -0.9],  to:[10.05, -0.9], type:'solid',  outer:true },
+    { from:[10.05, -0.9], to:[11.59, -0.9], type:'window', outer:true },   // 교육장 창 ②
+    { from:[11.59, -0.9], to:[12.45, -0.9], type:'solid',  outer:true },
     // 바깥벽 — 서쪽(왼쪽)
     { from:[0, 0],     to:[0, 0.24],  type:'solid',  outer:true },
     { from:[0, 0.24],  to:[0, 2.46],  type:'window', outer:true, style:'tall', blind:0.6 },    // 소회의실 창 ① — 롤스크린 내림
@@ -122,7 +125,7 @@ window.LAYOUT = {
     { from:[9.6, 12.1],  to:[12.45, 12.1], type:'solid', outer:true,
       openings:[ { at:9.6, width:2.65, door:'glass', double:true, entrance:true, leafFrame:true, frame:'white' } ] },   // 입구 유리 양문(사용자 사진 11/20): 프레임 안을 같은 폭 유리문 2짝이 꽉 채움, 가운데 세로 바 손잡이 + 도어락
     // 바깥벽 — 동쪽(오른쪽)
-    { from:[12.45, 0], to:[12.45, 12.1], type:'solid', outer:true },
+    { from:[12.45, -0.9], to:[12.45, 12.1], type:'solid', outer:true },
 
     // 안쪽 벽
     { from:[2.63, 0],  to:[2.63, 6.22], type:'solid' },                       // 소회의실 | 회의실
@@ -239,7 +242,7 @@ window.LAYOUT = {
      x, z : 위치(벽 안쪽 면에서 약 0.12m), rot : 앞면이 향하는 방향(°, 180 = 남쪽, -90 = 동쪽, 90 = 서쪽)
      tilt : 아래로 숙인 각도(°), w·h·d : 크기(기본 0.25 × 0.35 × 0.2), top : 위 끝 높이(기본 천장 바로 아래)   */
   speakers: [   // 교육장 서쪽 벽 높은 곳, 동쪽(방 안)을 향함 — 사용자 스케치 11/19: 앞(단상 옆) 1개, 뒤 1개
-    { x:6.72, z:0.5, rot:-90 },
+    { x:6.72, z:-0.4, rot:-90 },
     { x:6.72, z:8.2, rot:-90 }
   ],
 
@@ -282,14 +285,16 @@ window.LAYOUT = {
     // 교육장
     { id:'edu_projector', name:'빔프로젝트', room:'교육장', box:[9.4, 5.6, 10.0, 6.15, 2.15, 2.7],
       lines:['연결 케이블: (예: HDMI) — 수정 필요', '리모컨 위치: (예: 강사 단상 서랍) — 수정 필요', '사용 방법: (예: 전원 → 입력 HDMI 선택) — 수정 필요'] },
-    { id:'edu_screen', name:'전동 스크린', room:'교육장', box:[8.3, 0.28, 10.8, 0.52, 1.05, 2.7],
-      lines:['내리기/올리기: (예: 벽 스위치) — 수정 필요', '크기: 약 2.4m 폭(3D 모델 기준)'] },
-    { id:'edu_speaker', name:'스피커', room:'교육장', boxes:[[6.55, 0.2, 7.0, 0.8, 2.2, 2.7], [6.55, 7.9, 7.0, 8.5, 2.2, 2.7]],
+    { id:'edu_screen', name:'전동 스크린', room:'교육장', box:[6.9, -0.61, 11.9, -0.39, 0.9, 2.7],
+      lines:['가까이에서 R 키 또는 화면 버튼으로 내리기·올리기', '폭 약 4.7m (사진 비율 기준)'] },
+    { id:'edu_speaker', name:'스피커', room:'교육장', boxes:[[6.55, -0.7, 7.0, -0.1, 2.2, 2.7], [6.55, 7.9, 7.0, 8.5, 2.2, 2.7]],
       lines:['음량 조절: (예: 앰프·리모컨 위치) — 수정 필요', '마이크: (예: 무선 마이크 2개) — 수정 필요'] },
     { id:'edu_ac', name:'에어컨', room:'교육장', box:[9.15, 3.45, 10.25, 4.55, 2.5, 2.75],
       lines:['리모컨/조작: (예: 출입문 옆 벽 컨트롤러) — 수정 필요'] },
-    { id:'edu_podium', name:'강사 단상', room:'교육장', box:[7.15, 0.68, 7.85, 1.22, 0.15, 1.5],
-      lines:['구성: (예: 노트북 거치, HDMI 단자) — 수정 필요'] },
+    { id:'edu_podium', name:'강사 단상', room:'교육장', box:[7.34, -0.36, 7.9, 0.13, 0.16, 1.25],
+      lines:['단상 위 강연대'] },
+    { id:'edu_av', name:'마이크·빔프로젝터 연결함', room:'교육장', box:[6.63, 0.69, 7.35, 1.3, 0, 0.8],
+      lines:['마이크 연결 및 음량 조절', '빔프로젝터 연결 케이블 및 조절 장비'] },
     { id:'edu_board', name:'유리 화이트보드', room:'교육장', boxes:[[6.58, 1.2, 6.78, 8.8, 0.8, 2.2], [12.08, 1.2, 12.26, 8.8, 0.8, 2.2]],
       lines:['마커·지우개: (예: 레지 위 비치) — 수정 필요'] },
     { id:'edu_clock', name:'시계', room:'교육장', box:[9.3, 8.9, 9.8, 9.1, 1.85, 2.35], lines:['뒤쪽 벽 시계'] },
@@ -333,11 +338,12 @@ window.LAYOUT = {
     { type:'whiteboard', x:2.72, z:3.0, w:2.0, rot:-90 },
     { type:'cabinet', x:5.75, z:0.45, w:0.9, d:0.4, h:0.6, color:'white' },
 
-    /* --- 교육장 (x6.45~12.45, z0~9.18, 11/20 사용자 요청으로 서쪽 벽 0.3m 이동: 안쪽 폭 5.4 → 5.7m) --- */
-    { type:'stage', x:9.405, z:0.86, w:5.65, d:1.28, h:0.2, top:'carpetDark', step:false },   // 단상(사용자 도면 빨간 영역 11/20): 서쪽 벽~동쪽 벽 꽉 채움 x6.58–12.23, 북쪽 벽~z1.5 (교육장 길이의 약 1/6), 높이 0.2, 따로 노는 계단 없음 //   // 단상(닫힌 상자 + 카펫 + 금속 트림, 계단 가운데): x7.6–11.6, z1.0–1.6 (양 끝 0.6m 이상 비워 뒤로 들어갈 수 있음), 높이 0.2 — 뒤(창문 쪽 z0.24–1.0)로 걸어갈 수 있게 깊이를 줄임 (사용자 11/19)
-    // 천장 매입형 전동 스크린: 북쪽 벽·창문에서 약 0.4m 앞 천장에서 내려옴 (2.4 × 1.45m, 단상·방 가운데)
-    { type:'ceilingScreen', x:9.555, z:0.4, w:2.4, h:1.45 },
-    { type:'podium', x:7.5, z:0.95, w:0.62, d:0.42, rot:180, elev:0.2 },   // 발표용 강연대 — 도면 노란색: 단상 왼쪽 끝, 앞 스피커 옆 //   // 발표용 강연대 — 단상 왼쪽 위에 완전히 올라감 (x7.89–8.51, z1.07–1.49, 상판 포함 1.55 < 단상 앞 1.6)
+    /* --- 교육장 (x6.45~12.45, z-0.9~9.18): 사진 기준 앞쪽 깊이와 단상·강연대 조정 --- */
+    { type:'stage', x:9.405, z:-0.04, w:5.65, d:1.28, h:0.16, top:'carpetDark', step:false }, // 사진의 낮은 직사각 단상: 앞끝 z0.6, 첫 책상까지 약 1.53m
+    // 천장 전동 와이드 스크린: 창문 앞 0.4m, 처음에는 올림, 근처에서 R 키/화면 버튼으로 조작
+    { type:'ceilingScreen', x:9.405, z:-0.5, w:4.7, h:1.65, interactive:true, raised:true },
+    { type:'podium', x:7.62, z:-0.12, w:0.48, d:0.4, h:1.02, rot:180, elev:0.16, style:'slimDark' },
+    { type:'avCabinet', x:6.99, z:0.99, w:0.68, d:0.55, h:0.78, rot:180 }, // 단상 왼쪽 바닥의 마이크·빔프로젝터 연결/조절함
     { type:'whiteboard', x:6.62, z:5.0, w:7.4, rot:-90, style:'glass' },   // 서쪽 벽 연두 유리 화이트보드 0.9~2.1m + 레지
     { type:'whiteboard', x:12.19, z:5.0, w:7.4, rot:90, style:'glass' },   // 동쪽 벽도 같은 연두 유리 화이트보드 (단상에서 본 사진 11/19)
     // 수강 책상은 아래 deskLayouts(책상 배치 바꾸기)에서 정해요.

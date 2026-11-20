@@ -155,6 +155,10 @@ box(W, 0.02, D, M.floor, W / 2, -0.02, D / 2).userData.floor = true;
 box(W + 0.1, 0.3, D + 0.1, M.cap, W / 2, -0.32, D / 2);                       // 건물 바닥 슬래브(3D 보기용)
 const ground = new THREE.Mesh(new THREE.CircleGeometry(60, 48), M.ground); ground.rotation.x = -Math.PI / 2; ground.position.set(W / 2, -0.33, D / 2); ground.receiveShadow = true; scene.add(ground);
 box(W, 0.04, D, M.ceiling, W / 2, H, D / 2);
+for (const [x0, z0, x1, z1] of (L.extensions || [])) {
+  box(x1 - x0, 0.04, z1 - z0, M.floor, (x0 + x1) / 2, -0.04, (z0 + z1) / 2).userData.floor = true;
+  box(x1 - x0, 0.04, z1 - z0, M.ceiling, (x0 + x1) / 2, H, (z0 + z1) / 2);
+}
 
 /* ---------------- walls ---------------- */
 const WALLSEGS = [];   // 미니맵·벽 단면(cap)용
@@ -800,7 +804,39 @@ function tableSet(g, o) {   // 테이블(세로 d 방향으로 길게) + 양옆 
   const place = (cnt, side) => { for (let i = 0; i < cnt; i++) { const z = cnt === 1 ? 0 : -d / 2 + inset + i * (d - 2 * inset) / (cnt - 1); chair(grp(side * (w / 2 + 0.275), z, side * 90, g), {}); } };
   place(o.chairsLeft || 0, -1); place(o.chairsRight || 0, 1);
 }
+function avCabinet(g, o) {
+  const w = o.w || 0.68, d = o.d || 0.55, h = o.h || 0.78;
+  const panel = plain(0x77766c), dark = plain(0x20252a);
+  box(w, 0.045, d, dark, 0, h - 0.045, 0, g);
+  box(w, 0.06, d, dark, 0, 0.08, 0, g);
+  box(w, h - 0.16, 0.025, dark, 0, 0.12, d / 2 - 0.012, g);
+  for (const side of [-1, 1]) {
+    box(0.035, h - 0.16, d, panel, side * (w / 2 - 0.018), 0.12, 0, g);
+    for (let z = -d / 2 + 0.02; z < d / 2; z += 0.025) box(0.003, h - 0.18, 0.006, M.metal, side * (w / 2 + 0.001), 0.13, z, g);
+    box(0.035, h - 0.16, 0.035, dark, side * (w / 2 - 0.018), 0.12, -d / 2, g);
+    for (const z of [-d / 2 + 0.08, d / 2 - 0.08]) {
+      const wheel = cyl(0.04, 0.04, 0.035, M.black, side * (w / 2 - 0.07), 0, z, 12, g);
+      wheel.rotation.z = Math.PI / 2; wheel.position.y = 0.04;
+    }
+  }
+  for (const y of [0.22, 0.42, 0.61]) {
+    box(w - 0.09, 0.018, d - 0.06, M.metal, 0, y, 0, g);
+    box(w - 0.15, 0.09, d - 0.12, M.black, 0, y + 0.02, 0, g);
+    for (const x of [-0.18, -0.1, 0.12]) box(0.025, 0.025, 0.012, M.metal, x, y + 0.05, -d / 2 + 0.05, g);
+  }
+  box(w - 0.075, h - 0.2, 0.009, std({ color:0x26333d, transparent:true, opacity:0.48, roughness:0.15, depthWrite:false }), 0, 0.14, -d / 2 - 0.006, g);
+  for (const y of [0.16, h - 0.17]) box(0.035, 0.055, 0.018, M.metal, w / 2 - 0.055, y, -d / 2 - 0.018, g);
+  box(0.025, 0.09, 0.025, M.metal, -w / 2 + 0.07, h * 0.45, -d / 2 - 0.025, g);
+}
 function podium(g, o) {   // 발표용 스탠딩 강연대 (앞 = 로컬 -z → rot:180 이면 청중(남쪽)을 향함)
+  if (o.style === 'slimDark') {
+    const w = o.w || 0.5, d = o.d || 0.4, h = o.h || 1.05;
+    box(w, 0.035, d, M.black, 0, 0, 0, g);
+    box(w * 0.84, h - 0.08, d * 0.62, plain(0x333638), 0, 0.035, 0, g);
+    for (let x = -w * 0.34; x < w * 0.36; x += 0.045) box(0.008, h - 0.16, 0.009, M.metal, x, 0.07, -d * 0.31 - 0.005, g);
+    const top = box(w + 0.04, 0.035, d + 0.05, M.black, 0, h - 0.05, 0, g); top.rotation.x = -0.12;
+    return;
+  }
   const w = o.w || 0.62, d = o.d || 0.48, h = o.h || 1.08, m = matOf(o.color || 'white'), acc = matOf(o.accent || 'oak');
   box(w, h - 0.06, d, m, 0, 0, 0, g);                                           // 몸체
   box(w + 0.04, 0.03, d + 0.04, m, 0, 0, 0, g);                                 // 받침
@@ -851,10 +887,20 @@ function heater(g, o) {
   for (const xx of [-w / 2 + 0.08, w / 2 - 0.08]) { box(0.04, 0.12, 0.08, M.white, xx, 0, 0, g); box(0.08, 0.015, 0.2, M.white, xx, 0, -0.02, g); }
 }
 // 천장 매입형 전동 스크린: 천장 슬롯(흰 하우징)에서 흰 막이 내려오고 아래에 얇은 검은 바. 벽에서 떨어져(앞으로) 매달림
+const SCREENS = [];
 function ceilingScreen(g, o) {   // box(.., y) 의 y 는 아래 끝 높이
   const w = o.w || 2.4, h = o.h || 1.45, top = H - 0.07;
   box(w + 0.24, 0.07, 0.18, M.white, 0, top, 0, g);                    // 천장 하우징
   box(w + 0.1, 0.012, 0.03, M.black, 0, top - 0.012, 0, g);            // 슬롯
+  if (o.interactive) {
+    const roll = new THREE.Group(); roll.position.y = top; roll.userData.dynamic = true; g.add(roll);
+    box(w, 0.12, 0.006, M.black, 0, -0.12, 0, roll);
+    box(w, h - 0.12, 0.006, M.screen, 0, -h, 0, roll);
+    const bar = box(w + 0.04, 0.035, 0.025, M.black, 0, top - 0.035, 0, g); bar.userData.dynamic = true;
+    const cur = o.raised ? 0 : 1; roll.scale.y = 0.015 + cur * 0.985; bar.position.y = top - h * roll.scale.y - 0.0175;
+    SCREENS.push({ g, roll, bar, top, h, w, cur, target:cur });
+    g.userData.noCollide = true; g.userData.noBlob = true; return;
+  }
   box(w, 0.12, 0.006, M.black, 0, top - 0.12, 0, g);                   // 윗부분 검은 리더
   box(w, h - 0.12, 0.006, M.screen, 0, top - h, 0, g);                 // 흰 스크린 면
   box(w + 0.04, 0.035, 0.025, M.black, 0, top - h - 0.035, 0, g);      // 아래 검은 바
@@ -1092,7 +1138,7 @@ function slats(o) {   // from → to 선을 따라 세로 우드 루버
   if (o.thick) box(horiz ? Math.abs(bx - ax) + 0.1 : 0.08, 0.04, horiz ? 0.08 : Math.abs(bz - az) + 0.1, M.oak, (ax + bx) / 2, h, (az + bz) / 2, g);
   g.userData.noBlob = true; return g;
 }
-const BUILDERS = { stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, nestChair, trainingTable, cafeTable, mobileTv, waterDispenser, goldSign, plainDoor, stairsDoor, fireCabinet, tactile, hangSign, pictoPlate, okSlats, wallPlate, extinguisher, elevator, restroom };
+const BUILDERS = { avCabinet, stage, podium, block, chair, stool, armchair, cube, roundTable, plant, desk, deskPair, tableSet, whiteboard, screen, ceilingScreen, speaker, island, clock: wallClock, exitSign, heater, tvStand, tvWall, signStand, bench, cabinet, barCounter, purifier, stanchion, mat, booth, pantry, zzPlant, coffeeCabinet, coffeeCorner, standFan, bin, ledClock, shellChair, nestChair, trainingTable, cafeTable, mobileTv, waterDispenser, goldSign, plainDoor, stairsDoor, fireCabinet, tactile, hangSign, pictoPlate, okSlats, wallPlate, extinguisher, elevator, restroom };
 const NOBLOB = new Set(['clock', 'exitSign', 'stage', 'whiteboard', 'screen', 'ceilingScreen', 'tvWall', 'mat', 'slats', 'booth']);
 const blobs = [];
 function place(o, parent = root) {
@@ -1259,7 +1305,8 @@ const doorClosed = (d, plan) => d.target === 0 || (!plan && d.cur < 0.85);
 function blocked(x, z, plan = false) {
   if (x < PR || z < PR || x > W - PR || z > D - PR) { const cr = L.corridor?.rect; if (!(cr && x > cr[0] + PR && x < cr[2] - PR && z >= D - PR && z < cr[3] - PR)
       && !(L.outside || []).some((r) => x > r[0] + PR && x < r[2] + PR && z > r[1] + PR && z < r[3] - PR && (x < PR || x > W - PR) && z > PR && z < D - PR)
-      && !((L.public && L.public.floors) || []).some((r) => x > r[0] && x < r[2] && z > r[1] && z < r[3])) return true; }
+      && !((L.public && L.public.floors) || []).some((r) => x > r[0] && x < r[2] && z > r[1] && z < r[3])
+      && !(L.extensions || []).some((r) => x > r[0] && x < r[2] && z > r[1] && z <= r[3] + PR)) return true; }
   for (const [a, b, c, d2] of (L.barriers || [])) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d2)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }   // 보이지 않는 출입 금지 선
   for (const d of DOORS) if (doorClosed(d, plan) && circleHits(x, z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) return true;
   const dc = DESK_COLL[deskIdx], db = DESK_BB[deskIdx]; if (dc && db && x > db[0] && x < db[2] && z > db[1] && z < db[3]) for (const [a, b, c, d] of dc) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
@@ -1398,6 +1445,29 @@ function updateDoors(dt) {
 }
 doorBtn.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); toggleDoor(nearDoor); });
 window.__doors = DOORS; window.__blocked = (x, z) => blocked(x, z);
+// Interactive screens are opt-in per layout; other venues retain their fixed screens.
+const screenBtn = document.createElement('button');
+screenBtn.id = 'screenControl'; screenBtn.type = 'button'; screenBtn.hidden = true;
+Object.assign(screenBtn.style, { position:'fixed', left:'50%', top:'68%', transform:'translateX(-50%)', zIndex:9, background:'#0B2E67', color:'#fff', border:'2px solid white', borderRadius:'12px', padding:'12px 18px', font:'700 15px Pretendard, sans-serif', cursor:'pointer' });
+if (SCREENS.length) document.body.appendChild(screenBtn);
+let nearScreen = null;
+function toggleScreen() { if (nearScreen) nearScreen.target = 1 - nearScreen.target; }
+screenBtn.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
+screenBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleScreen(); });
+addEventListener('keydown', (e) => { if (e.code === 'KeyR' && !e.repeat && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) toggleScreen(); });
+function updateScreens(dt) {
+  nearScreen = null;
+  for (const s of SCREENS) {
+    const delta = dt / 2.2;
+    s.cur = s.target > s.cur ? Math.min(s.target, s.cur + delta) : Math.max(s.target, s.cur - delta);
+    s.roll.scale.y = 0.015 + s.cur * 0.985;
+    s.bar.position.y = s.top - s.h * s.roll.scale.y - 0.0175;
+    const dx = player.x - s.g.position.x, dz = player.z - s.g.position.z;
+    if (mode === 'walk' && !flight && Math.abs(dx) < s.w / 2 + 0.4 && dz > 0 && dz < 2.5) nearScreen = s;
+  }
+  screenBtn.hidden = !nearScreen;
+  if (nearScreen) screenBtn.textContent = `${TOUCH ? '' : 'R · '}스크린 ${nearScreen.target ? '올리기' : '내리기'}`;
+}
 
 /* ---------------- player / modes / flights ---------------- */
 const player = { x: 0, z: 0, yaw: 0, pitch: -0.04 }; window.__player = player; window.__camera = camera;
@@ -1597,9 +1667,10 @@ window.__tip = (x, y) => { tipMouse = [x, y]; tipLast = 0; updateTip(performance
 
 /* ---------------- minimap ---------------- */
 const mm = document.getElementById('minimap'), mctx = mm.getContext('2d'), dpr = Math.min(devicePixelRatio, 2);
-const MS = 190 / Math.max(W, D), PAD = 7, MW = W * MS + PAD * 2, MH = D * MS + PAD * 2;
+const MAP_Z0 = Math.min(0, ...(L.extensions || []).map((r) => r[1]));
+const MS = 190 / Math.max(W, D - MAP_Z0), PAD = 7, MW = W * MS + PAD * 2, MH = (D - MAP_Z0) * MS + PAD * 2;
 mm.width = MW * dpr; mm.height = MH * dpr; mm.style.width = MW + 'px'; mm.style.height = MH + 'px';
-const mx = (x) => PAD + x * MS, mz = (z) => PAD + z * MS;
+const mx = (x) => PAD + x * MS, mz = (z) => PAD + (z - MAP_Z0) * MS;
 const mapBase = document.createElement('canvas'); mapBase.width = mm.width; mapBase.height = mm.height;
 {
   const c = mapBase.getContext('2d'); c.scale(dpr, dpr);
@@ -1623,7 +1694,7 @@ function drawMap() {
 }
 mm.addEventListener('pointerdown', (e) => {
   e.stopPropagation(); if (flight) return;
-  const r = mm.getBoundingClientRect(), k = MW / r.width; const x = ((e.clientX - r.left) * k - PAD) / MS, z = ((e.clientY - r.top) * k - PAD) / MS;
+  const r = mm.getBoundingClientRect(), k = MW / r.width; const x = ((e.clientX - r.left) * k - PAD) / MS, z = ((e.clientY - r.top) * k - PAD) / MS + MAP_Z0;
   if (mode === 'orbit') enterWalk(x, z, yawTo(controls.target.x, controls.target.z + 30, x, z) || 0);
   else { [player.x, player.z] = freeNear(x, z); ensureEscape(player.x, player.z); }
 });
@@ -1667,6 +1738,7 @@ function tick() {
   const dt = Math.min(clock.getDelta(), 0.05);
   if (flight) stepFlight(dt); else if (mode === 'walk') step(dt); else if (mode === 'orbit') controls.update();
   updateDoors(dt);
+  updateScreens(dt);
   setCut(mode === 'orbit' || (mode === 'fly' && camera.position.y > H - 0.1));
   if (frame++ % 6 === 0) {
     updateLabels();
