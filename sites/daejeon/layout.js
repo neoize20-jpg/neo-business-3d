@@ -30,7 +30,7 @@ window.LAYOUT = {
       card:{ photos:[], desc:'10층 엘리베이터에서 내리면 바로 앞(동쪽)이 입구예요. 들어와서 초록 경로를 따라 통로를 남쪽으로 내려가면 교육장 문이에요. 화장실은 엘리베이터 바로 북쪽이에요.' } },
     { id:'passage', name:'통로', en:'Passage', small:true, rect:[3.28, 0, 5.62, 8.19], floor:'floor', label:[4.45, 6.6],
       jump:{ x:4.45, z:4.6, look:[4.45, 9.0] }, card:{ photos:[], desc:'입구에서 교육장 문까지 이어지는 통로예요.' } },
-    { id:'road_w', name:'회의실', en:'Instructor Room', small:true, noEntry:true, rect:[0, 8.19, 3.28, 16.15], floor:'floor', label:[1.64, 12.2],
+    { id:'road_w', name:'회의실', en:'Meeting Room', small:true, noEntry:true, rect:[0, 8.19, 3.28, 16.15], floor:'floor', label:[1.64, 12.2],
       jump:{ x:1.6, z:10.0, look:[1.6, 15.0] }, card:{ photos:[], desc:'교육장 서쪽의 회의실 (출입 불가).' } },
     { id:'road_n', name:'북쪽 복도', en:'No entry', small:true, noEntry:true, rect:[5.62, 0, 20.83, 2.11], floor:'floor', label:[12.4, 1.05],
       jump:{ x:6.0, z:1.05, look:[20.0, 1.05] }, card:{ photos:[], desc:'온라인 교육장 앞 북쪽 복도 (출입 불가).' } },
