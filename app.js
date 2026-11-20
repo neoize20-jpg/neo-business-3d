@@ -698,17 +698,37 @@ function deskPair(g, o) {   // 책상 + 뒤쪽 의자 n개(기본 2), 의자는 
 function extinguisher(g) { cyl(0.075, 0.075, 0.5, plain(0xd8261c), 0, 0, 0, 16, g); cyl(0.03, 0.04, 0.06, M.black, 0, 0.5, 0, 10, g); box(0.12, 0.02, 0.03, M.black, 0.03, 0.56, 0, g); box(0.08, 0.1, 0.005, M.white, 0, 0.25, -0.076, g); }
 function elevator(g, o) {   // 엘리베이터: 벽판 + 스테인리스 문 2짝 + 프레임 + 호출 버튼 + 층 표시 (정면 = 로컬 -z)
   if (o && o.recessed) {
-  const st = new THREE.MeshStandardMaterial({ color: 0xc5cad0, metalness: 0.8, roughness: 0.25 });
-const dm = new THREE.MeshStandardMaterial({ color: 0x8a9096, metalness: 0.7, roughness: 0.28 });
-box(0.10, 2.24, 0.14, st, -0.60, 0, -0.05, g);
-box(0.10, 2.24, 0.14, st,  0.60, 0, -0.05, g);
-box(1.30, 0.12, 0.14, st,  0, 2.12, -0.05, g);
-box(0.53, 2.12, 0.02, dm, -0.27, 0, -0.01, g);
-box(0.53, 2.12, 0.02, dm,  0.27, 0, -0.01, g);
-box(0.06, 0.12, 0.02, M.black, 0.8, 1.1, -0.01, g);
-cyl(0.015, 0.015, 0.01, plain(0xffffff), 0.8, 1.15, -0.02, 10, g);
-g.userData.noBlob = true;
-return;
+    const st = new THREE.MeshStandardMaterial({ color: 0x8e9399, metalness: 0.45, roughness: 0.45 });
+    const dm = new THREE.MeshStandardMaterial({ color: 0x2f2c2b, metalness: 0.25, roughness: 0.55 });
+    box(0.08, 2.22, 0.14, st, -0.59, 0, -0.05, g);
+    box(0.08, 2.22, 0.14, st,  0.59, 0, -0.05, g);
+    box(1.26, 0.08, 0.14, st,  0, 2.14, -0.05, g);
+    box(0.54, 2.14, 0.02, dm, -0.275, 0, -0.005, g);
+    box(0.54, 2.14, 0.02, dm,  0.275, 0, -0.005, g);
+    box(0.11, 0.40, 0.02, plain(0x6e7378), -0.78, 1.56, -0.01, g);
+    box(0.07, 0.18, 0.02, M.black, -0.78, 1.62, -0.02, g);
+    const ft = textTexture(String(o.floor || 2), '#111111', '#ff4422', { w: 64, h: 64, font: 'bold 40px Pretendard,sans-serif' });
+    const fm = new THREE.Mesh(new THREE.PlaneGeometry(0.06, 0.06), new THREE.MeshBasicMaterial({ map: ft }));
+    fm.position.set(-0.78, 1.71, -0.032); fm.rotation.y = Math.PI; g.add(fm);
+    box(0.06, 0.18, 0.02, M.black, -0.78, 0.98, -0.01, g);
+    cyl(0.014, 0.014, 0.01, plain(0xffffff), -0.78, 1.09, -0.022, 10, g);
+    cyl(0.014, 0.014, 0.01, plain(0xffffff), -0.78, 1.04, -0.022, 10, g);
+    if (o.wallFloor) {
+      const c = document.createElement('canvas'); c.width = 128; c.height = 128; const k = c.getContext('2d');
+      k.fillStyle = '#1d2024'; k.font = '800 72px Pretendard,sans-serif'; k.textAlign = 'center'; k.textBaseline = 'middle';
+      k.fillText(o.wallFloor, 64, 64);
+      const wt = new THREE.CanvasTexture(c); wt.colorSpace = THREE.SRGBColorSpace;
+      const wm = new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.28), new THREE.MeshBasicMaterial({ map: wt, transparent: true }));
+      wm.position.set(1.20, 1.88, -0.015); wm.rotation.y = Math.PI; wm.userData.keep = true; g.add(wm);
+    }
+    if (o.sideLed) {
+      box(0.36, 0.10, 0.03, M.black, -1.15, 2.18, -0.02, g);
+      const lt = textTexture('▲ ' + (o.floor || 2), '#111111', '#ff4422', { w: 128, h: 48, font: 'bold 30px Pretendard,sans-serif' });
+      const lm = new THREE.Mesh(new THREE.PlaneGeometry(0.30, 0.08), new THREE.MeshBasicMaterial({ map: lt }));
+      lm.position.set(-1.15, 2.23, -0.038); lm.rotation.y = Math.PI; g.add(lm);
+    }
+    g.userData.noBlob = true;
+    return;
   }
    if (!o || !o.noPanel) box(2.4, H, 0.12, plain(0xe4e1da), 0, 0, 0.06, g);
   const st = M.chrome || (M.chrome = std({ color: 0xd9dde2, metalness: 0.9, roughness: 0.18 }));
@@ -770,6 +790,34 @@ return;
   g.userData.noBlob = true; g.userData.noCollide = true;
 }
 function plainDoor(g, o) {   // 닫힌 흰 문(공용 복도 관리실 등, 장식) 정면 = 로컬 -z
+  if (o && o.ps) {
+    const w = o.w || 0.70, h = 1.55, y0 = 0.28;
+    box(w + 0.05, h + 0.05, 0.025, plain(0xdcd9d3), 0, y0 - 0.025, -0.012, g);
+    const c = document.createElement('canvas'); c.width = 256; c.height = 512; const k = c.getContext('2d');
+    k.fillStyle = '#e8e6e2'; k.fillRect(0, 0, 256, 512);
+    k.strokeStyle = '#555555'; k.lineWidth = 3; k.strokeRect(10, 10, 236, 492);
+    k.fillStyle = '#222222'; k.textAlign = 'center';
+    k.font = '700 32px Pretendard, sans-serif'; k.fillText('PS', 128, 152);
+    k.font = '600 18px Pretendard, sans-serif'; k.fillText('(유수검지장치실)', 128, 180);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: 0.45, metalness: 0.05 }));
+    p.position.set(0, y0 + h / 2, -0.028); p.rotation.y = Math.PI; p.userData.keep = true; g.add(p);
+    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.018, 14), new THREE.MeshStandardMaterial({ color: 0xcfd4d9, metalness: 0.9, roughness: 0.18 }));
+    knob.rotation.x = Math.PI / 2; knob.position.set(-(w / 2 - 0.09), y0 + 0.52, -0.036); g.add(knob);
+    g.userData.noCollide = true; g.userData.noBlob = true;
+    return;
+  }
+  if (o && o.evWhite) {
+    const w = o.w || 0.95;
+    box(w + 0.08, 2.16, 0.04, plain(0xd8d6d0), 0, 0, -0.01, g);
+    box(w, 2.12, 0.04, plain(0xedece8), 0, 0, -0.025, g);
+    box(0.04, 0.04, 0.04, M.metal, w / 2 - 0.10, 0.95, -0.055, g);
+    box(0.11, 0.022, 0.02, M.metal, w / 2 - 0.14, 0.96, -0.075, g);
+    box(0.22, 0.05, 0.04, plain(0x9ca1a6), -(w / 2 - 0.18), 2.02, -0.055, g);
+    box(0.04, 0.22, 0.12, plain(0x24344d), w / 2 + 0.06, 1.78, -0.06, g);
+    g.userData.noCollide = true; g.userData.noBlob = true;
+    return;
+  }
   box((o.w || 0.9) + 0.1, 2.15, 0.05, M.steel || M.metal, 0, 0, -0.01, g); box(o.w || 0.9, 2.1, 0.05, plain(0xf3f2ef), 0, 0, -0.03, g); box(0.02, 0.14, 0.04, M.metal, (o.w || 0.9) / 2 - 0.1, 0.95, -0.07, g);
   g.userData.noCollide = true; g.userData.noBlob = true;
 }
@@ -1264,22 +1312,19 @@ function photoPantry(g, o) {
   decal(0.37,0.07,cx,top+0.57,-0.21,(k,W,H)=>{k.fillStyle='#17265d';k.fillRect(0,0,W,H);k.fillStyle='#fff';k.font='120px sans-serif';k.fillText('bliss',35,175);});
   const coffeeCup=paperCup(g,cx,top+0.201,-0.255);
   APPLIANCES.set('coffee',{kind:'cup',cup:coffeeCup,state:'empty'});
-  // Ice maker: hollow ice bin behind a front hatch that folds down.
+  // Ice maker: countertop body with top smoked lid that flips upward from the rear hinge.
   const ix=0.24;
-  box(0.43,0.025,0.44,charcoal,ix,top,0,g);box(0.43,0.19,0.44,charcoal,ix,top+0.29,0,g);
-  for(const x of [ix-0.205,ix+0.205])box(0.02,0.28,0.44,charcoal,x,top+0.025,0,g);
-  box(0.39,0.27,0.02,charcoal,ix,top+0.025,0.21,g);
-  box(0.38,0.015,0.38,M.white,ix,top+0.027,0,g);
-  const iceHatch=rbox(0.38,0.26,0.02,0.008,silver,ix,top+0.025,-0.225,g);
-  const iceMaterial=std({color:0xc4e6ee,roughness:0.2,metalness:0.05,transparent:true,opacity:0.8});
-  for(let i=0;i<24;i++){const ice=box(0.055,0.045,0.05,iceMaterial,ix-0.14+(i%6)*0.055,top+0.05+Math.floor(i/12)*0.045,-0.15+Math.floor(i%12/6)*0.10,g);ice.rotation.set((i%3)*0.18,(i%5)*0.4,(i%4)*0.12);}
-  const icePivot=appliancePart(g,[iceHatch],ix,top+0.025,-0.225);
+  box(0.40,0.34,0.42,charcoal,ix,top,0,g);
+  box(0.36,0.025,0.38,M.white,ix,top+0.335,0,g);
+  box(0.32,0.08,0.32,plain(0xe8ecee),ix,top+0.27,0,g);
+  const iceMaterial=std({color:0xc4e6ee,roughness:0.2,metalness:0.05,transparent:true,opacity:0.85});
+  for(let i=0;i<18;i++){const ice=box(0.048,0.038,0.045,iceMaterial,ix-0.11+(i%6)*0.044,top+0.315+Math.floor(i/12)*0.025,-0.10+Math.floor((i%12)/6)*0.09,g);ice.rotation.set((i%3)*0.18,(i%5)*0.4,(i%4)*0.12);}
+  const iceLidFrame=rbox(0.38,0.025,0.38,0.008,black,ix,top+0.36,-0.01,g);
+  const iceLidGlass=box(0.31,0.012,0.28,std({color:0x1b2026,roughness:0.15,metalness:0.2,transparent:true,opacity:0.72}),ix,top+0.372,-0.02,g);
+  const iceLidTab=box(0.08,0.016,0.025,black,ix,top+0.365,-0.205,g);
+  const icePivot=appliancePart(g,[iceLidFrame,iceLidGlass,iceLidTab],ix,top+0.365,0.18);
   icePivot.userData.equipmentId='ice';
-  APPLIANCES.set('ice',{kind:'door',pivot:icePivot,axis:'x',angle:-1.1,cur:0,target:0,state:'closed'});
-  const lid=box(0.35,0.16,0.025,black,ix,top+0.3,-0.175,g);lid.rotation.x=-0.28;
-  front(0.28,0.095,glass,ix,top+0.33,-0.205);
-  box(0.09,0.012,0.015,M.metal,0,0.23,-0.017,icePivot);
-  for(let j=-2;j<=2;j++)front(0.02,0.012,j===0?plain(0x80aab0):silver,ix+j*0.045,top+0.445,-0.163);
+  APPLIANCES.set('ice',{kind:'door',pivot:icePivot,axis:'x',angle:1.35,cur:0,target:0,state:'closed'});
   // Cup stacks and slim dispensers between ice maker and sink.
   for(const xx of [-0.09,-0.23]){
     cyl(0.045,0.035,0.22,M.white,xx,top,-0.015,20,g);
@@ -1924,7 +1969,7 @@ function updateAppliances(dt){
     if(a.kind==='water'&&a.state==='filling'){a.elapsed+=dt;const f=Math.min(1,a.elapsed/3);a.fill.scale.y=0.02+0.98*f;a.fill.position.y=0.005+0.05*a.fill.scale.y;if(f===1){a.stream.visible=false;a.state='full';}}
   }
   const current=activeAppliance();useBtn.hidden=!current;
-  if(current){useBtn.textContent=(TOUCH?'':'E · ')+'사용하기 — '+actionLabel(current.id,current.a);useBtn.disabled=current.a.state==='filling';}
+  if(current){const lbl=current.a.kind==='door'?(current.a.target?'E-닫기':'E-열기'):'E - 사용하기';useBtn.textContent=TOUCH?lbl.replace(/^E\s*-\s*/,''):lbl;useBtn.disabled=current.a.state==='filling';}
 }
 window.__applianceState=()=>Object.fromEntries([...APPLIANCES].map(([id,a])=>[id,{state:a.state,open:a.cur??null,cup:a.cup?.visible??false,water:a.fill?.scale.y??0}]));
 
