@@ -60,7 +60,7 @@ export function applyLook(look, { renderer, scene, walls = [], rooms = [] }) {
   // 3-1) 천장: 흡음 텍스 타일 무늬·T바 격자, 사진처럼 밝은 천장, LED 주변 은은한 빛 번짐
   if (cfg.ceilingTile) ceilingLook(cfg.ceilingTile, renderer, scene);
 
-  // 3-2) 걸레받이: 사진처럼 회의실·소회의실·교육장 벽 아래 검은 띠
+  // 3-2) 벽 아래 검은 띠: 회의실·소회의실·교육장 벽 아랫부분 검은 칠(depth 를 키우면 튀어나온 걸레받이)
   if (cfg.baseboard) baseboards(cfg.baseboard, walls, rooms, scene);
 
   // 4) 바닥 무늬: 서울 사진처럼 한 방향으로 짧은 결이 흐르는 시트 장판(줄눈 없음)
@@ -304,14 +304,16 @@ function ledHalos(h, scene) {
   window.__look = Object.assign(window.__look || {}, { ledHalos: group.children.length });
 }
 
-/* 걸레받이(look.baseboard) — 지정한 방 안쪽 벽면 아래에만 띠를 둘러요(문 자리는 자동으로 비움).
+/* 벽 아래 띠(look.baseboard) — 지정한 방 안쪽 벽면 아래에만 띠를 둘러요(문 자리는 자동으로 비움).
+   서울은 칠한 띠라 depth:0.002(벽면과 거의 같은 높이). 튀어나온 걸레받이는 depth 0.01 정도.
    baseboard: { rooms: ['meeting', 'coaching', 'classroom'], color: '#1d1e21', h: 0.08, depth: 0.012 }
-     rooms : 걸레받이를 둘 방 id(layout 의 rooms), color: 색, h: 높이(m), depth: 벽에서 튀어나온 두께(m) */
+     rooms : 띠를 둘 방 id(layout 의 rooms), color: 색, h: 높이(m), depth: 벽에서 튀어나온 두께(m) */
 function baseboards(opt, walls, rooms, scene) {
   const o = { rooms: ['meeting', 'coaching', 'classroom'], color: '#1d1e21', h: 0.08, depth: 0.012, ...opt };
   const rects = rooms.filter((r) => o.rooms.includes(r.id)).flatMap((r) => [r.rect, ...(r.rects || [])]);
   if (!rects.length) return;
-  const mat = new THREE.MeshStandardMaterial({ color: o.color, roughness: 0.45, metalness: 0.1 });
+  const flat = o.depth < 0.005;   // 칠한 띠: 무광 페인트, 그림자 받지만 턱 그림자 없음
+  const mat = new THREE.MeshStandardMaterial({ color: o.color, roughness: flat ? 0.75 : 0.45, metalness: flat ? 0 : 0.1, polygonOffset: flat, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
   const geos = [];
   for (const w of walls) {
     if (w.type !== 'solid' && w.type !== 'window') continue;
