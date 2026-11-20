@@ -137,7 +137,7 @@ window.LAYOUT = {
     // 바깥벽 — 남쪽(아래): 서쪽 벽 x0–9.6 | 입구 유리 양문 x9.6–12.25 (2짝, 사용자 사진 11/20)
     { from:[0, 12.1],    to:[9.6, 12.1],   type:'solid', outer:true },
     { from:[9.6, 12.1],  to:[12.45, 12.1], type:'solid', outer:true,
-      openings:[ { at:9.6, width:2.65, door:'glass', double:true, entrance:true, leafFrame:true, frame:'white' } ] },   // 입구 유리 양문(사용자 사진 11/20): 프레임 안을 같은 폭 유리문 2짝이 꽉 채움, 가운데 세로 바 손잡이 + 도어락
+      openings:[ { at:9.6, width:2.65, door:'glass', double:true, fixedLeaf:'start', entrance:true, leafFrame:true, frame:'white' } ] },   // 입구 유리 양문(사용자 사진 11/20): 프레임 안을 같은 폭 유리문 2짝이 꽉 채움, 가운데 세로 바 손잡이 + 도어락
     // 바깥벽 — 동쪽(오른쪽)
     { from:[12.45, -0.9], to:[12.45, 12.1], type:'solid', outer:true },
 
@@ -322,13 +322,13 @@ window.LAYOUT = {
     { id:'mtg_table', name:'회의 테이블', room:'회의실', box:[4.14, 0.78, 5.12, 5.18, 0.6, 0.8],
       lines:['테이블 2개 · 12석', '전원: (예: 테이블 콘센트) — 수정 필요'] },
     // 커피존 (항상 이름 표시)
-    { id:'microwave', name:'전자레인지', room:'커피존', box:[8.37, 11.3, 8.87, 11.8, 0.9, 1.22], label:true,
+    { id:'microwave', name:'전자레인지', room:'커피존', box:[8.11, 11.3, 8.91, 11.8, 0.9, 1.28], label:true,
       lines:['사용 후 문을 닫아 주세요 (예시) — 수정 필요'] },
-    { id:'coffee', name:'커피머신', room:'커피존', box:[7.94, 11.3, 8.3, 11.8, 0.9, 1.62], label:true,
+    { id:'coffee', name:'커피머신', room:'커피존', box:[7.55, 11.29, 8.05, 11.8, 0.9, 1.61], label:true,
       lines:['사용 방법: (예: 컵 올리고 메뉴 선택) — 수정 필요', '원두 보충: (예: 상부장) — 수정 필요'] },
-    { id:'ice', name:'제빙기', room:'커피존', box:[7.52, 11.3, 7.88, 11.8, 0.9, 1.37], label:true,
+    { id:'ice', name:'제빙기', room:'커피존', box:[7.06, 11.3, 7.52, 11.8, 0.9, 1.4], label:true,
       lines:['사용 방법: (예: 컵을 대고 버튼) — 수정 필요'] },
-    { id:'water', name:'정수기', room:'커피존 · 개수대', boxes:[[5.22, 11.3, 5.82, 11.86, 0.88, 1.38]], labelAt:[5.52, 1.42, 11.32], label:true,
+    { id:'water', name:'정수기', room:'커피존 · 싱크대 왼쪽 출수구', boxes:[[6.4, 11.64, 6.65, 11.73, 0.91, 1.25]], labelAt:[6.57, 1.29, 11.66], label:true,
       lines:['냉수·온수: (예: 온수 잠금 버튼) — 수정 필요'] }
   ],
 
@@ -383,7 +383,7 @@ window.LAYOUT = {
 
     /* --- 남쪽 벽, 서쪽부터: NEOBOX(x0.34–4.78) → 가벽(슬랫 x4.95) → 커피존 카운터(x5.1–9.0) → 입구 유리 양문(x9.6–12.25) --- */
     { type:'slats', from:[4.95, 11.85], to:[4.95, 10.85], h:2.45, count:9, thick:true },   // 가벽: NEOBOX3 과 커피존 카운터 사이
-    { type:'pantry', x:7.05, z:11.56, w:3.9 },   // 커피존 카운터 x5.1–9.0: 서쪽 끝(가벽 옆) 싱크+정수기 … 동쪽으로 제빙기·커피머신·전자레인지(동쪽 끝)
+    { type:'pantry', x:7.05, z:11.56, w:3.9, style:'photoSeoul' },   // 커피존 카운터 x5.1–9.0: 서쪽 끝(가벽 옆) 싱크+정수기 … 동쪽으로 제빙기·커피머신·전자레인지(동쪽 끝)
     { type:'zzPlant', x:9.32, z:11.68, scale:1.25 },   // 흰 화분 ZZ 플랜트 (카운터 동쪽 끝과 입구 고정 유리 사이)
 
     /* --- 라운지 --- */

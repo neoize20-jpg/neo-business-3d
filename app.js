@@ -404,8 +404,13 @@ for (const w of L.walls) {
     } else if (o.double) {
       const hw = len / 2, sw = (o.swing || 80) * DEG;
       const st = o.entrance ? { entrance: true, frame: !!o.leafFrame } : undefined;
-      registerDoor([door(horiz ? o.at : fixed, horiz ? fixed : o.at, hw, baseStart, -sw, leafMat, fm, st),
-                    door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm, st)], o.open === true, o.name).locked = !!o.locked;
+      const leaves = [door(horiz ? o.at : fixed, horiz ? fixed : o.at, hw, baseStart, -sw, leafMat, fm, st),
+                      door(horiz ? o.at + len : fixed, horiz ? fixed : o.at + len, hw, baseEnd, sw, leafMat, fm, st)];
+      if (o.fixedLeaf === 'start' || o.fixedLeaf === 'end') {
+        const fixedLeaf = leaves.splice(o.fixedLeaf === 'start' ? 0 : 1, 1)[0];
+        fixedLeaf.g.userData.noCollide = false; fixedLeaf.g.userData.dynamic = false;
+      }
+      registerDoor(leaves, o.open === true, o.name).locked = !!o.locked;
     } else {
       const start = (o.hinge || 'start') === 'start', sw = (o.swing || 80) * DEG;
       const hp = start ? o.at : o.at + len;
@@ -1105,7 +1110,75 @@ function labelPlate(g, txt, sub, bg, fg, x, y, z) {   // 수납장 문 라벨(�
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   const m = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.09), new THREE.MeshBasicMaterial({ map: t })); m.position.set(x, y, z); m.rotation.y = Math.PI; g.add(m);
 }
+function photoPantry(g, o) {
+  // Reference photo: viewed facing south, image-left is local +x.
+  const w = o.w || 3.9, top = 0.91, black = plain(0x17191b), charcoal = plain(0x343638), silver = plain(0x9d9f9c), glass = std({color:0x171b20,roughness:0.18,metalness:0.22});
+  const front = (ww, hh, mat, x, y, z) => box(ww, hh, 0.008, mat, x, y, z, g);
+  const decal = (ww, hh, x, y, z, draw) => {
+    const c = document.createElement('canvas'); c.width = 512; c.height = 256; draw(c.getContext('2d'), c.width, c.height);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const p = new THREE.Mesh(new THREE.PlaneGeometry(ww, hh), new THREE.MeshBasicMaterial({map:t})); p.rotation.y = Math.PI; p.position.set(x, y + hh / 2, z); g.add(p);
+  };
+  box(w, 0.1, 0.56, M.paint, 0, 0, 0.02, g);
+  box(w, 0.78, 0.6, M.white, 0, 0.1, 0, g); box(w + 0.02, 0.03, 0.63, M.white, 0, 0.88, -0.015, g);
+  for (let i=1;i<6;i++) front(0.006,0.75,plain(0xb9b9b5),-w/2+i*w/6,0.11,-0.304);
+  ['TRASH','PLASTIC','CAN / GLASS'].forEach((text,i)=>decal(0.26,0.14,w/2-(i+0.5)*w/6,0.55,-0.311,(k,W,H)=>{
+    k.fillStyle='#eeece7';k.fillRect(0,0,W,H);k.strokeStyle='#aaa8a1';k.lineWidth=6;k.strokeRect(8,8,W-16,H-16);k.fillStyle='#777872';k.textAlign='center';k.font='40px sans-serif';k.fillText(text,W/2,H*0.76);k.strokeRect(W/2-28,45,56,90);for(let j=-1;j<=1;j++)k.fillRect(W/2+j*16-2,56,4,67);
+  }));
+  box(w,0.83,0.02,plain(0xe2e0da),0,top,0.29,g);
+  box(w,0.8,0.36,M.white,0,1.74,0.12,g);
+  for(let i=1;i<6;i++) front(0.006,0.79,plain(0xb9b9b5),-w/2+i*w/6,1.745,-0.063);
+  // Microwave: broad black door, silver right-hand keypad (image-right = -x).
+  const mx=1.46; rbox(0.78,0.36,0.43,0.012,black,mx,top,-0.015,g);
+  front(0.76,0.33,M.white,mx,top+0.015,-0.234);
+  front(0.62,0.31,black,mx+0.06,top+0.025,-0.24);
+  front(0.43,0.22,glass,mx+0.055,top+0.07,-0.246);
+  front(0.065,0.035,black,mx-0.326,top+0.255,-0.246);
+  for(let row=0;row<5;row++)for(let col=0;col<2;col++)front(0.018,0.012,silver,mx-0.343+col*0.035,top+0.06+row*0.035,-0.246);
+  decal(0.1,0.07,mx+0.29,top+0.24,-0.247,(k,W,H)=>{k.fillStyle='#282b2b';k.fillRect(0,0,W,H);k.fillStyle='#c6aa60';k.beginPath();k.arc(W/2,H/2,H*.4,0,7);k.fill();});
+  // Coffee machine: drawer base, recessed dispensing bay, twin spouts and bean hopper.
+  const cx=0.75; rbox(0.48,0.16,0.48,0.015,black,cx,top,-0.01,g);
+  front(0.4,0.11,charcoal,cx,top+0.025,-0.254);front(0.19,0.017,silver,cx,top+0.05,-0.261);
+  rbox(0.43,0.43,0.39,0.025,charcoal,cx,top+0.16,0.025,g);
+  front(0.36,0.37,black,cx,top+0.19,-0.177);
+  for(const side of [-1,1])box(0.065,0.25,0.065,silver,cx+side*0.16,top+0.19,-0.185,g);
+  front(0.22,0.19,glass,cx,top+0.205,-0.19);
+  box(0.3,0.025,0.16,black,cx,top+0.17,-0.17,g);
+  for(let j=-5;j<=5;j++)box(0.012,0.003,0.12,M.metal,cx+j*0.023,top+0.197,-0.17,g);
+  box(0.19,0.045,0.065,M.metal,cx,top+0.39,-0.211,g);
+  for(const xx of [-0.045,0.045])cyl(0.012,0.012,0.035,M.metal,cx+xx,top+0.355,-0.229,10,g);
+  decal(0.13,0.075,cx,top+0.455,-0.183,(k,W,H)=>{k.fillStyle='#192c4d';k.fillRect(0,0,W,H);k.fillStyle='#609bd4';k.fillRect(12,12,W-24,H-24);k.fillStyle='#eee';k.font='52px sans-serif';k.fillText('COFFEE',35,150);});
+  box(0.25,0.09,0.2,std({color:0x574b3e,transparent:true,opacity:0.8,roughness:0.25}),cx,top+0.59,0.05,g);box(0.28,0.012,0.22,black,cx,top+0.68,0.05,g);
+  decal(0.37,0.07,cx,top+0.57,-0.21,(k,W,H)=>{k.fillStyle='#17265d';k.fillRect(0,0,W,H);k.fillStyle='#fff';k.font='120px sans-serif';k.fillText('bliss',35,175);});
+  // Ice maker: rounded black lid, recessed viewing panel, silver lower bin.
+  const ix=0.24; rbox(0.43,0.48,0.44,0.045,charcoal,ix,top,0,g);
+  rbox(0.38,0.26,0.02,0.008,silver,ix,top+0.025,-0.225,g);
+  const lid=box(0.35,0.16,0.025,black,ix,top+0.3,-0.175,g);lid.rotation.x=-0.28;
+  front(0.28,0.095,glass,ix,top+0.33,-0.205);front(0.09,0.012,M.metal,ix,top+0.255,-0.242);
+  for(let j=-2;j<=2;j++)front(0.02,0.012,j===0?plain(0x80aab0):silver,ix+j*0.045,top+0.445,-0.163);
+  // Cup stacks and slim dispensers between ice maker and sink.
+  for(const xx of [-0.09,-0.23]){
+    cyl(0.045,0.035,0.22,M.white,xx,top,-0.015,20,g);
+    for(let y=0.04;y<0.23;y+=0.018)cyl(0.046,0.046,0.006,plain(0xe1ded3),xx,top+y,-0.015,20,g);
+    box(0.012,0.24,0.012,M.metal,xx+0.055,top,0.025,g);
+  }
+  box(0.1,0.31,0.1,plain(0xe7e4dd),-0.4,top,0.11,g);
+  cyl(0.055,0.045,0.1,M.metal,-0.16,top,-0.2,20,g);box(0.14,0.025,0.09,plain(0xf4efd0),-0.37,top,-0.21,g);
+  // Sink, short mixer tap, and separate tall square purifier spout to its image-left.
+  const sx=-0.78;
+  rbox(0.64,0.014,0.4,0.006,M.metal,sx,top,-0.035,g);
+  rbox(0.56,0.006,0.32,0.002,plain(0x333737),sx,top+0.014,-0.035,g);
+  const fx=sx-0.07;cyl(0.03,0.034,0.13,M.metal,fx,top,0.18,18,g);
+  box(0.065,0.035,0.15,M.metal,fx,top+0.09,0.115,g);box(0.02,0.015,0.1,M.metal,fx,top+0.16,0.15,g);
+  const px=sx+0.34;
+  box(0.035,0.31,0.04,M.metal,px,top,0.13,g);
+  box(0.21,0.04,0.055,M.metal,px-0.087,top+0.29,0.13,g);
+  box(0.032,0.04,0.035,M.metal,px-0.175,top+0.255,0.12,g);
+  front(0.04,0.016,black,px-0.11,top+0.3,0.099);
+  decal(0.34,0.19,-0.59,1.38,0.273,(k,W,H)=>{k.fillStyle='#dddcd7';k.fillRect(0,0,W,H);k.strokeStyle='#8c8b84';k.lineWidth=4;k.strokeRect(5,5,W-10,H-10);k.fillStyle='#77776f';for(let y=35;y<220;y+=26)k.fillRect(80,y,350-(y%3)*45,5);k.fillRect(20,25,30,190);});
+}
 function pantry(g, o) {   // 탕비 카운터(사진 IMG_0386): 뒤(벽) = 로컬 +z. 동쪽(+x) 끝부터 전자레인지 → 커피머신 → 얼음통 → 싱크(서쪽, 가벽 쪽)
+  if (o.style === 'photoSeoul') { photoPantry(g, o); return; }
   const w = o.w || 3, x0 = -w / 2, x1 = w / 2, n = o.doors || Math.round(w / 0.5), dw = w / n;
   box(w, 0.1, 0.56, M.paint, 0, 0, 0.02, g);                                       // 걸레받이
   box(w, 0.78, 0.6, M.white, 0, 0.1, 0, g); box(w + 0.02, 0.03, 0.63, M.marble, 0, 0.88, -0.015, g);   // 하부장 + 상판
