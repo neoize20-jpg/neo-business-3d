@@ -166,7 +166,7 @@ window.LAYOUT = {
     { type:'cafeTable', x:13.9, z:2.5, w:1.4, d:0.7 },
     { type:'speaker', x:10.75, z:2.12, rot:180, color:'white', w:0.22, h:0.3, d:0.16, top:2.55 },   // 흰 벽 스피커(사진)
     { type:'wallPlate', x:10.08, z:4.12, rot:-90, w:0.21, h:0.3, y:1.3 },                          // 문 옆 안내문(사진, 교육장 안쪽)
-    { type:'wallPlate', x:9.92, z:4.12, rot:90, w:0.21, h:0.3, y:1.3 ,}                             // 문 옆 안내문(복도 쪽)
+    { type:'wallPlate', x:9.92, z:4.12, rot:90, w:0.21, h:0.3, y:1.3 },                             // 문 옆 안내문(복도 쪽)
   /* --- 회의실 가구 --- */
    { type:'cafeTable', x:6.25, z:6.65, w:1.7, d:1.2 },
 { type:'cafeTable', x:7.95, z:6.65, w:1.7, d:1.2 },
