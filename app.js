@@ -1093,6 +1093,11 @@ function cafeTable(g, o) {   // 흰 상판 + 오크 엣지 + 검정 철제 다�
   for (const sx of [-1, 1]) for (const sz3 of [-1, 1]) box(0.035, h - 0.043, 0.035, BK, sx * (w / 2 - 0.04), 0, sz3 * (d / 2 - 0.04), g);
   for (const sz3 of [-1, 1]) box(w - 0.1, 0.03, 0.02, BK, 0, h - 0.075, sz3 * (d / 2 - 0.04), g); for (const sx of [-1, 1]) box(0.02, 0.03, d - 0.1, BK, sx * (w / 2 - 0.04), h - 0.075, 0, g);
   if (o.sanitizer) { cyl(0.03, 0.03, 0.17, plain(0xdfeaf2), -w / 2 + 0.2, h, 0.05, 12, g); cyl(0.03, 0.03, 0.17, plain(0xdfeaf2), -w / 2 + 0.28, h, 0.1, 12, g); }
+  if (o.outlet) {
+     box(0.36, 0.008, 0.12, plain(0xd0d4d8), 0, h, 0, g);
+     box(0.31, 0.006, 0.075, plain(0x2d3136), 0, h + 0.004, 0, g);
+     box(0.31, 0.012, 0.014, plain(0xbec4ca), 0, h + 0.005, -0.025, g);
+  }
 }
 function mobileTv(g, o) {   // 이동형 TV 스탠드(검정) + 약 55형 TV + 아래 선반, 앞 = 로컬 -z
   const BK = plain(0x17181b);
@@ -1739,7 +1744,10 @@ function updateScreens(dt) {
     s.roll.scale.y = 0.015 + s.cur * 0.985;
     s.bar.position.y = s.top - s.h * s.roll.scale.y - 0.0175;
     const dx = player.x - s.g.position.x, dz = player.z - s.g.position.z;
-    if (mode === 'walk' && !flight && Math.abs(dx) < s.w / 2 + 0.4 && dz > 0 && dz < 2.5) nearScreen = s;
+    const inFront = Math.abs(s.g.rotation.y) < 0.01
+       ? (Math.abs(dx) < s.w / 2 + 0.4 && dz > 0 && dz < 2.5)
+       : (Math.hypot(dx, dz) < 4.5 && player.x < s.g.position.x + 0.2 && Math.abs(dz) < s.w / 2 + 0.8);
+   if (mode === 'walk' && !flight && inFront) nearScreen = s;
   }
   screenBtn.hidden = !nearScreen;
   if (nearScreen) screenBtn.textContent = `${TOUCH ? '' : 'R · '}스크린 ${nearScreen.target ? '올리기' : '내리기'}`;
