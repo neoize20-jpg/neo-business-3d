@@ -83,7 +83,7 @@ window.LAYOUT = {
              desc:'유리문 위에 Neoful business space 사인이 있는 입구예요. 들어오면 교육장 앞 디스플레이 월과 배너가 보여요.' } },
     // (11/20 사용자 건물 도면 seoul_plan2 · 사진) 2층 공용 복도: 코어(계단·화장실·엘리베이터)를 도는 ㅁ자 복도 + 코어 가운데 엘리베이터 홀. 축척 x 0.0465 m/px, z 0.0469 m/px (4배 확대 도면 기준, L210 = Neoful)
     { id:'restroom', name:'화장실', en:'Restroom', small:true, rect:[15.35, 20.26, 16.83, 23.36], rects:[[25.95, 20.26, 27.53, 23.36]], floor:'floor',
-      label:[16.09, 21.3], jump:{ x:16.09, z:25.2, look:[16.09, 20.3] },
+      label:[21.5, 21.8], jump:{ x:16.09, z:25.2, look:[16.09, 20.3] },
       card:{ photos:[], desc:'유리입구로 나가 왼쪽 복도를 따라 내려가면 엘리베이터 홀이에요. 홀 북쪽 계단실 옆 통로 안쪽이 여자 화장실, 반대쪽 끝 통로 안쪽이 남자 화장실이에요.' } },
     { id:'evhall', name:'EV 홀', en:'Elevator Hall', small:true, rect:[12.00, 23.36, 31.06, 28.05], floor:'floor',
       label:[21.5, 25.7], jump:{ x:30.4, z:25.7, look:[9.3, 25.7] },
