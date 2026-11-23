@@ -178,10 +178,10 @@ a.pk-card:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(11,46,103
   </div>
 </aside>
 <!-- 교육장 목록: sites/sites.js / 교육장별 공간 설정: sites/<id>/layout.js (치수·가구 배치는 거기서 수정) -->
-<script src="sites/sites.js?v=11203900"></script>
+<script src="sites/sites.js?v=11204000"></script>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
 <script type="module">
-const V = "11203900", SITES = window.SITES || [], q = new URLSearchParams(location.search);
+const V = "11204000", SITES = window.SITES || [], q = new URLSearchParams(location.search);
 // 링크로 들어오면 무조건 교육장 선택 화면부터(사용자 요청 11/20). 투어는 카드(또는 투어 안 교육장 메뉴)를 눌렀을 때만 열림.
 // 카드를 누르면 sessionStorage 에 한 번 쓰는 표시를 남기고 ?site= 로 이동 → 그 한 번만 투어로 들어감(새로고침·공유 링크는 다시 선택 화면).
 // 개발용 예외: ?site=…&shot=… 또는 &direct=1 이 함께 있으면 바로 투어(스크린샷 도구용).
