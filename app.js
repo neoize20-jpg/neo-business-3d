@@ -1121,6 +1121,11 @@ function waterDispenser(g, o) {   // 바닥형 흰 정수기(약 0.35 × 0.45 ×
   cyl(0.012, 0.012, 0.05, plain(0xd23b2b), -0.06, 0.87, fz - 0.04, 8, g); cyl(0.012, 0.012, 0.05, plain(0x2b6fd2), 0.06, 0.87, fz - 0.04, 8, g);
   box(0.16, 0.06, 0.005, plain(0x2b3440), 0, 1.18, fz - 0.006, g);
   cyl(0.04, 0.04, 0.32, plain(0xeceff2), 0.12, 1.0, fz - 0.03, 14, g).rotation.z = 0;   // 컵 디스펜서
+  const wCup = paperCup(g, 0.06, 0.73, fz - 0.04);
+  const wMat = std({ color: 0x80cee9, transparent: true, opacity: 0.65, roughness: 0.12 });
+  const wFill = cyl(0.039, 0.03, 0.1, wMat, 0, 0.005, 0, 28, wCup); wFill.scale.y = 0.01;
+  const wStream = cyl(0.004, 0.004, 0.13, wMat, 0.06, 0.74, fz - 0.04, 10, g); wStream.visible = false; wStream.userData.dynamic = true; wStream.userData.noCollide = true;
+  APPLIANCES.set(o.id || 'bs_water', { kind: 'water', cup: wCup, fill: wFill, stream: wStream, elapsed: 0, state: 'empty' });
 }
 function bin(g, o) { if (o.square) { box(o.w || 0.26, o.h || 0.4, o.w || 0.26, M.black, 0, 0, 0, g); return; } cyl(o.r || 0.15, (o.r || 0.15) * 0.92, o.h || 0.55, o.color ? matOf(o.color) : M.black, 0, 0, 0, 20, g); }   // 검정 휴지통
 function ledClock(g, o) {
