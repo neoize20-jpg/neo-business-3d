@@ -1200,21 +1200,14 @@ function coffeeCorner(g, o) {
     box(0.4, 0.76, 0.4, BK, x, 0, -0.21, g); box(0.42, 0.02, 0.42, BK, x, 0.76, -0.21, g);
     box(0.26, 0.02, 0.16, plain(0x111316), x, 0.78, -0.21, g);
     box(0.42, 0.025, 0.3, GR, x - 0.34, 0.85, -0.16, g); }
-  // 수납장 위 벽 LED 시계 (현재 시간 실시간 표시)
-  { const x = X(o.clock ?? -0.3), cg = new THREE.Group(); cg.position.set(x, 2.1, -0.04);
-    box(0.9, 0.26, 0.06, BK, 0, 0, 0, cg);
-    const c = document.createElement('canvas'); c.width = 512; c.height = 128; const k = c.getContext('2d');
-    const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
-    const draw = () => {
-      const d = new Date(), s = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-      k.fillStyle = '#0c0d10'; k.fillRect(0, 0, 512, 128); k.fillStyle = '#ff2a1a';
-      k.font = '700 84px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(s, 256, 66);
-      tx.needsUpdate = true;
-    };
-    draw(); setInterval(draw, 10000);
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.84, 0.21), new THREE.MeshBasicMaterial({ map: tx }));
-    m.position.set(0, 0.13, -0.032); m.rotation.y = Math.PI; m.userData.keep = true; cg.add(m);
-    cg.userData.noBlob = true; g.add(cg); }
+ // 수납장 위 무테 화이트 3D 7세그먼트 LED 시계 (현재 시간 실시간 표시)
+   { const x = X(o.clock ?? -0.3), cg = new THREE.Group(); cg.position.set(x, 2.08, -0.025);
+    const c = document.createElement('canvas'); c.width = 512; c.height = 192; const k = c.getContext('2d'); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+    const DIG = [[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]];
+    const drawSeg = (x0, y0, w, h, on) => { k.save(); k.shadowColor = on ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.22)'; k.shadowBlur = on ? 10 : 4; k.shadowOffsetY = on ? 0 : 2; k.fillStyle = on ? '#ffffff' : 'rgba(175,180,188,0.78)'; k.beginPath(); k.roundRect(x0, y0, w, h, 4); k.fill(); k.restore(); };
+    const drawDigit = (ox, num) => { const m = DIG[num] || DIG[0], sw = 56, sh = 11, vh = 48, g0 = 5; drawSeg(ox + sh, 30, sw, sh, m[0]); drawSeg(ox + sh + sw, 30 + sh + g0, sh, vh, m[1]); drawSeg(ox + sh + sw, 30 + sh * 2 + vh + g0 * 3, sh, vh, m[2]); drawSeg(ox + sh, 30 + sh * 2 + vh * 2 + g0 * 4, sw, sh, m[3]); drawSeg(ox, 30 + sh * 2 + vh + g0 * 3, sh, vh, m[4]); drawSeg(ox, 30 + sh + g0, sh, vh, m[5]); drawSeg(ox + sh, 30 + sh + vh + g0 * 2, sw, sh, m[6]); };
+    const draw = () => { const d = new Date(), hh = String(d.getHours()).padStart(2, '0'), mm = String(d.getMinutes()).padStart(2, '0'); k.clearRect(0, 0, 512, 192); k.save(); k.transform(1, 0, -0.12, 1, 20, 0); drawDigit(32, +hh[0]); drawDigit(130, +hh[1]); drawSeg(238, 66, 14, 14, 1); drawSeg(238, 114, 14, 14, 1); drawDigit(274, +mm[0]); drawDigit(372, +mm[1]); k.restore(); tx.needsUpdate = true; }; draw(); setInterval(draw, 10000);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.82, 0.30), new THREE.MeshBasicMaterial({ map: tx, transparent: true })); m.position.set(0, 0.14, -0.01); m.rotation.y = Math.PI; m.userData.keep = true; cg.add(m); box(0.008, 1.15, 0.006, plain(0xe8e8e6), 0.02, -1.08, 0.012, cg); cg.userData.noBlob = true; g.add(cg); }
   // 왼쪽 벽 빨간 화재 경보함
   { const x = X(o.alarm ?? -1.05);
     box(0.24, 0.32, 0.06, plain(0xd4352a), x, 1.42, -0.03, g);
@@ -2064,40 +2057,18 @@ function updateAppliances(dt){
   if(current){const lbl=current.a.kind==='door'?(current.a.target?'E-닫기':'E-열기'):'E - 사용하기';useBtn.textContent=TOUCH?lbl.replace(/^E\s*-\s*/,''):lbl;useBtn.disabled=current.a.state==='filling';}
 }
 window.__applianceState=()=>Object.fromEntries([...APPLIANCES].map(([id,a])=>[id,{state:a.state,open:a.cur??null,cup:a.cup?.visible??false,water:a.fill?.scale.y??0}]));
+/* -------------- minimap -------------- */
+const mm = document.getElementById('minimap'), mctx = mm.getContext('2d'), dpr = Math.min(devicePixelRatio, 2); const MAP_Z0 = Math.min(0, ...(L.extensions || []).map((r) => r[1])), PAD = 7;
+function buildMapView(x0, z0, x1, z1, isFull) { const sc = 190 / Math.max(x1 - x0, z1 - z0), mw = (x1 - x0) * sc + PAD * 2, mh = (z1 - z0) * sc + PAD * 2; const mx = (x) => PAD + (x - x0) * sc, mz = (z) => PAD + (z - z0) * sc; const cv = document.createElement('canvas'); cv.width = Math.round(mw * dpr); cv.height = Math.round(mh * dpr); const c = cv.getContext('2d'); c.scale(dpr, dpr);
+                                               if (isFull && L.public && L.public.floors) { c.fillStyle = 'rgba(255,255,255,.11)'; for (const [a, b, cc, d] of L.public.floors) c.fillRect(mx(a), mz(b), (cc - a) * sc, (d - b) * sc); }
+                                               c.fillStyle = isFull ? 'rgba(255,255,255,.20)' : 'rgba(255,255,255,.1)'; c.fillRect(mx(0), mz(0), W * sc, D * sc); for (const r of L.rooms) { if (r.id === 'lounge') continue; for (const [a, b, cc, d] of [r.rect, ...(r.rects || [])]) { c.fillStyle = 'rgba(255,255,255,.07)'; c.fillRect(mx(a), mz(b), (cc - a) * sc, (d - b) * sc); } }
+                                               for (const s of WALLSEGS) { if (s.type === 'column') { c.fillStyle = s.block ? 'rgba(255,255,255,.28)' : '#fff'; c.fillRect(mx(s.x1), mz(s.z1), (s.x2 - s.x1) * sc, (s.z2 - s.z1) * sc); continue; } c.strokeStyle = s.type === 'solid' ? '#fff' : s.type === 'window' ? '#8fd0ff' : '#b9cde8'; c.lineWidth = isFull ? (s.type === 'solid' ? 1.5 : 1.0) : (s.type === 'solid' ? 2.4 : 1.6); c.beginPath(); c.moveTo(mx(s.x1), mz(s.z1)); c.lineTo(mx(s.x2), mz(s.z2)); c.stroke(); }
+                                               c.fillStyle = 'rgba(255,255,255,.88)'; c.font = isFull ? '600 8px Pretendard, sans-serif' : '600 9.5px Pretendard, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; for (const r of L.rooms) { if (isFull && ['meeting', 'small', 'booth', 'coffee', 'entrance', 'lounge'].includes(r.id)) continue; c.fillText(r.name, mx(r.label[0]), mz(r.label[1])); } return { x0, z0, sc, mw, mh, mx, mz, cv }; }
+const IN_VIEW = buildMapView(0, MAP_Z0, W, D, false); let FULL_VIEW = null; if (L.public && L.public.floors && L.public.floors.length) { let fx0 = 0, fz0 = MAP_Z0, fx1 = W, fz1 = D; for (const [a, b, cc, d] of L.public.floors) { fx0 = Math.min(fx0, a); fz0 = Math.min(fz0, b); fx1 = Math.max(fx1, cc); fz1 = Math.max(fz1, d); } for (const r of L.rooms) for (const [a, b, cc, d] of [r.rect, ...(r.rects || [])]) { fx0 = Math.min(fx0, a); fz0 = Math.min(fz0, b); fx1 = Math.max(fx1, cc); fz1 = Math.max(fz1, d); } FULL_VIEW = buildMapView(fx0, fz0, fx1, fz1, true); }
+let curView = null; function applyMapView(v) { if (curView === v) return; curView = v; mm.width = v.cv.width; mm.height = v.cv.height; mm.style.width = v.mw + 'px'; mm.style.height = v.mh + 'px'; } applyMapView(IN_VIEW);
+function drawMap() { const cx = mode === 'orbit' ? controls.target.x : camera.position.x, cz = mode === 'orbit' ? controls.target.z : camera.position.z; const outside = FULL_VIEW && (cx < -0.5 || cx > W + 0.5 || cz < MAP_Z0 - 0.5 || cz > D + 0.5); applyMapView(outside ? FULL_VIEW : IN_VIEW); const v = curView; mctx.setTransform(1, 0, 0, 1, 0, 0); mctx.clearRect(0, 0, mm.width, mm.height); mctx.drawImage(v.cv, 0, 0); mctx.scale(dpr, dpr); const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ'), yaw = e.y; const px = v.mx(camera.position.x), pz = v.mz(camera.position.z), dx = -Math.sin(yaw), dz = -Math.cos(yaw), a = Math.atan2(dz, dx); if (mode === 'orbit') { const t = controls.target; mctx.strokeStyle = 'rgba(255,130,7,.9)'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(v.mx(t.x), v.mz(t.z), 6, 0, Math.PI * 2); mctx.stroke(); return; } mctx.fillStyle = 'rgba(255,130,7,.35)'; mctx.beginPath(); mctx.moveTo(px, pz); mctx.arc(px, pz, outside ? 16 : 24, a - 0.6, a + 0.6); mctx.closePath(); mctx.fill(); mctx.fillStyle = '#FF8207'; mctx.strokeStyle = '#fff'; mctx.lineWidth = 2; mctx.beginPath(); mctx.arc(px, pz, outside ? 4 : 5, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); }
+mm.addEventListener('pointerdown', (e) => { e.stopPropagation(); if (flight) return; const v = curView, r = mm.getBoundingClientRect(), k = v.mw / r.width; const x = ((e.clientX - r.left) * k - PAD) / v.sc + v.x0, z = ((e.clientY - r.top) * k - PAD) / v.sc + v.z0; if (mode === 'orbit') enterWalk(x, z, yawTo(controls.target.x, controls.target.z + 30, x, z) || 0); else { [player.x, player.z] = freeNear(x, z); ensureEscape(player.x, player.z); } });
 
-/* ---------------- minimap ---------------- */
-const mm = document.getElementById('minimap'), mctx = mm.getContext('2d'), dpr = Math.min(devicePixelRatio, 2);
-const MAP_Z0 = Math.min(0, ...(L.extensions || []).map((r) => r[1]));
-const MS = 190 / Math.max(W, D - MAP_Z0), PAD = 7, MW = W * MS + PAD * 2, MH = (D - MAP_Z0) * MS + PAD * 2;
-mm.width = MW * dpr; mm.height = MH * dpr; mm.style.width = MW + 'px'; mm.style.height = MH + 'px';
-const mx = (x) => PAD + x * MS, mz = (z) => PAD + (z - MAP_Z0) * MS;
-const mapBase = document.createElement('canvas'); mapBase.width = mm.width; mapBase.height = mm.height;
-{
-  const c = mapBase.getContext('2d'); c.scale(dpr, dpr);
-  c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(mx(0), mz(0), W * MS, D * MS);
-  for (const r of L.rooms) { if (r.id === 'lounge') continue; for (const [a, b, cc, d] of [r.rect, ...(r.rects || [])]) { c.fillStyle = 'rgba(255,255,255,.07)'; c.fillRect(mx(a), mz(b), (cc - a) * MS, (d - b) * MS); } }
-  for (const s of WALLSEGS) {
-    if (s.type === 'column') { c.fillStyle = s.block ? 'rgba(255,255,255,.28)' : '#fff'; c.fillRect(mx(s.x1), mz(s.z1), (s.x2 - s.x1) * MS, (s.z2 - s.z1) * MS); continue; }
-    c.strokeStyle = s.type === 'solid' ? '#fff' : s.type === 'window' ? '#8fd0ff' : '#b9cde8'; c.lineWidth = s.type === 'solid' ? 2.4 : 1.6;
-    c.beginPath(); c.moveTo(mx(s.x1), mz(s.z1)); c.lineTo(mx(s.x2), mz(s.z2)); c.stroke();
-  }
-  c.fillStyle = 'rgba(255,255,255,.85)'; c.font = '600 9.5px Pretendard, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-  for (const r of L.rooms) c.fillText(r.name, mx(r.label[0]), mz(r.label[1]));
-}
-function drawMap() {
-  mctx.setTransform(1, 0, 0, 1, 0, 0); mctx.clearRect(0, 0, mm.width, mm.height); mctx.drawImage(mapBase, 0, 0); mctx.scale(dpr, dpr);
-  const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ'), yaw = e.y;
-  const px = mx(camera.position.x), pz = mz(camera.position.z), dx = -Math.sin(yaw), dz = -Math.cos(yaw), a = Math.atan2(dz, dx);
-  if (mode === 'orbit') { const t = controls.target; mctx.strokeStyle = 'rgba(255,130,7,.9)'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(mx(t.x), mz(t.z), 6, 0, Math.PI * 2); mctx.stroke(); return; }
-  mctx.fillStyle = 'rgba(255,130,7,.35)'; mctx.beginPath(); mctx.moveTo(px, pz); mctx.arc(px, pz, 24, a - 0.6, a + 0.6); mctx.closePath(); mctx.fill();
-  mctx.fillStyle = '#FF8207'; mctx.strokeStyle = '#fff'; mctx.lineWidth = 2; mctx.beginPath(); mctx.arc(px, pz, 5, 0, Math.PI * 2); mctx.fill(); mctx.stroke();
-}
-mm.addEventListener('pointerdown', (e) => {
-  e.stopPropagation(); if (flight) return;
-  const r = mm.getBoundingClientRect(), k = MW / r.width; const x = ((e.clientX - r.left) * k - PAD) / MS, z = ((e.clientY - r.top) * k - PAD) / MS + MAP_Z0;
-  if (mode === 'orbit') enterWalk(x, z, yawTo(controls.target.x, controls.target.z + 30, x, z) || 0);
-  else { [player.x, player.z] = freeNear(x, z); ensureEscape(player.x, player.z); }
-});
 
 /* ---------------- labels occlusion ---------------- */
 const v3 = new THREE.Vector3(), lray = new THREE.Raycaster();
