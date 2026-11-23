@@ -996,13 +996,17 @@ function ceilingScreen(g, o) {   // box(.., y) 의 y 는 아래 끝 높이
   const w = o.w || 2.4, h = o.h || 1.45, top = H - 0.07;
   box(w + 0.24, 0.07, 0.18, M.white, 0, top, 0, g);                    // 천장 하우징
   box(w + 0.1, 0.012, 0.03, M.black, 0, top - 0.012, 0, g);            // 슬롯
-  if (o.interactive) {
+  if (o.interactive !== false) {
     const roll = new THREE.Group(); roll.position.y = top; roll.userData.dynamic = true; g.add(roll);
     box(w, 0.12, 0.006, M.black, 0, -0.12, 0, roll);
     box(w, h - 0.12, 0.006, M.screen, 0, -h, 0, roll);
     const bar = box(w + 0.04, 0.035, 0.025, M.black, 0, top - 0.035, 0, g); bar.userData.dynamic = true;
     const cur = o.raised ? 0 : 1; roll.scale.y = 0.015 + cur * 0.985; bar.position.y = top - h * roll.scale.y - 0.0175;
-    SCREENS.push({ g, roll, bar, top, h, w, cur, target:cur });
+    const rec = { g, roll, bar, top, h, w, cur, target: cur };
+    g.userData.screenRef = rec;
+    const hit = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.34, 0.32), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+    hit.position.set(0, top - 0.1, 0); hit.userData.noCollide = true; hit.userData.noBlob = true; hit.userData.noPick = true; g.add(hit);
+    SCREENS.push(rec);
     g.userData.noCollide = true; g.userData.noBlob = true; return;
   }
   box(w, 0.12, 0.006, M.black, 0, top - 0.12, 0, g);                   // 윗부분 검은 리더
@@ -1736,8 +1740,15 @@ function toggleScreen() { if (nearScreen) nearScreen.target = 1 - nearScreen.tar
 screenBtn.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
 screenBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleScreen(); });
 addEventListener('keydown', (e) => { if (e.code === 'KeyR' && !e.repeat && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) toggleScreen(); });
+const screenRay = new THREE.Raycaster(), screenNdc = new THREE.Vector2();
+let scrMouse = null, hoverScreen = null, hoverScreenUntil = 0, overScreenBtn = false;
+renderer.domElement.addEventListener('mousemove', (e) => { scrMouse = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('mouseleave', (e) => { if (e.relatedTarget !== screenBtn) scrMouse = null; });
+screenBtn.addEventListener('mouseenter', () => { overScreenBtn = true; });
+screenBtn.addEventListener('mouseleave', () => { overScreenBtn = false; });
+
 function updateScreens(dt) {
-  nearScreen = null;
+  let proxScreen = null;
   for (const s of SCREENS) {
     const delta = dt / 2.2;
     s.cur = s.target > s.cur ? Math.min(s.target, s.cur + delta) : Math.max(s.target, s.cur - delta);
@@ -1747,8 +1758,24 @@ function updateScreens(dt) {
     const inFront = Math.abs(s.g.rotation.y) < 0.01
        ? (Math.abs(dx) < s.w / 2 + 0.4 && dz > 0 && dz < 2.5)
        : (Math.hypot(dx, dz) < 4.5 && player.x < s.g.position.x + 0.2 && Math.abs(dz) < s.w / 2 + 0.8);
-   if (mode === 'walk' && !flight && inFront) nearScreen = s;
+   if (mode === 'walk' && !flight && inFront) proxScreen = s;
   }
+  const now = performance.now();
+  if (!flight && SCREENS.length) {
+    const locked = isLocked();
+    if (locked || scrMouse) {
+      const sx = locked ? innerWidth / 2 : scrMouse[0], sy = locked ? innerHeight / 2 : scrMouse[1];
+      screenNdc.set((sx / innerWidth) * 2 - 1, -(sy / innerHeight) * 2 + 1);
+      screenRay.setFromCamera(screenNdc, camera); screenRay.far = 25;
+      const hits = screenRay.intersectObjects(SCREENS.map((s) => s.g), true);
+      if (hits.length) {
+        let p = hits[0].object;
+        while (p && !p.userData.screenRef) p = p.parent;
+        if (p && p.userData.screenRef) { hoverScreen = p.userData.screenRef; hoverScreenUntil = now + 1800; }
+      }
+    }
+  }
+  nearScreen = (hoverScreen && (overScreenBtn || now < hoverScreenUntil)) ? hoverScreen : proxScreen;
   screenBtn.hidden = !nearScreen;
   if (nearScreen) screenBtn.textContent = `${TOUCH ? '' : 'R · '}스크린 ${nearScreen.target ? '올리기' : '내리기'}`;
 }
