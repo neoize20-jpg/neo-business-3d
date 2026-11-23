@@ -969,8 +969,12 @@ function wallClock(g, o) {
   const r = o.r || 0.17, y = o.y || 2.1;
   const rim = new THREE.Mesh(new THREE.TorusGeometry(r, 0.018, 10, 36), M.black); rim.position.set(0, y, -0.03); g.add(rim);
   const face = cyl(r, r, 0.03, M.white, 0, 0, 0, 36, g); face.rotation.x = Math.PI / 2; face.position.set(0, y, -0.02);
-  const hh = box(0.012, r * 0.55, 0.006, M.black, 0, 0, 0, g); hh.position.set(0.03, y + 0.02, -0.04); hh.rotation.z = -0.9;
-  const mh = box(0.008, r * 0.8, 0.006, M.black, 0, 0, 0, g); mh.position.set(-0.02, y + 0.06, -0.042); mh.rotation.z = 0.35;
+  const hPiv = new THREE.Group(); hPiv.position.set(0, y, -0.04); hPiv.userData.dynamic = true; g.add(hPiv);
+  box(0.012, r * 0.52, 0.006, M.black, 0, 0, 0, hPiv);
+  const mPiv = new THREE.Group(); mPiv.position.set(0, y, -0.043); mPiv.userData.dynamic = true; g.add(mPiv);
+  box(0.008, r * 0.78, 0.006, M.black, 0, 0, 0, mPiv);
+  const upd = () => { const d = new Date(); hPiv.rotation.z = ((d.getHours() % 12) + d.getMinutes() / 60) * (Math.PI / 6); mPiv.rotation.z = (d.getMinutes() + d.getSeconds() / 60) * (Math.PI / 30); };
+  upd(); setInterval(upd, 1000);
   g.userData.noBlob = true; g.userData.noCollide = true;
 }
 // 비상구 유도등 (초록, 문 위)
@@ -1119,57 +1123,98 @@ function waterDispenser(g, o) {   // 바닥형 흰 정수기(약 0.35 × 0.45 ×
   cyl(0.04, 0.04, 0.32, plain(0xeceff2), 0.12, 1.0, fz - 0.03, 14, g).rotation.z = 0;   // 컵 디스펜서
 }
 function bin(g, o) { if (o.square) { box(o.w || 0.26, o.h || 0.4, o.w || 0.26, M.black, 0, 0, 0, g); return; } cyl(o.r || 0.15, (o.r || 0.15) * 0.92, o.h || 0.55, o.color ? matOf(o.color) : M.black, 0, 0, 0, 20, g); }   // 검정 휴지통
-function ledClock(g, o) {   // 빨간 LED 디지털 시계 (벽걸이)
+function ledClock(g, o) {
   const y = o.y || 2.0; box(0.5, 0.2, 0.04, M.black, 0, y, 0, g);
-  const c = document.createElement('canvas'); c.width = 256; c.height = 96; const k = c.getContext('2d'); k.fillStyle = '#111'; k.fillRect(0, 0, 256, 96);
-  k.fillStyle = '#ff2a1a'; k.font = '700 64px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(o.text || '10:30', 128, 52);
+  const c = document.createElement('canvas'); c.width = 256; c.height = 96; const k = c.getContext('2d');
   const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+  const draw = () => {
+    const d = new Date(), s = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    k.fillStyle = '#111'; k.fillRect(0, 0, 256, 96);
+    k.fillStyle = '#ff2a1a'; k.font = '700 64px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(s, 128, 52);
+    tx.needsUpdate = true;
+  };
+  draw(); setInterval(draw, 10000);
   const m = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.17), new THREE.MeshBasicMaterial({ map: tx })); m.position.set(0, y + 0.1, -0.021); m.rotation.y = Math.PI; m.userData.keep = true; g.add(m);
   g.userData.noBlob = true;
 }
-function coffeeCorner(g, o) {   // 대전 커피 코너(사진 11/19, 책상 0.72m 기준 실제 크기): 그룹 원점 = 벽면, 앞(-z)이 실내. u = 벽을 바라볼 때 왼→오른쪽 거리 → 로컬 x = -u
+function coffeeCorner(g, o) {
   const X = (u) => -u, W = plain(0xf4f4f2), BK = plain(0x1c1d20), GR = plain(0x9aa0a6);
-  // 흰 2문 수납장 1.2 × 0.5 × 0.9
-  { const u = o.cab ?? -0.3, x = X(u), cw = 1.2, h = 0.9, d = 0.5;
-    box(cw - 0.02, 0.07, d - 0.05, plain(0xd9d9d6), x, 0, -d / 2 + 0.01, g); box(cw, h - 0.07, d, W, x, 0.07, -d / 2, g); box(cw + 0.02, 0.03, d + 0.02, W, x, h - 0.03, -d / 2, g);
-    box(0.006, h - 0.16, 0.01, plain(0xc9ccd1), x, 0.1, -d - 0.002, g);
-    for (const s of [-1, 1]) box(0.014, 0.16, 0.022, M.metal, x + s * 0.05, 0.62, -d - 0.013, g);
+  // 넓은 흰 4문 수납장 2.0 × 0.5 × 0.9
+  { const u = o.cab ?? -0.60, x = X(u), cw = 2.0, h = 0.9, d = 0.5;
+    box(cw - 0.02, 0.07, d - 0.05, plain(0xd9d9d6), x, 0, -d / 2 + 0.01, g);
+    box(cw, h - 0.07, d, W, x, 0.07, -d / 2, g);
+    box(cw + 0.02, 0.03, d + 0.02, W, x, h - 0.03, -d / 2, g);
+    for (let i = 1; i < 4; i++) box(0.006, h - 0.14, 0.01, plain(0xc9ccd1), x - cw / 2 + (cw * i) / 4, 0.09, -d - 0.002, g);
+    for (const s of [-0.55, -0.45, 0.45, 0.55]) box(0.014, 0.16, 0.022, M.metal, x + s, 0.62, -d - 0.013, g);
     const t = h;
-    // 종이컵 묶음 0.35m (왼쪽)
-    { const cx = X(u - 0.48); cyl(0.045, 0.035, 0.35, W, cx, t, -0.16, 16, g); cyl(0.045, 0.035, 0.3, W, cx, t, -0.28, 16, g); }
-    // 캡슐 커피머신 0.38 × 0.55(받침 서랍 0.14 포함)
-    { const cx = X(u - 0.2); box(0.38, 0.14, 0.42, BK, cx, t, -0.23, g); box(0.24, 0.005, 0.006, GR, cx, t + 0.07, -0.443, g);
+    // 종이컵 묶음 (커피머신 왼쪽)
+    { const cx = X(-0.78); cyl(0.045, 0.035, 0.35, W, cx, t, -0.16, 16, g); cyl(0.045, 0.035, 0.3, W, cx, t, -0.28, 16, g); }
+    // 커피머신 (u = -0.45) + 종이컵·커피 추출 상호작용
+    { const cx = X(-0.45);
+      box(0.38, 0.14, 0.42, BK, cx, t, -0.23, g); box(0.24, 0.005, 0.006, GR, cx, t + 0.07, -0.443, g);
       box(0.34, 0.33, 0.38, BK, cx, t + 0.14, -0.22, g); box(0.32, 0.08, 0.34, plain(0x2a2c30), cx, t + 0.47, -0.22, g);
-      box(0.2, 0.05, 0.1, plain(0x3a3d42), cx, t + 0.34, -0.45, g); box(0.15, 0.014, 0.12, M.metal, cx, t + 0.15, -0.37, g); }
-    // 검정 제빙기 0.4 × 0.45 × 0.45 (둥근 윗면)
-    { const ix = X(u + 0.28), dd = 0.45; box(0.4, 0.39, dd, BK, ix, t, -dd / 2 - 0.01, g);
-      const top = cyl(0.2, 0.2, dd, BK, ix, 0, 0, 28, g); top.rotation.x = Math.PI / 2; top.scale.set(1, 1, 0.3); top.position.set(ix, t + 0.39, -dd / 2 - 0.01);
-      box(0.26, 0.15, 0.005, plain(0x30343a), ix, t + 0.2, -dd - 0.013, g); box(0.07, 0.022, 0.005, plain(0x5ab0ff), ix, t + 0.33, -dd - 0.013, g); }
+      box(0.2, 0.05, 0.1, plain(0x3a3d42), cx, t + 0.34, -0.45, g); box(0.15, 0.014, 0.12, M.metal, cx, t + 0.15, -0.37, g);
+      const djCup = paperCup(g, cx, t + 0.165, -0.39);
+      const cMat = std({ color: 0x3b1f0e, roughness: 0.2, metalness: 0.05 });
+      const cFill = cyl(0.039, 0.03, 0.1, cMat, 0, 0.005, 0, 28, djCup); cFill.scale.y = 0.01;
+      const cStream = cyl(0.004, 0.004, 0.16, cMat, cx, t + 0.26, -0.39, 10, g); cStream.visible = false; cStream.userData.dynamic = true; cStream.userData.noCollide = true;
+      APPLIANCES.set('dj_coffee', { kind: 'water', cup: djCup, fill: cFill, stream: cStream, elapsed: 0, state: 'empty' });
+    }
+    // 제빙기 (u = +0.08) + 위로 열리는 상단 뚜껑·내부 얼음 상호작용
+    { const ix = X(0.08);
+      box(0.40, 0.34, 0.42, BK, ix, t, -0.22, g);
+      box(0.36, 0.025, 0.38, M.white, ix, t + 0.335, -0.22, g);
+      box(0.32, 0.08, 0.32, plain(0xe8ecee), ix, t + 0.27, -0.22, g);
+      const iceMat = std({ color: 0xc4e6ee, roughness: 0.2, metalness: 0.05, transparent: true, opacity: 0.85 });
+      for (let i = 0; i < 18; i++) { const ic = box(0.048, 0.038, 0.045, iceMat, ix - 0.11 + (i % 6) * 0.044, t + 0.315 + Math.floor(i / 12) * 0.025, -0.32 + Math.floor((i % 12) / 6) * 0.09, g); ic.rotation.set((i % 3) * 0.18, (i % 5) * 0.4, (i % 4) * 0.12); }
+      const lf = rbox(0.38, 0.025, 0.38, 0.008, BK, ix, t + 0.36, -0.23, g);
+      const lg = box(0.31, 0.012, 0.28, std({ color: 0x1b2026, roughness: 0.15, metalness: 0.2, transparent: true, opacity: 0.72 }), ix, t + 0.372, -0.24, g);
+      const lt = box(0.08, 0.016, 0.025, BK, ix, t + 0.365, -0.425, g);
+      const pv = appliancePart(g, [lf, lg, lt], ix, t + 0.365, -0.04); pv.userData.equipmentId = 'dj_ice';
+      APPLIANCES.set('dj_ice', { kind: 'door', pivot: pv, axis: 'x', angle: 1.35, cur: 0, target: 0, state: 'closed' });
+    }
   }
-  // 바닥형 흰 정수기 0.4 × 0.45 × 1.35, 꼭지 1.0m + 물받이, 위에 비품
-  { const x = X(o.water ?? 0.54), d = 0.45, fz = -d - 0.01;
+  // 바닥형 흰 정수기 (u = 0.62) + 종이컵·물 추출 상호작용
+  { const x = X(o.water ?? 0.62), d = 0.45, fz = -d - 0.01;
     box(0.4, 1.35, d, W, x, 0, -d / 2 - 0.01, g); box(0.34, 0.5, 0.01, plain(0xe9eaec), x, 0.82, fz - 0.005, g);
     box(0.3, 0.12, 0.07, plain(0xdfe1e4), x, 0.95, fz - 0.035, g);
     cyl(0.014, 0.014, 0.06, plain(0xd23b2b), x - 0.07, 0.9, fz - 0.04, 8, g); cyl(0.014, 0.014, 0.06, plain(0x2b6fd2), x + 0.07, 0.9, fz - 0.04, 8, g);
     box(0.3, 0.03, 0.12, plain(0x4a4d52), x, 0.74, fz - 0.06, g);
     box(0.22, 0.07, 0.005, plain(0x2b3440), x, 1.2, fz - 0.006, g);
-    cyl(0.05, 0.05, 0.22, plain(0xf2c230), x - 0.1, 1.35, -0.26, 16, g);       // 노란 컵 홀더
-    box(0.14, 0.12, 0.2, plain(0x2f6fd6), x + 0.08, 1.35, -0.2, g);            // 파란 상자
+    cyl(0.05, 0.05, 0.22, plain(0xf2c230), x - 0.1, 1.35, -0.26, 16, g);
+    box(0.14, 0.12, 0.2, plain(0x2f6fd6), x + 0.08, 1.35, -0.2, g);
     box(0.12, 0.08, 0.14, W, x + 0.07, 1.47, -0.22, g); box(0.1, 0.14, 0.1, W, x + 0.02, 1.35, -0.38, g);
+    const wCup = paperCup(g, x + 0.07, 0.77, fz - 0.05);
+    const wMat = std({ color: 0x80cee9, transparent: true, opacity: 0.65, roughness: 0.12 });
+    const wFill = cyl(0.039, 0.03, 0.1, wMat, 0, 0.005, 0, 28, wCup); wFill.scale.y = 0.01;
+    const wStream = cyl(0.004, 0.004, 0.13, wMat, x + 0.07, 0.84, fz - 0.05, 10, g); wStream.visible = false; wStream.userData.dynamic = true; wStream.userData.noCollide = true;
+    APPLIANCES.set('dj_water', { kind: 'water', cup: wCup, fill: wFill, stream: wStream, elapsed: 0, state: 'empty' });
   }
-  // 검정 사각 쓰레기통 0.4(벽 방향) × 0.45(앞뒤) × 0.75 (모서리) + 위 회색 벽 선반
-  { const x = X(o.bin ?? 0.98); box(0.4, 0.72, 0.45, BK, x, 0, -0.245, g); box(0.42, 0.04, 0.47, plain(0x2a2b2e), x, 0.71, -0.245, g);
-    box(0.42, 0.025, 0.24, GR, x, 1.55, -0.12, g); box(0.025, 0.14, 0.22, GR, x - 0.2, 1.43, -0.12, g); box(0.025, 0.14, 0.22, GR, x + 0.2, 1.43, -0.12, g); }
-  // 테 없는 흰(분홍기) LED 숫자 시계 0.9 × 0.25 @2.2m + 왼쪽 빨간 화재 경보함 0.2
-  { const x = X(o.clock ?? -0.3), y = o.clockY ?? 2.2;
-    const c = document.createElement('canvas'); c.width = 768; c.height = 220; const k = c.getContext('2d');
-    k.shadowColor = '#ffd6dc'; k.shadowBlur = 22; k.fillStyle = '#fff2f4'; k.font = '700 200px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(o.text || '13:39', 384, 116, 740);
+  // 모서리 검정 쓰레기통 (u = 1.02) + 회색 선반
+  { const x = X(o.bin ?? 1.02);
+    box(0.4, 0.76, 0.4, BK, x, 0, -0.21, g); box(0.42, 0.02, 0.42, BK, x, 0.76, -0.21, g);
+    box(0.26, 0.02, 0.16, plain(0x111316), x, 0.78, -0.21, g);
+    box(0.42, 0.025, 0.3, GR, x - 0.34, 0.85, -0.16, g); }
+  // 수납장 위 벽 LED 시계 (현재 시간 실시간 표시)
+  { const x = X(o.clock ?? -0.3), cg = new THREE.Group(); cg.position.set(x, 2.1, -0.04);
+    box(0.9, 0.26, 0.06, BK, 0, 0, 0, cg);
+    const c = document.createElement('canvas'); c.width = 512; c.height = 128; const k = c.getContext('2d');
     const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.26), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false })); m.position.set(x, y, -0.012); m.rotation.y = Math.PI; m.userData.keep = true; m.renderOrder = 5; g.add(m);
-    const ax = X(o.alarm ?? -1.05), ay = o.alarmY ?? 2.05; box(0.2, 0.26, 0.07, plain(0xd8261c), ax, ay, -0.035, g);
-    const bt = cyl(0.045, 0.045, 0.015, plain(0xf2f2f2), 0, 0, 0, 16, g); bt.rotation.x = Math.PI / 2; bt.position.set(ax, ay + 0.15, -0.075); }
-  for (const [u, y, wd] of (o.switches || [[-0.62, 1.2, 0.08], [-0.05, 1.12, 0.14], [0.2, 1.12, 0.08]])) { box(wd, 0.12, 0.015, M.white, X(u), y, -0.008, g); box(wd * 0.5, 0.05, 0.004, plain(0xdfe1e4), X(u), y + 0.035, -0.017, g); }   // 스위치 · 콘센트
-  g.userData.noBlob = true;
+    const draw = () => {
+      const d = new Date(), s = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      k.fillStyle = '#0c0d10'; k.fillRect(0, 0, 512, 128); k.fillStyle = '#ff2a1a';
+      k.font = '700 84px monospace'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(s, 256, 66);
+      tx.needsUpdate = true;
+    };
+    draw(); setInterval(draw, 10000);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.84, 0.21), new THREE.MeshBasicMaterial({ map: tx }));
+    m.position.set(0, 0.13, -0.032); m.rotation.y = Math.PI; m.userData.keep = true; cg.add(m);
+    cg.userData.noBlob = true; g.add(cg); }
+  // 왼쪽 벽 빨간 화재 경보함
+  { const x = X(o.alarm ?? -1.05);
+    box(0.24, 0.32, 0.06, plain(0xd4352a), x, 1.42, -0.03, g);
+    box(0.16, 0.08, 0.02, plain(0xefe6b0), x, 1.56, -0.065, g);
+    cyl(0.025, 0.025, 0.025, plain(0xb01f17), x, 1.48, -0.065, 12, g).rotation.x = Math.PI / 2; }
 }
 function cabinet(g, o) { box(o.w || 1.2, o.h || 0.7, o.d || 0.4, matOf(o.color || 'white'), 0, 0, 0, g); }
 function block(g, o) { box(o.w || 0.1, o.h || 0.1, o.d || 0.1, matOf(o.color || 'black'), 0, o.y || 0, 0, g); }   // 단순 박스(소품)
@@ -1324,7 +1369,10 @@ function photoPantry(g, o) {
   box(0.25,0.09,0.2,std({color:0x574b3e,transparent:true,opacity:0.8,roughness:0.25}),cx,top+0.59,0.05,g);box(0.28,0.012,0.22,black,cx,top+0.68,0.05,g);
   decal(0.37,0.07,cx,top+0.57,-0.21,(k,W,H)=>{k.fillStyle='#17265d';k.fillRect(0,0,W,H);k.fillStyle='#fff';k.font='120px sans-serif';k.fillText('bliss',35,175);});
   const coffeeCup=paperCup(g,cx,top+0.201,-0.255);
-  APPLIANCES.set('coffee',{kind:'cup',cup:coffeeCup,state:'empty'});
+  const coffeeMat=std({color:0x3b1f0e,roughness:0.2,metalness:0.05});
+  const cFill=cyl(0.039,0.03,0.1,coffeeMat,0,0.005,0,28,coffeeCup);cFill.scale.y=0.01;
+  const cStream=cyl(0.004,0.004,0.14,coffeeMat,cx,top+0.28,-0.255,10,g);cStream.visible=false;cStream.userData.dynamic=true;cStream.userData.noCollide=true;
+  APPLIANCES.set('coffee',{kind:'water',cup:coffeeCup,fill:cFill,stream:cStream,elapsed:0,state:'empty'});
   // Ice maker: countertop body with top smoked lid that flips upward from the rear hinge.
   const ix=0.24;
   box(0.40,0.34,0.42,charcoal,ix,top,0,g);
