@@ -149,7 +149,14 @@ window.LAYOUT = {
       ] },
       { id:'group', name:'조별', items:[
         { type:'array', xs:[9.0, 12.2, 15.4], zs:[7.4, 10.0, 12.6], item:{ type:'island', len:1.8, dd:0.5, perSide:2, basket:true, tents:true, rot:90 } }
-      ] }
+      ] },
+       { id:'workshop', name:'분임식', items:[
+        // 실사 사진 기준: 동서 방향(스크린 향함) 4개 조별 아일랜드(2열 × 2조) + 각 조 서쪽 끝 의자 2석 (총 24석), 남쪽 창가 넓은 통로
+        { type:'array', xs:[10.8, 15.2], zs:[8.8, 12.2],
+         item:{ type:'island', len:2.0, dd:0.55, perSide:2, chairStyle:'shell', basket:true, tents:true, rot:0 } },
+       { type:'array', xs:[9.45, 13.85], zs:[8.5, 9.1, 11.9, 12.5],
+        item:{ type:'chair', rot:-90 } }
+    ] }
     ]
   },
 
