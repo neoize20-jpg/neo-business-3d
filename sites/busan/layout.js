@@ -11,7 +11,7 @@
    ※ 안내도 비율로 잡은 추정값이에요. 실측값을 받으면 숫자만 바꾸면 됩니다.
    ===================================================================== */
 window.LAYOUT = {
-  building: { name: '부산 교육장', width: 25.0, depth: 17.2, ceiling: 2.7, eye: 1.6, wall: { exterior: 0.24, interior: 0.14, thick: 0.30 },
+  building: { name: '부산 교육장', width: 25.0, depth: 17.2, ceiling:3.0,  eye: 1.6, wall: { exterior: 0.24, interior: 0.14, thick: 0.30 },
               floorPattern: 'tile', floorColor: '#8a7a6b', floorTile: 0.45, ceilingTex: 'acoustic', baseboard: { color: '#3a3533', h: 0.08 } },
   photoDir: 'sites/busan/photos/',
   backdrop: [ { side:'east', dist:12 }, { side:'south', dist:12 } ],   // 동쪽·남쪽 창밖 하늘 + 도시
