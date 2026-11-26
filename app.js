@@ -818,6 +818,16 @@ function plainDoor(g, o) {   // 닫힌 흰 문(공용 복도 관리실 등, 장�
     g.userData.noCollide = true; g.userData.noBlob = true;
     return;
   }
+if (o && o.woodDoor) {
+const w = o.w || 0.90;
+box(w + 0.12, 2.16, 0.05, plain(0x6e4b2c), 0, 0, -0.015, g);
+box(w, 2.10, 0.04, plain(0xb29c86), 0, 0, -0.03, g);
+box(0.18, 0.24, 0.005, M.white, 0, 1.56, -0.052, g);
+const knob = new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 12), new THREE.MeshStandardMaterial({ color: 0xcfd4d9, metalness: 0.85, roughness: 0.22 }));
+knob.position.set(w / 2 - 0.11, 0.96, -0.065); g.add(knob);
+g.userData.noCollide = true; g.userData.noBlob = true;
+return;
+}
   box((o.w || 0.9) + 0.1, 2.15, 0.05, M.steel || M.metal, 0, 0, -0.01, g); box(o.w || 0.9, 2.1, 0.05, plain(0xf3f2ef), 0, 0, -0.03, g); box(0.02, 0.14, 0.04, M.metal, (o.w || 0.9) / 2 - 0.1, 0.95, -0.07, g);
   g.userData.noCollide = true; g.userData.noBlob = true;
 }
