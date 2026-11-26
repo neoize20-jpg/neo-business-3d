@@ -1911,7 +1911,7 @@ qb.onclick = () => { const nq = HIGH ? 'low' : 'high'; localStorage.setItem('neo
 
 /* ---------------- input ---------------- */
 const keys = {};
-addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'KeyE' && !e.repeat && !useAppliance() && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
+addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'Space' && mode === 'walk' && !flight) { e.preventDefault(); if (!e.repeat && (player.jy ?? 0) <= 0.001) player.vy = 2.6; } if (e.code === 'KeyE' && !e.repeat && !useAppliance() && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
 addEventListener('keyup', (e) => { keys[e.code] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const cv = renderer.domElement; let drag = null;
@@ -2119,7 +2119,8 @@ function step(dt) {
     if (stuck || !blocked(player.x, player.z + dz)) player.z += dz;
   }
   player.y = (player.y ?? 0) + (floorHeight(player.x, player.z) - (player.y ?? 0)) * Math.min(1, dt * 10);   // 단상 위로 올라가면 눈높이도 올라감
-  camera.position.set(player.x, EYE + player.y, player.z); camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
+if ((player.vy ?? 0) !== 0 || (player.jy ?? 0) > 0) { player.vy = (player.vy ?? 0) - 12 * dt; player.jy = Math.max(0, (player.jy ?? 0) + player.vy * dt); if (player.jy === 0) player.vy = 0; }
+   camera.position.set(player.x, EYE + player.y + (player.jy ?? 0), player.z); camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
 }
 function tick() {
   requestAnimationFrame(tick);
