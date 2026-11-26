@@ -51,7 +51,7 @@ window.LAYOUT = {
      card.use / card.services / card.note : 주요 용도 · 제공 서비스 목록 · 참고 문구 (회사 소개서 기준)
      순서가 중요해요: 위에 있는 방이 먼저 판정돼요(라운지는 나머지 전체라 맨 아래).          */
   rooms: [
-    { id:'coaching', name:'소회의실', en:'Small Meeting Room', rect:[0, 0, 2.63, 6.22], floor:'floor',
+    { id:'coaching', name:'소회의실', en:'Small Meeting Room', rect:[0, 0, 2.63, 6.22], floor:'floor', noEntry:true,
       label:[1.32, 3.65], mapLabel:['k-DISC', '인재경영', '연구소'], jump:{ x:2.05, z:5.4, look:[1.0, 1.4] },
       card:{ photos:['IMG_0415','IMG_0418','IMG_0419','IMG_0416'],
              desc:'창가 쪽 코너에 있는 작은 회의실이에요. 블랙 미팅 테이블과 화이트보드가 있고, 기둥 뒤 창가에는 L자 바 테이블과 바 스툴이 있어요.' } },
