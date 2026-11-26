@@ -149,7 +149,7 @@ window.LAYOUT = {
     { from:[6.45, 0],  to:[6.45, 9.18], type:'solid', t:0.30, molding:'west', moldingFrom:6.29, moldingTo:9.18 },  // 회의실·라운지 | 교육장
     // 라운지 쪽 통유리벽: 바닥~천장 유리 + 블랙 프레임, 0.9~2.0m 반투명 시트 띠, 프레임리스 시트 유리문(1.0m) + 세로 블랙 손잡이
     { from:[0.24, 6.22], to:[2.56, 6.22], type:'glass', style:'band', band:[0.9, 2.0], bay:1.5, sign:{ text:'COACHING ROOM', at:1.0, y:1.45, size:0.09, icon:true },
-      openings:[ { at:1.56, width:1.0, door:'frameless', hinge:'end', swing:-63 } ] },    // 소회의실 앞 통유리 2장(고정 1 + 문 1, 문은 동쪽 끝)
+      openings:[ { at:1.56, width:1.0, door:'frameless', hinge:'end', swing:-63 , locked:true} ] },    // 소회의실 앞 통유리 2장(고정 1 + 문 1, 문은 동쪽 끝)
     { from:[2.70, 6.22], to:[6.30, 6.22], type:'glass', style:'band', band:[0.9, 2.0], stripes:3, bay:1.45, sign:{ text:'MEETING ROOM', at:4.2, y:1.45, size:0.09 },
       openings:[ { at:2.70, width:1.0, door:'frameless', hinge:'start', swing:63 } ] },   // 회의실 앞 통유리 3장(문 1 + 고정 2, 문은 서쪽 끝)
     // bay = 유리 한 장의 대략 폭(m). 구간 길이 ÷ bay 를 반올림한 수만큼 유리가 나뉘어요.
