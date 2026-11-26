@@ -1911,7 +1911,7 @@ qb.onclick = () => { const nq = HIGH ? 'low' : 'high'; localStorage.setItem('neo
 
 /* ---------------- input ---------------- */
 const keys = {};
-addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'Space' && mode === 'walk' && !flight) { e.preventDefault(); if (!e.repeat && (player.jy ?? 0) <= 0.001) player.vy = 5.8; } if (e.code === 'KeyE' && !e.repeat && !useAppliance() && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
+addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'Space' && mode === 'walk' && !flight) { e.preventDefault(); if (!e.repeat && (player.jy ?? 0) <= 0.001) player.vy = 4.0; } if (e.code === 'KeyE' && !e.repeat && !useAppliance() && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
 addEventListener('keyup', (e) => { keys[e.code] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const cv = renderer.domElement; let drag = null;
