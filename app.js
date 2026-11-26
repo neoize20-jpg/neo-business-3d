@@ -2069,7 +2069,15 @@ function buildMapView(x0, z0, x1, z1, isFull) { const sc = 190 / Math.max(x1 - x
   c.textBaseline = 'middle';
   for (const r of L.rooms) {
     if (isFull && ['small', 'booth', 'coffee', 'entrance', 'lounge'].includes(r.id)) continue;
-    c.fillText(r.name, mx(r.label[0]), mz(r.label[1]));
+if (r.mapLabel) {
+c.save();
+c.font = '600 7.5px Pretendard, sans-serif';
+const lh = 9.5, y0 = mz(r.label[1]) - ((r.mapLabel.length - 1) * lh) / 2;
+r.mapLabel.forEach((line, idx) => c.fillText(line, mx(r.label[0]), y0 + idx * lh));
+c.restore();
+} else {
+   c.fillText(r.name, mx(r.label[0]), mz(r.label[1]));
+}
   }
   return { x0, z0, sc, mw, mh, mx, mz, cv };
 }
