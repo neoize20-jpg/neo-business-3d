@@ -1682,7 +1682,8 @@ const ROOMS = {}; for (const r of L.rooms) ROOMS[r.id] = r;
 function zoneAt(x, z) { for (const r of L.rooms) for (const [a, b, c, d] of [r.rect, ...(r.rects || [])]) { if (x >= a && x <= c && z >= b && z <= d) return r; } return null; }   // rects: L자 방 등 추가 영역
 const tagEls = {}, tagObjs = {};
 for (const r of L.rooms) {
-  const el = document.createElement('div'); el.className = 'tag' + (r.small ? ' sm' : ''); el.dataset.id = r.id;
+  if (r.noEntry) continue;
+   const el = document.createElement('div'); el.className = 'tag' + (r.small ? ' sm' : ''); el.dataset.id = r.id;
   el.innerHTML = `<div class="pill"><i></i>${r.name}<small>${r.en.split(' · ')[0]}</small></div><div class="stem"></div><div class="dot"></div>`;
   el.addEventListener('pointerdown', (e) => e.stopPropagation());
   el.addEventListener('click', (e) => { e.stopPropagation(); if (mode === 'orbit') goRoom(r.id); openCard(r.id); });
