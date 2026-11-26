@@ -1583,7 +1583,7 @@ const wallMeshes = [];
   const noCol = (o) => { for (let p = o; p; p = p.parent) if (p.userData.noCollide) return true; return false; };
   root.traverse((o) => {
     if (!o.isMesh) return;
-    if (!noCol(o)) { bb.setFromObject(o); if (bb.max.y > 0.12 && bb.min.y < 1.75) COLL.push([bb.min.x, bb.min.z, bb.max.x, bb.max.z]); }
+    if (!noCol(o)) { bb.setFromObject(o); if (bb.max.y > 0.12 && bb.min.y < 1.75) COLL.push([bb.min.x, bb.min.z, bb.max.x, bb.max.z, bb.max.y]); }
     const m = o.material;
     let dyn = false; for (let p = o; p; p = p.parent) if (p.userData.dynamic) { dyn = true; break; }
     if (dyn || o.userData.keep || m.transparent || (m.map && !m.userData.world)) { o.castShadow = HIGH && !m.transparent; o.receiveShadow = true; return; }
@@ -1626,29 +1626,29 @@ const wallMeshes = [];
 }
 const DESK_COLL = deskGroups.map((lg) => {
   root.updateMatrixWorld(true); const out = [], bb = new THREE.Box3();
-  lg.traverse((o) => { if (!o.isMesh) return; bb.setFromObject(o); if (bb.max.y > 0.12 && bb.min.y < 1.75) out.push([bb.min.x, bb.min.z, bb.max.x, bb.max.z]); });
+  lg.traverse((o) => { if (!o.isMesh) return; bb.setFromObject(o); if (bb.max.y > 0.12 && bb.min.y < 1.75) out.push([bb.min.x, bb.min.z, bb.max.x, bb.max.z, bb.max.y]); });
   return out;
 });
 const PR = 0.24;
 const DESK_BB = DESK_COLL.map((l) => l.length ? l.reduce((b, [a, c, e, f]) => [Math.min(b[0], a - PR), Math.min(b[1], c - PR), Math.max(b[2], e + PR), Math.max(b[3], f + PR)], [1e9, 1e9, -1e9, -1e9]) : null);   // 배치별 책상 영역(충돌 검사 범위)
 const circleHits = (x, z, a, b, c, d) => { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); return (x - cx) ** 2 + (z - cz) ** 2 < PR * PR; };
 const doorClosed = (d, plan) => d.target === 0 || (!plan && d.cur < 0.85);
-function blocked(x, z, plan = false) {
+function blocked(x, z, plan = false, footY = 0) {
   if (x < PR || z < PR || x > W - PR || z > D - PR) { const cr = L.corridor?.rect; if (!(cr && x > cr[0] + PR && x < cr[2] - PR && z >= D - PR && z < cr[3] - PR)
       && !(L.outside || []).some((r) => x > r[0] + PR && x < r[2] + PR && z > r[1] + PR && z < r[3] - PR && (x < PR || x > W - PR) && z > PR && z < D - PR)
       && !((L.public && L.public.floors) || []).some((r) => x > r[0] && x < r[2] && z > r[1] && z < r[3])
       && !(L.extensions || []).some((r) => x > r[0] && x < r[2] && z > r[1] && z <= r[3] + PR)) return true; }
   for (const [a, b, c, d2] of (L.barriers || [])) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d2)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }   // 보이지 않는 출입 금지 선
   for (const d of DOORS) if (doorClosed(d, plan) && circleHits(x, z, d.box.min.x, d.box.min.z, d.box.max.x, d.box.max.z)) return true;
-  const dc = DESK_COLL[deskIdx], db = DESK_BB[deskIdx]; if (dc && db && x > db[0] && x < db[2] && z > db[1] && z < db[3]) for (const [a, b, c, d] of dc) { const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
+  const dc = DESK_COLL[deskIdx], db = DESK_BB[deskIdx]; if (dc && db && x > db[0] && x < db[2] && z > db[1] && z < db[3]) for (const [a, b, c, d, topY] of dc) { if (!plan && footY > 0.05 && topY <= 1.05 && footY >= topY - 0.38) continue; const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
   const gx = Math.floor(x / CELL), gz = Math.floor(z / CELL);
   for (let i = gx - 1; i <= gx + 1; i++) for (let j = gz - 1; j <= gz + 1; j++) {
     const l = grid.get(i + ',' + j); if (!l) continue;
-    for (const k of l) { const [a, b, c, d] = COLL[k]; const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
+    for (const k of l) { const [a, b, c, d, topY] = COLL[k]; if (!plan && footY > 0.05 && topY <= 1.05 && footY >= topY - 0.38) continue; const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < PR * PR) return true; }
   }
   return false;
 }
-function freeNear(x, z) {
+function surfaceHeight(x, z, footY = 0) { let h = floorHeight(x, z); if (footY <= 0.05) return h; const r2 = 0.16 * 0.16; const dc = DESK_COLL[deskIdx], db = DESK_BB[deskIdx]; if (dc && db && x > db[0] && x < db[2] && z > db[1] && z < db[3]) for (const [a, b, c, d, topY] of dc) { if (topY > 1.05 || footY < topY - 0.38) continue; const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < r2) h = Math.max(h, topY); } const gx = Math.floor(x / CELL), gz = Math.floor(z / CELL); for (let i = gx - 1; i <= gx + 1; i++) for (let j = gz - 1; j <= gz + 1; j++) { const l = grid.get(i + ',' + j); if (!l) continue; for (const k of l) { const [a, b, c, d, topY] = COLL[k]; if (topY > 1.05 || footY < topY - 0.38) continue; const cx = Math.max(a, Math.min(x, c)), cz = Math.max(b, Math.min(z, d)); if ((x - cx) ** 2 + (z - cz) ** 2 < r2) h = Math.max(h, topY); } } return h; } function freeNear(x, z) {
   if (!blocked(x, z)) return [x, z];
   for (let r = 0.1; r < 3; r += 0.1) for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) { const xx = x + Math.cos(a) * r, zz = z + Math.sin(a) * r; if (!blocked(xx, zz)) return [xx, zz]; }
   return [x, z];
@@ -1911,7 +1911,7 @@ qb.onclick = () => { const nq = HIGH ? 'low' : 'high'; localStorage.setItem('neo
 
 /* ---------------- input ---------------- */
 const keys = {};
-addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'Space' && mode === 'walk' && !flight) { e.preventDefault(); if (!e.repeat && (player.jy ?? 0) <= 0.001) player.vy = 4.0; } if (e.code === 'KeyE' && !e.repeat && !useAppliance() && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
+addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT') return; keys[e.code] = true; if (e.code === 'Space' && mode === 'walk' && !flight) { e.preventDefault(); const cy = player.y ?? 0, sup = surfaceHeight(player.x, player.z, cy); if (!e.repeat && Math.abs(cy - sup) < 0.08 && (player.vy ?? 0) <= 0.01) player.vy = 4.2; } if (e.code === 'KeyE' && !e.repeat && !useAppliance() && mode === 'walk') toggleDoor(nearDoor); if (e.code === 'KeyV') document.querySelector(`#modes button[data-mode=${mode === 'walk' ? 'orbit' : 'walk'}]`)?.click(); });
 addEventListener('keyup', (e) => { keys[e.code] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 const cv = renderer.domElement; let drag = null;
@@ -2111,16 +2111,16 @@ function step(dt) {
   if (keys.KeyD) s += 1; if (keys.KeyA) s -= 1;
   if (keys.ArrowLeft) player.yaw += 1.8 * dt; if (keys.ArrowRight) player.yaw -= 1.8 * dt;
   if (Math.abs(jv.x) > 0.05 || Math.abs(jv.y) > 0.05) { f -= jv.y; s += jv.x; }
-  const sp = (keys.ShiftLeft || keys.ShiftRight ? 3.4 : 1.8) * dt, m = Math.hypot(f, s); if (m > 1) { f /= m; s /= m; }
+  const sp = (keys.ShiftLeft || keys.ShiftRight ? 3.4 : 1.8) * dt, m = Math.hypot(f, s); if (m > 1) { f /= m; s /= m; } const curY = player.y ?? 0;
   if (m > 0.01) {
     const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw);
-    const dx = (fx * f + rx * s) * sp, dz = (fz * f + rz * s) * sp, stuck = blocked(player.x, player.z);
-    if (stuck || !blocked(player.x + dx, player.z)) player.x += dx;
-    if (stuck || !blocked(player.x, player.z + dz)) player.z += dz;
+    const dx = (fx * f + rx * s) * sp, dz = (fz * f + rz * s) * sp, stuck = blocked(player.x, player.z, false, curY);
+    if (stuck || !blocked(player.x + dx, player.z, false, curY)) player.x += dx;
+    if (stuck || !blocked(player.x, player.z + dz, false, curY)) player.z += dz;
   }
-  player.y = (player.y ?? 0) + (floorHeight(player.x, player.z) - (player.y ?? 0)) * Math.min(1, dt * 10);   // 단상 위로 올라가면 눈높이도 올라감
-if ((player.vy ?? 0) !== 0 || (player.jy ?? 0) > 0) { const maxJ = Math.max(0.2, H - EYE - (player.y ?? 0) - 0.12); player.vy = (player.vy ?? 0) - 12 * dt; player.jy = Math.min(maxJ, Math.max(0, (player.jy ?? 0) + player.vy * dt)); if (player.jy === 0) player.vy = 0; else if (player.jy >= maxJ && player.vy > 0) player.vy = 0; }
-   camera.position.set(player.x, EYE + player.y + (player.jy ?? 0), player.z); camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
+  const sup = surfaceHeight(player.x, player.z, curY);
+if ((player.vy ?? 0) !== 0 || curY > sup + 0.01) { const maxY = Math.max(sup + 0.2, H - EYE - 0.12); player.vy = (player.vy ?? 0) - 12 * dt; let ny = curY + player.vy * dt; if (ny <= sup) { ny = sup; player.vy = 0; } else if (ny >= maxY && player.vy > 0) { ny = maxY; player.vy = 0; } player.y = ny; } else { player.y = curY + (sup - curY) * Math.min(1, dt * 12); player.vy = 0; }
+   camera.position.set(player.x, EYE + (player.y ?? 0), player.z); camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
 }
 function tick() {
   requestAnimationFrame(tick);
