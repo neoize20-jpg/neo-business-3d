@@ -12,7 +12,7 @@
    ※ 도면 비율로 잡은 추정값이에요. 실측값을 받으면 숫자만 바꾸면 됩니다.
    ===================================================================== */
 window.LAYOUT = {
-  building: { name: '대전 교육장', width: 31.36, depth: 16.15, ceiling: 2.7, eye: 1.6, wall: { exterior: 0.24, interior: 0.14, thick: 0.30 },
+  building: { name: '대전 교육장', width: 31.36, depth: 16.15, ceiling: 3.0, eye: 1.6, wall: { exterior: 0.24, interior: 0.14, thick: 0.30 },
               floorColor: '#c8c2b5', ceilingTex: 'acoustic', baseboard: { color: '#8f9296', h: 0.08 } },
   photoDir: 'sites/daejeon/photos/',
 
