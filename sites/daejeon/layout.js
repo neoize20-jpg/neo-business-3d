@@ -77,7 +77,7 @@ window.LAYOUT = {
     // L자 꺾인 곳(앞으로 튀어나온 흰 벽)의 남쪽 면: 좁은 흰 출입문 + 세로 반투명 비전 띠, 위에 비상구 유도등 (입구 경로 끝, px x123–150)
     { from:[0, 8.19], to:[3.28, 8.19], type:'solid', outer:true },   // 회의실 북쪽 바깥벽
     { from:[3.28, 8.19], to:[5.62, 8.19], type:'solid',
-      openings:[ { at:4.0, width:0.85, door:'wood', vision:'strip', frame:'white', casing:0.06, hinge:'start', swing:-88 } ] },
+      openings:[ { at:3.60, width:1.80, door:'glass', double:true, frame:'white', casing:0.08 } ] },
     // 아랫부분 서쪽(뒤) 벽 — 실제 사진, 책상에서 보면 왼→오른쪽(남→북):
     //   흰 솔리드 문틀 + 흰 문(0.9×2.1, 반투명 비전창, 레버) + 위 유리 채광창(천장까지) → 반투명 유리 파티션 5칸(0.8m, 가는 흰 멀리언, 문 없음) → 흰 벽 1.2m
     { from:[3.28, 14.75], to:[3.28, 16.15], type:'solid',
@@ -195,7 +195,8 @@ window.LAYOUT = {
     /* --- 비상구 유도등 + 소화기 (안내도) --- */
     { type:'exitSign', x:18.9, z:0.14, y:2.2, rot:180 },        // 북쪽 복도
     { type:'exitSign', x:3.41, z:7.1, y:2.2, rot:-90 },         // 통로 서쪽 벽
-    { type:'extinguisher', x:3.56, z:7.7 },
+   { type:'extinguisher', x:3.52, z:6.45 },
+  { type:'mobileTv', x:3.78, z:7.35, rot:-38 }, 
     { type:'exitSign', x:20.74, z:14.65, y:2.25, rot:90 },     // 교육장 동쪽 문(직원 사무실 쪽) 위
     { type:'extinguisher', x:20.5, z:15.6 },
     { type:'extinguisher', x:3.02, z:15.88 },          // 회의실 남서쪽
