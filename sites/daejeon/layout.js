@@ -57,7 +57,9 @@ window.LAYOUT = {
     { from:[3.28, 0], to:[3.28, 8.19], type:'solid', outer:true,
       openings:[ { at:3.05, width:2.0, door:'glass', double:true, entrance:true, frame:'white', open:true } ] },
     // 남쪽: 사진 기준 가로로 긴 알루미늄 창 4개(3.3×1.73m, 창대 0.85·윗선 2.58) — 도면 창 위치(px x190–240, 260–310, 390–440, 465–515)를 기둥 사이에 고르게 넓힘
-    { from:[0, 16.15], to:[3.88, 16.15], type:'solid', outer:true },
+    { from:[0, 16.15], to:[0.18, 16.15], type:'solid', outer:true },
+{ from:[0.18, 16.15], to:[3.16, 16.15], type:'window', outer:true, style:'curtain', bay:1.0, spandrel:0.45, band:1.05 },
+     { from:[3.16, 16.15], to:[3.88, 16.15], type:'solid', outer:true },
     { from:[3.88, 16.15], to:[7.18, 16.15], type:'window', outer:true, style:'ribbon', sill:0.85, head:2.58, left:0.8, right:0.7 },
     { from:[7.18, 16.15], to:[7.58, 16.15], type:'solid', outer:true },
     { from:[7.58, 16.15], to:[10.88, 16.15], type:'window', outer:true, style:'ribbon', sill:0.85, head:2.58, left:0.8, right:0.7 },
@@ -78,9 +80,9 @@ window.LAYOUT = {
       openings:[ { at:4.0, width:0.85, door:'wood', vision:'strip', frame:'white', casing:0.06, hinge:'start', swing:-88 } ] },
     // 아랫부분 서쪽(뒤) 벽 — 실제 사진, 책상에서 보면 왼→오른쪽(남→북):
     //   흰 솔리드 문틀 + 흰 문(0.9×2.1, 반투명 비전창, 레버) + 위 유리 채광창(천장까지) → 반투명 유리 파티션 5칸(0.8m, 가는 흰 멀리언, 문 없음) → 흰 벽 1.2m
-    { from:[3.28, 13.39], to:[3.28, 16.15], type:'solid',
-      openings:[ { at:13.62, width:0.9, door:'wood', vision:'panel', transom:true, casing:0.14, frame:'white', hinge:'start', swing:88, locked:true } ] },
-    { from:[3.28, 9.39], to:[3.28, 13.39], type:'glass', style:'frost', bay:0.8, switchAt:13.0, switchSide:1 },
+    { from:[3.28, 14.75], to:[3.28, 16.15], type:'solid',
+      openings:[ { at:14.95, width:0.9, door:'wood', vision:'panel', transom:true, casing:0.14, frame:'white', hinge:'start', swing:88, locked:true } ] },
+    { from:[3.28, 9.39], to:[3.28, 14.75], type:'glass', style:'frost', bay:0.8, switchAt:14.3, switchSide:1 },
     { from:[3.28, 8.19], to:[3.28, 9.39], type:'solid' },
     // 동쪽 벽 + 동쪽 복도 문 (px y200–222) — 복도 쪽으로 열림
     { from:[20.83, 5.30], to:[20.83, 16.15], type:'solid',
@@ -196,9 +198,10 @@ window.LAYOUT = {
     { type:'extinguisher', x:3.56, z:7.7 },
     { type:'exitSign', x:20.74, z:14.65, y:2.25, rot:90 },     // 교육장 동쪽 문(직원 사무실 쪽) 위
     { type:'extinguisher', x:20.5, z:15.6 },
-    { type:'exitSign', x:2.6, z:16.02, y:2.2, rot:0 },          // 회의실 남서쪽
-    { type:'extinguisher', x:2.9, z:15.75 },
-
+    { type:'extinguisher', x:3.02, z:15.88 },          // 회의실 남서쪽
+    { type:'plainDoor', x:0.13, z:14.85, rot:-90, w:0.90, woodDoor:true },
+    { type:'island', x:1.64, z:13.0, len:3.4, dd:0.55, perSide:4, chairStyle:'shell', rot:90 },
+     
     /* --- 엘리베이터 승강장(입구 바로 바깥): 엘리베이터 + 옆 비상구 표시, 북쪽 화장실 --- */
     { type:'elevator', x:0.96, z:3.98, rot:-90 },
     { type:'exitSign', x:0.97, z:5.08, y:2.2, rot:-90 },
