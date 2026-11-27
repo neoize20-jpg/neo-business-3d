@@ -319,6 +319,7 @@ window.LAYOUT = {
     { id:'lounge_purifier', name:'공기청정기', room:'', box:[5.85, 8.71, 6.35, 9.21, 0, 1.2], lines:[] },
     { id:'lounge_signage', name:'사이니지 모니터', room:'복도', box:[8.8, 9.24, 10.9, 9.55, 0.65, 1.9],
       lines:['65인치 · 3840 × 2160', '화면 비율: 16:9', 'JPEG 또는 PNG 형식', '행사명 및 일시 포함'] },
+    { id:'edu_front_banner', name:'앞쪽 현수막', room:'교육장', box:[7.48, -0.64, 11.33, -0.60, 2.28, 2.78], lines:['규격: 3850 × 500', '와이드 스크린 뒤 · 창문 위'] },
     { id:'edu_rear_banner', name:'뒤쪽 현수막', room:'교육장', box:[6.78, 8.97, 10.63, 9.05, 2.28, 2.78], lines:['규격: 3850 × 500'] },
     // 회의실
     { id:'mtg_mobile_monitor', name:'이동식 모니터', room:'회의실', box:[2.75, 0.46, 3.85, 0.94, 0, 1.45],
@@ -364,6 +365,9 @@ window.LAYOUT = {
     /* --- 교육장 (x6.45~12.45, z-0.9~9.18): 사진 기준 앞쪽 깊이와 단상·강연대 조정 --- */
     { type:'stage', x:9.405, z:0.31, w:5.65, d:1.98, h:0.16, top:'carpetDark', step:false }, // 벽까지 이어진 단상을 앞끝 z1.30까지 확장; 강연대 뒤에 서는 공간 확보
     // 천장 전동 와이드 스크린: 창문 앞 0.4m, 처음에는 올림, 근처에서 R 키/화면 버튼으로 조작
+    { type:'wallPlate', x:9.405, z:-0.625, y:2.28, w:3.85, h:0.5, color:'black' }, // 앞쪽 현수막: 스크린 뒤, 창문 위
+    { type:'wallPlate', x:9.405, z:-0.615, y:2.275, w:3.88, h:0.012, color:'metal' },
+    { type:'wallPlate', x:9.405, z:-0.615, y:2.775, w:3.88, h:0.012, color:'metal' },
     { type:'ceilingScreen', x:9.405, z:-0.5, w:2.4, h:1.45, interactive:true, raised:true },
     { type:'podium', x:7.7, z:0.91, w:0.48, d:0.4, h:1.02, rot:180, elev:0.16, style:'slimDark' },
     { type:'avCabinet', x:6.99, z:-0.31, w:0.68, d:0.55, h:0.78, rot:180, elev:0.16 }, // 단상 위 강연대 왼쪽의 마이크·빔프로젝터 연결/조절함
