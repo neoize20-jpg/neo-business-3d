@@ -80,9 +80,8 @@ window.LAYOUT = {
       openings:[ { at:3.60, width:1.80, door:'glass', double:true, frame:'white', casing:0.08 } ] },
     // 아랫부분 서쪽(뒤) 벽 — 실제 사진, 책상에서 보면 왼→오른쪽(남→북):
     //   흰 솔리드 문틀 + 흰 문(0.9×2.1, 반투명 비전창, 레버) + 위 유리 채광창(천장까지) → 반투명 유리 파티션 5칸(0.8m, 가는 흰 멀리언, 문 없음) → 흰 벽 1.2m
-    { from:[3.28, 14.75], to:[3.28, 16.15], type:'solid',
-      openings:[ { at:14.95, width:0.9, door:'wood', vision:'panel', transom:true, casing:0.14, frame:'white', hinge:'start', swing:88, locked:true } ] },
-    { from:[3.28, 9.39], to:[3.28, 14.75], type:'glass', style:'frost', bay:0.8, switchAt:14.3, switchSide:1 },
+    { from:[3.28, 14.09], to:[3.28, 16.15], type:'solid', openings:[{ at:14.25, width:0.9, door:'wood', vision:'panel', transom:true, casing:0.14, frame:'white', hinge:'start', swing:88, locked:true }] },
+    { from:[3.28, 9.39], to:[3.28, 14.09], type:'glass', style:'frost', bay:0.94, switchAt:13.7, switchSide:1 },
     { from:[3.28, 8.19], to:[3.28, 9.39], type:'solid' },
     // 동쪽 벽 + 동쪽 복도 문 (px y200–222) — 복도 쪽으로 열림
     { from:[20.83, 5.30], to:[20.83, 16.15], type:'solid',
@@ -200,9 +199,8 @@ window.LAYOUT = {
     { type:'exitSign', x:20.74, z:14.65, y:2.25, rot:90 },     // 교육장 동쪽 문(직원 사무실 쪽) 위
     { type:'extinguisher', x:20.5, z:15.6 },
     { type:'extinguisher', x:3.02, z:15.88 },          // 회의실 남서쪽
-    { type:'plainDoor', x:0.13, z:14.85, rot:-90, w:0.90, woodDoor:true },
-    { type:'island', x:1.64, z:13.0, len:3.4, dd:0.55, perSide:4, chairStyle:'shell', rot:90 },
-     
+    { type:'plainDoor', x:0.14, z:14.95, rot:90, w:0.92, woodDoor:true },
+    { type:'island', x:1.64, z:13.4, len:3.4, dd:0.55, perSide:4, chairStyle:'shell', rot:0 },     
     /* --- 엘리베이터 승강장(입구 바로 바깥): 엘리베이터 + 옆 비상구 표시, 북쪽 화장실 --- */
     { type:'elevator', x:0.96, z:3.98, rot:-90 },
     { type:'exitSign', x:0.97, z:5.08, y:2.2, rot:-90 },
