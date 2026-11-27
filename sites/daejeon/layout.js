@@ -28,7 +28,7 @@ window.LAYOUT = {
     { id:'entrance', name:'입구', en:'Entrance', small:true, rect:[0.9, 2.75, 3.28, 5.35], floor:'floor',
       label:[1.6, 2.95], jump:{ x:1.45, z:3.98, look:[4.9, 5.2] },
       card:{ photos:[], desc:'10층 엘리베이터에서 내리면 바로 앞(동쪽)이 입구예요. 들어와서 초록 경로를 따라 통로를 남쪽으로 내려가면 교육장 문이에요. 화장실은 엘리베이터 바로 북쪽이에요.' } },
-    { id:'passage', name:'통로', en:'Passage', small:true, rect:[3.28, 0, 5.62, 8.19], rects:[[2.68, 6.35, 3.28, 8.19]], floor:'floor', label:[4.45, 6.6],
+    { id:'passage', name:'통로', en:'Passage', small:true, rect:[3.28, 0, 5.62, 8.19], rects:[[2.28, 6.35, 3.28, 8.19]], floor:'floor', label:[4.45, 6.6],
       jump:{ x:4.45, z:4.6, look:[4.45, 9.0] }, card:{ photos:[], desc:'입구에서 교육장 문까지 이어지는 통로예요.' } },
     { id:'road_w', name:'회의실', en:'Meeting Room', small:true, noEntry:true, rect:[0, 8.19, 3.28, 16.15], floor:'floor', label:[1.64, 12.2],
       jump:{ x:1.6, z:10.0, look:[1.6, 15.0] }, card:{ photos:[], desc:'교육장 서쪽의 회의실 (출입 불가).' } },
@@ -56,8 +56,8 @@ window.LAYOUT = {
     // 윗부분 서쪽 바깥벽(사용자 도면 x150) + 입구 유리 양문(도면 y128–172) — 바로 바깥에 엘리베이터
     { from:[3.28, 0], to:[3.28, 6.35], type:'solid', outer:true,
       openings:[ { at:3.05, width:2.0, door:'glass', double:true, entrance:true, frame:'white', open:true } ] },
-    { from:[2.68, 6.35], to:[3.28, 6.35], type:'solid', outer:true },
-    { from:[2.68, 6.35], to:[2.68, 8.19], type:'solid', outer:true },
+    { from:[2.28, 6.35], to:[3.28, 6.35], type:'solid', outer:true },
+    { from:[2.28, 6.35], to:[2.28, 8.19], type:'solid', outer:true },
     // 남쪽: 사진 기준 가로로 긴 알루미늄 창 4개(3.3×1.73m, 창대 0.85·윗선 2.58) — 도면 창 위치(px x190–240, 260–310, 390–440, 465–515)를 기둥 사이에 고르게 넓힘
     { from:[0, 16.15], to:[0.18, 16.15], type:'solid', outer:true },
 { from:[0.18, 16.15], to:[3.16, 16.15], type:'window', outer:true, style:'curtain', bay:1.49, spandrel:0.0, band:0.95, multiRow:true },
@@ -92,7 +92,7 @@ window.LAYOUT = {
 
   // 막힌 덩어리: 북쪽 띠 안의 다른 공간(투어 제외), 남쪽 벽 흰 기둥, 남서쪽 모서리 흰 사각 기둥
   columns: [
-    { rect:[0, 0, 3.16, 2.75], block:true }, { rect:[0, 5.35, 3.16, 8.19], block:true }, { rect:[0, 2.75, 0.9, 5.35], block:true },   // 건물 밖(엘리베이터 승강장 주변)
+    { rect:[0, 0, 3.16, 2.75], block:true }, { rect:[0, 5.35, 2.28, 8.19], block:true }, { rect:[0, 2.75, 0.9, 5.35], block:true },   // 건물 밖(엘리베이터 승강장 주변)
     { rect:[5.62, 2.11, 20.83, 5.30], block:true },   // 온라인 교육장(안내도, 투어 제외)
     { rect:[11.54, 15.75, 12.79, 16.03] },
     { rect:[3.35, 15.44, 3.82, 16.03] }
@@ -196,7 +196,7 @@ window.LAYOUT = {
     /* --- 비상구 유도등 + 소화기 (안내도) --- */
     { type:'exitSign', x:18.9, z:0.14, y:2.2, rot:180 },        // 북쪽 복도
    { type:'extinguisher', x:3.52, z:6.45 },
-  { type:'mobileTv', x:3.12, z:7.45, rot:-38, scale:0.78 }, 
+  { type:'mobileTv', x:2.78, z:7.27, rot:-90, scale:0.78 }, 
     { type:'exitSign', x:20.74, z:14.65, y:2.25, rot:90 },     // 교육장 동쪽 문(직원 사무실 쪽) 위
     { type:'extinguisher', x:20.5, z:15.6 },
     { type:'extinguisher', x:3.02, z:15.88 },          // 회의실 남서쪽
