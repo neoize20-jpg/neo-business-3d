@@ -255,8 +255,8 @@ function wallPiece(horiz, a0, a1, fixed, t, type, wo = {}, inward = 0) {
       for (const q of [0.25, 0.75]) { const fq = a0 + len * (i + q) / n, off = io * (fd0 / 2 + 0.02); box(horiz ? 0.08 : 0.02, 0.02, horiz ? 0.02 : 0.08, M.metal, horiz ? fq : cx + off, band - 0.09, horiz ? cz + off : fq); }
     }
     const [kw, kd] = sz(len, t / 2 + 0.04), off = io * (t / 4 + 0.02); box(kw, 0.025, kd, M.winFrame, horiz ? cx : cx + off, sp - 0.01, horiz ? cz + off : cz);   // 창대
-    rif (w.multiRow) { for (const ry of [1.05, 1.52, 2.02, 2.50]) box(len, 0.045, 0.07, fm, 0, ry, 0, g); for (const gy of [0.68, 0.96]) box(len - 0.08, 0.018, 0.02, M.metal, 0, gy, -0.07, g); }
-     eturn;
+      if (wo.multiRow) { const [rw, rd] = sz(len, 0.07), [gw, gd] = sz(len - 0.08, 0.02), goff = (io || -1) * 0.07; for (const ry of [1.05, 1.52, 2.02, 2.50]) box(rw, 0.045, rd, M.winFrame, cx, ry, cz); for (const gy of [0.68, 0.96]) box(gw, 0.018, gd, M.metal, horiz ? cx : cx + goff, gy, horiz ? cz + goff : cz); }
+      return;
   }
   if (type === 'window' && wo.style === 'ribbon') {   // 가로로 긴 알루미늄 창(대전 바깥벽 사진): 왼쪽(위 고정+아래 안으로 젖히는 창) · 가운데 큰 고정창 · 오른쪽(위 고정+아래 젖힘창), 흰 미장 창대
     const sill = wo.sill ?? 0.85, head = wo.head ?? 2.58, fw0 = 0.06, fd0 = 0.07, hh = head - sill;
