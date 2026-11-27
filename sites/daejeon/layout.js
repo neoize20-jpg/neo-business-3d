@@ -30,7 +30,7 @@ extensions: [ [-1.1, 8.19, 0, 16.15] ],
       card:{ photos:[], desc:'10층 엘리베이터에서 내리면 바로 앞(동쪽)이 입구예요. 들어와서 초록 경로를 따라 통로를 남쪽으로 내려가면 교육장 문이에요. 화장실은 엘리베이터 바로 북쪽이에요.' } },
     { id:'passage', name:'통로', en:'Passage', small:true, rect:[3.28, 0, 5.62, 8.19], rects:[[2.28, 6.35, 3.28, 8.19]], floor:'floor', label:[4.45, 6.6],
       jump:{ x:4.45, z:4.6, look:[4.45, 9.0] }, card:{ photos:[], desc:'입구에서 교육장 문까지 이어지는 통로예요.' } },
-    { id:'road_w', name:'회의실', en:'Meeting Room', small:true, noEntry:true, rect:[-1.1, 8.19, 3.28, 16.15], floor:'floor', label:[1.09, 12.2],
+    { id:'road_w', name:'회의실', en:'Meeting Room', small:true, rect:[-1.1, 8.19, 3.28, 16.15], floor:'floor', label:[1.09, 12.2],
       jump:{ x:1.09, z:10.0, look:[1.09, 15.0] }, card:{ photos:[], desc:'교육장 서쪽의 회의실 (출입 불가).' } },
     { id:'road_n', name:'북쪽 복도', en:'No entry', small:true, noEntry:true, rect:[5.62, 0, 20.83, 2.11], floor:'floor', label:[12.4, 1.05],
       jump:{ x:6.0, z:1.05, look:[20.0, 1.05] }, card:{ photos:[], desc:'온라인 교육장 앞 북쪽 복도 (출입 불가).' } },
@@ -82,7 +82,7 @@ extensions: [ [-1.1, 8.19, 0, 16.15] ],
       openings:[ { at:3.60, width:1.80, door:'glass', double:true, frame:'white', casing:0.08 } ] },
     // 아랫부분 서쪽(뒤) 벽 — 실제 사진, 책상에서 보면 왼→오른쪽(남→북):
     //   흰 솔리드 문틀 + 흰 문(0.9×2.1, 반투명 비전창, 레버) + 위 유리 채광창(천장까지) → 반투명 유리 파티션 5칸(0.8m, 가는 흰 멀리언, 문 없음) → 흰 벽 1.2m
-    { from:[3.28, 14.09], to:[3.28, 16.15], type:'solid', openings:[{ at:14.25, width:0.9, door:'wood', vision:'panel', transom:true, casing:0.14, frame:'white', hinge:'start', swing:88, locked:true }] },
+    { from:[3.28, 14.09], to:[3.28, 16.15], type:'solid', openings:[{ at:14.25, width:0.9, door:'wood', vision:'panel', transom:true, casing:0.14, frame:'white', hinge:'start', swing:88 }] },
     { from:[3.28, 9.39], to:[3.28, 14.09], type:'glass', style:'frost', bay:0.94, switchAt:13.7, switchSide:1 },
     { from:[3.28, 8.19], to:[3.28, 9.39], type:'solid' },
     // 동쪽 벽 + 동쪽 복도 문 (px y200–222) — 복도 쪽으로 열림
