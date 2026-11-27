@@ -255,7 +255,8 @@ function wallPiece(horiz, a0, a1, fixed, t, type, wo = {}, inward = 0) {
       for (const q of [0.25, 0.75]) { const fq = a0 + len * (i + q) / n, off = io * (fd0 / 2 + 0.02); box(horiz ? 0.08 : 0.02, 0.02, horiz ? 0.02 : 0.08, M.metal, horiz ? fq : cx + off, band - 0.09, horiz ? cz + off : fq); }
     }
     const [kw, kd] = sz(len, t / 2 + 0.04), off = io * (t / 4 + 0.02); box(kw, 0.025, kd, M.winFrame, horiz ? cx : cx + off, sp - 0.01, horiz ? cz + off : cz);   // 창대
-    return;
+    rif (w.multiRow) { for (const ry of [1.05, 1.52, 2.02, 2.50]) box(len, 0.045, 0.07, fm, 0, ry, 0, g); for (const gy of [0.68, 0.96]) box(len - 0.08, 0.018, 0.02, M.metal, 0, gy, -0.07, g); }
+     eturn;
   }
   if (type === 'window' && wo.style === 'ribbon') {   // 가로로 긴 알루미늄 창(대전 바깥벽 사진): 왼쪽(위 고정+아래 안으로 젖히는 창) · 가운데 큰 고정창 · 오른쪽(위 고정+아래 젖힘창), 흰 미장 창대
     const sill = wo.sill ?? 0.85, head = wo.head ?? 2.58, fw0 = 0.06, fd0 = 0.07, hh = head - sill;
@@ -1123,6 +1124,7 @@ function mobileTv(g, o) {   // 이동형 TV 스탠드(검정) + 약 55형 TV + �
   for (const sx of [-0.3, 0.3]) box(0.06, 1.55, 0.05, BK, sx, 0.06, 0.07, g);
   box(0.7, 0.02, 0.35, BK, 0, 0.5, 0.05, g); box(0.62, 0.04, 0.06, BK, 0, 0.06, 0.07, g);
   for (const sx of [-1, 1]) { box(0.06, 0.04, 0.5, BK, sx * 0.32, 0.03, 0.02, g); for (const ez of [-1, 1]) { const w = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), BK); w.position.set(sx * 0.32, 0.03, 0.02 + ez * 0.23); g.add(w); } }
+  if (o.scale) g.scale.setScalar(o.scale);
 }
 function waterDispenser(g, o) {   // 바닥형 흰 정수기(약 0.35 × 0.45 × 1.35) + 컵 디스펜서, 앞 = 로컬 -z
   const d = 0.45, fz = -d / 2 - 0.005, W = plain(0xf4f4f2);
@@ -1139,6 +1141,21 @@ function waterDispenser(g, o) {   // 바닥형 흰 정수기(약 0.35 × 0.45 ×
 }
 function bin(g, o) { if (o.square) { box(o.w || 0.26, o.h || 0.4, o.w || 0.26, M.black, 0, 0, 0, g); return; } cyl(o.r || 0.15, (o.r || 0.15) * 0.92, o.h || 0.55, o.color ? matOf(o.color) : M.black, 0, 0, 0, 20, g); }   // 검정 휴지통
 function ledClock(g, o) {
+    if (o.style === 'white3d') {
+      const y = o.y || 2.12, cg = new THREE.Group(); cg.position.set(0, y, -0.02);
+      const c = document.createElement('canvas'); c.width = 512; c.height = 192; const k = c.getContext('2d');
+      const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+      const DIG = [[1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],[0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,0,1,1]];
+      const drawSeg = (x0, y0, w, h, on) => { k.save(); k.shadowColor = on ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.22)'; k.shadowBlur = on ? 10 : 4; k.fillStyle = on ? '#ffffff' : 'rgba(175,180,188,0.78)'; k.beginPath(); k.roundRect(x0, y0, w, h, 4); k.fill(); k.restore(); };
+      const drawDigit = (ox, num) => { const m = DIG[num] || DIG[0], sw = 56, sh = 11, vh = 48, g0 = 5; drawSeg(ox + sh, 30, sw, sh, m[0]); drawSeg(ox + sh + sw, 30 + sh + g0, sh, vh, m[1]); drawSeg(ox + sh + sw, 30 + sh * 2 + vh + g0 * 3, sh, vh, m[2]); drawSeg(ox + sh, 30 + sh * 2 + vh * 2 + g0 * 4, sw, sh, m[3]); drawSeg(ox, 30 + sh * 2 + vh + g0 * 3, sh, vh, m[4]); drawSeg(ox, 30 + sh + g0, sh, vh, m[5]); drawSeg(ox + sh, 30 + sh + vh + g0 * 2, sw, sh, m[6]); };
+      const draw = () => { const d = new Date(), hh = String(d.getHours()).padStart(2, '0'), mm = String(d.getMinutes()).padStart(2, '0'); k.clearRect(0, 0, 512, 192); k.save(); k.transform(1, 0, -0.12, 1, 20, 0); drawDigit(32, +hh[0]); drawDigit(130, +hh[1]); drawSeg(238, 66, 14, 14, 1); drawSeg(238, 114, 14, 14, 1); drawDigit(274, +mm[0]); drawDigit(372, +mm[1]); k.restore(); tx.needsUpdate = true; };
+      draw(); setInterval(draw, 10000);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.21), new THREE.MeshBasicMaterial({ map: tx, transparent: true }));
+      m.position.set(0, 0.10, -0.01); m.rotation.y = Math.PI; m.userData.keep = true; cg.add(m);
+      box(0.008, y - 0.35, 0.006, plain(0xe8e8e6), 0.01, -(y - 0.35), 0.01, cg);
+      cg.userData.noBlob = true; g.add(cg); g.userData.noBlob = true; g.userData.noCollide = true;
+      return;
+    }
   const y = o.y || 2.0; box(0.5, 0.2, 0.04, M.black, 0, y, 0, g);
   const c = document.createElement('canvas'); c.width = 256; c.height = 96; const k = c.getContext('2d');
   const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
