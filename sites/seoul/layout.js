@@ -317,6 +317,8 @@ window.LAYOUT = {
     { id:'edu_clock', name:'시계', room:'교육장', box:[9.3, 8.9, 9.8, 9.1, 1.85, 2.35], lines:['뒤쪽 벽 시계'] },
     { id:'edu_purifier', name:'공기청정기', room:'교육장', box:[7.15, 8.55, 7.65, 9.05, 0, 1.2], lines:['사용 방법: (예: 전원 버튼) — 수정 필요'] },
     // 회의실
+    { id:'mtg_mobile_monitor', name:'이동식 모니터', room:'회의실', box:[2.75, 0.46, 3.85, 0.94, 0, 1.45],
+      lines:['와이드 스크린 앞 왼쪽에 비치된 이동식 모니터입니다.'] },
     { id:'mtg_screen', name:'스크린', room:'회의실', box:[3.55, 0.45, 5.7, 0.75, 0.85, 2.7],
       lines:['내리기/올리기: (예: 벽 스위치) — 수정 필요'] },
     { id:'mtg_projector', name:'빔프로젝트', room:'회의실', box:[4.35, 3.95, 4.9, 4.45, 2.3, 2.7],
@@ -351,6 +353,7 @@ window.LAYOUT = {
     { type:'tableSet', x:4.63, z:4.115, w:0.98, d:2.13, top:'white', chairsLeft:3, chairsRight:3 },  // 회의 테이블 ② x4.14–5.12, z3.05–5.18 (총 12석)
     // 천장 매입형 전동 스크린: 사진(IMG_0391·0393)처럼 창문 쪽(북쪽) 벽 앞 천장에서 내려와 긴 테이블 축을 바라봄. 북쪽 벽 안쪽 면(z0.24)에서 0.35m 앞
     { type:'ceilingScreen', x:4.63, z:0.59, w:2.0, h:1.65 },   // 아래 바가 바닥에서 약 0.95m
+    { type:'mobileTv', x:3.3, z:0.70, rot:180, scale:0.85 }, // 스크린 앞 왼쪽 이동식 모니터, 회의석 방향
     { type:'whiteboard', x:2.72, z:3.0, w:2.0, rot:-90 },
     { type:'cabinet', x:5.75, z:0.45, w:0.9, d:0.4, h:0.6, color:'white' },
 
